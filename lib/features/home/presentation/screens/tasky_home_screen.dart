@@ -7,6 +7,8 @@ import '../../../tasks/data/models/subtask_model.dart';
 import '../../../tasks/data/models/task_model.dart';
 import '../../../tasks/data/repositories/subtask_repository_impl.dart';
 import '../../../tasks/data/repositories/task_repository_impl.dart';
+import '../../../../core/services/sync_service.dart';
+import '../../../../core/services/sync_controller.dart';
 import 'main_layout_screen.dart';
 
 /// الشاشة الأم الحاضنة التي تربط المستودعات (Repositories) بواجهات المستخدم المتطورة
@@ -56,8 +58,30 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
           _isLoading = false;
         });
       }
+      _updatePendingSyncStatus();
     } catch (e) {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _updatePendingSyncStatus() async {
+    try {
+      final count = await SyncService.instance.countPendingChanges();
+      SyncController.instance.updatePendingCount(count);
+    } catch (_) {}
+  }
+
+  Future<void> _handleSyncRequested() async {
+    final result = await SyncService.instance.syncNow();
+    if (result.authenticated) {
+      if (result.success) {
+        SyncController.instance.setSynced();
+      } else {
+        SyncController.instance.setError(result.message ?? 'اكتملت المزامنة مع بعض الأخطاء');
+      }
+      await _loadAllData();
+    } else {
+      SyncController.instance.setError(result.message ?? 'يجب تسجيل الدخول لمزامنة البيانات');
     }
   }
 
@@ -157,6 +181,7 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
       projects: _projects,
       tasks: _tasks,
       subtasks: _subtasks,
+      onSyncRequested: _handleSyncRequested,
       onSaveTask: _handleSaveTask,
       onDeleteTask: _handleDeleteTask,
       onTaskStatusChanged: _handleTaskStatusChanged,

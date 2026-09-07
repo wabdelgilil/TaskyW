@@ -187,9 +187,12 @@
   - إنشاء مكون زر المزامنة الذكي [sync_status_button.dart](file:///d:/programming/Tasky3.0/lib/core/widgets/sync_status_button.dart) بحركة أنيميشن ومظهر كبسولة تفاعلية (Pill) يتغير لونها وأيقونتها تلقائياً حسب الحالة.
   - دمجه في أعلى شريط التطبيق [main_layout_screen.dart](file:///d:/programming/Tasky3.0/lib/features/home/presentation/screens/main_layout_screen.dart) بجوار زر إنشاء مهمة والملف الشخصي.
   - إضافة مؤشر حالة المزامنة اللحظي (Live Sync Indicator) في بطاقة المستخدم بأسفل الشجرة الجانبية [hierarchical_tree_sidebar.dart](file:///d:/programming/Tasky3.0/lib/features/areas/presentation/widgets/hierarchical_tree_sidebar.dart).
-- **الاختبارات والتحقق**:
+- **الاختبارات والتحقق والربط الكامل**:
+  - ربط [SyncService.instance](file:///d:/programming/Tasky3.0/lib/core/services/sync_service.dart) مباشرة مع [TaskyHomeScreen](file:///d:/programming/Tasky3.0/lib/features/home/presentation/screens/tasky_home_screen.dart) ومعالج `onSyncRequested`.
+  - تحديث عداد العمليات المعلقة في الخلفية تلقائياً (`countPendingChanges`) ليعكس عدد العناصر التي تنتظر الرفع بدقة.
   - خلو الكود تماماً من التحذيرات والأخطاء (`flutter analyze` -> `No issues found!`).
   - اجتياز كافة الاختبارات بنجاح تام: **58 من أصل 58 اختباراً آلياً بنسبة 100%** عبر (`sync_service_test.dart`, `sharing_service_test.dart`, `controllers_test.dart`, `database_test.dart`, `date_time_utils_test.dart`, `validators_test.dart`, `widget_test.dart`).
+
 
 
 
