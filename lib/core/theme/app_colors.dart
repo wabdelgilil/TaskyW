@@ -1,8 +1,37 @@
 import 'package:flutter/material.dart';
 
-/// نظام الألوان الموحد لتطبيق Tasky 3.0
-/// يدعم الثيم المزدوج (Dark Slate & Crisp Light) ولوحات ألوان متناسقة للمجالات والمشاريع والمهام.
+/// نظام الألوان الموحد لتطبيق TaskyW
+/// يدعم الثيم المزدوج (Dark Slate & Crisp Light) وهوية العلامة التجارية الزرقاء المتدرجة.
 class AppColors {
+  // --- هوية العلامة التجارية (TaskyW Brand Identity) ---
+  static const Color brandPrimary = Color(0xFF0284C7);  // Vibrant Sky/Tasky Blue
+  static const Color brandLight = Color(0xFF38BDF8);    // Arrow Cyan Light
+  static const Color brandDeep = Color(0xFF0A4C8A);     // Deep Royal Typography Blue
+  static const Color brandDeepDark = Color(0xFF083358); // Midnight Navy
+
+  /// تدرج الهوية البصرية للشعار والسهم
+  static const LinearGradient brandGradient = LinearGradient(
+    begin: Alignment.bottomLeft,
+    end: Alignment.topRight,
+    colors: [
+      Color(0xFF0B4684),
+      Color(0xFF145DA0),
+      Color(0xFF237AB9),
+      Color(0xFF349ED5),
+      Color(0xFF49B7E3),
+    ],
+  );
+
+  /// تدرج هادئ وخفيف للأزرار والبطاقات
+  static const LinearGradient brandGradientSimple = LinearGradient(
+    begin: Alignment.bottomLeft,
+    end: Alignment.topRight,
+    colors: [
+      Color(0xFF0284C7),
+      Color(0xFF38BDF8),
+    ],
+  );
+
   // --- الوضع الليلي (Dark Slate Palette) ---
   static const Color darkBackground = Color(0xFF0F172A); // Slate 900
   static const Color darkSurface = Color(0xFF1E293B);    // Slate 800

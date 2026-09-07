@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.tasky" "\0"
-            VALUE "FileDescription", "tasky" "\0"
+            VALUE "FileDescription", "TaskyW Productivity & Project Management" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "tasky" "\0"
+            VALUE "InternalName", "TaskyW" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.tasky. All rights reserved." "\0"
-            VALUE "OriginalFilename", "tasky.exe" "\0"
-            VALUE "ProductName", "tasky" "\0"
+            VALUE "OriginalFilename", "TaskyW.exe" "\0"
+            VALUE "ProductName", "TaskyW" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

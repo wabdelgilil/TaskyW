@@ -5,6 +5,8 @@ import '../../data/models/area_model.dart';
 import '../../../projects/data/models/project_model.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../auth/presentation/screens/auth_screen.dart';
+import '../../../../core/widgets/tasky_logo.dart';
+import '../../../../core/services/sync_controller.dart';
 
 /// الشجرة الهرمية التفاعلية للقائمة الجانبية (Hierarchical Tree Sidebar)
 class HierarchicalTreeSidebar extends StatefulWidget {
@@ -92,25 +94,18 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
         children: [
           // رأس القائمة الجانبية واللوجو
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
             child: Row(
               children: [
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(Icons.check_circle_outline, color: Colors.white, size: 20),
-                ),
+                const TaskyLogo.emblem(size: 32),
                 const SizedBox(width: 10),
-                const Text(
-                  'Tasky 3.0',
+                Text(
+                  'TaskyW',
                   style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
                     letterSpacing: 0.5,
+                    color: isDark ? Colors.white : AppColors.brandDeep,
                   ),
                 ),
               ],
@@ -427,13 +422,39 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
                                       style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                                       overflow: TextOverflow.ellipsis,
                                     ),
-                                    Text(
-                                      auth.userEmail ?? '',
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
+                                    ListenableBuilder(
+                                      listenable: SyncController.instance,
+                                      builder: (context, _) {
+                                        final sync = SyncController.instance;
+                                        return Row(
+                                          children: [
+                                            Container(
+                                              width: 6,
+                                              height: 6,
+                                              decoration: BoxDecoration(
+                                                color: sync.isSyncing
+                                                    ? Colors.blueAccent
+                                                    : sync.hasPending
+                                                        ? Colors.amber
+                                                        : Colors.green,
+                                                shape: BoxShape.circle,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              sync.isSyncing
+                                                  ? 'جاري المزامنة...'
+                                                  : sync.hasPending
+                                                      ? '${sync.pendingCount} معلق'
+                                                      : 'متزامن',
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      },
                                     ),
                                   ],
                                 ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
-/// نظام الثيم المزدوج العصري لتطبيق Tasky 3.0
+/// نظام الثيم المزدوج العصري لتطبيق TaskyW
 class AppTheme {
   static ThemeData get darkTheme {
     return ThemeData(
@@ -9,7 +9,7 @@ class AppTheme {
       brightness: Brightness.dark,
       scaffoldBackgroundColor: AppColors.darkBackground,
       colorScheme: const ColorScheme.dark(
-        primary: Color(0xFF3B82F6),
+        primary: AppColors.brandPrimary,
         onPrimary: Colors.white,
         surface: AppColors.darkSurface,
         onSurface: AppColors.darkTextPrimary,
@@ -55,7 +55,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF3B82F6), width: 1.5),
+          borderSide: const BorderSide(color: AppColors.brandPrimary, width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       ),
@@ -66,16 +66,16 @@ class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.darkSurface,
-        indicatorColor: const Color(0xFF3B82F6).withOpacity(0.2),
+        indicatorColor: AppColors.brandPrimary.withOpacity(0.2),
         labelTextStyle: MaterialStateProperty.resolveWith((states) {
           if (states.contains(MaterialState.selected)) {
-            return const TextStyle(color: Color(0xFF3B82F6), fontWeight: FontWeight.bold, fontSize: 12);
+            return const TextStyle(color: AppColors.brandPrimary, fontWeight: FontWeight.bold, fontSize: 12);
           }
           return const TextStyle(color: AppColors.darkTextSecondary, fontSize: 12);
         }),
         iconTheme: MaterialStateProperty.resolveWith((states) {
           if (states.contains(MaterialState.selected)) {
-            return const IconThemeData(color: Color(0xFF3B82F6));
+            return const IconThemeData(color: AppColors.brandPrimary);
           }
           return const IconThemeData(color: AppColors.darkTextSecondary);
         }),
@@ -89,7 +89,7 @@ class AppTheme {
       brightness: Brightness.light,
       scaffoldBackgroundColor: AppColors.lightBackground,
       colorScheme: const ColorScheme.light(
-        primary: Color(0xFF2563EB),
+        primary: AppColors.brandPrimary,
         onPrimary: Colors.white,
         surface: AppColors.lightSurface,
         onSurface: AppColors.lightTextPrimary,
@@ -135,7 +135,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.5),
+          borderSide: const BorderSide(color: AppColors.brandPrimary, width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       ),
@@ -146,16 +146,16 @@ class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.lightSurface,
-        indicatorColor: const Color(0xFF2563EB).withOpacity(0.12),
+        indicatorColor: AppColors.brandPrimary.withOpacity(0.12),
         labelTextStyle: MaterialStateProperty.resolveWith((states) {
           if (states.contains(MaterialState.selected)) {
-            return const TextStyle(color: Color(0xFF2563EB), fontWeight: FontWeight.bold, fontSize: 12);
+            return const TextStyle(color: AppColors.brandPrimary, fontWeight: FontWeight.bold, fontSize: 12);
           }
           return const TextStyle(color: AppColors.lightTextSecondary, fontSize: 12);
         }),
         iconTheme: MaterialStateProperty.resolveWith((states) {
           if (states.contains(MaterialState.selected)) {
-            return const IconThemeData(color: Color(0xFF2563EB));
+            return const IconThemeData(color: AppColors.brandPrimary);
           }
           return const IconThemeData(color: AppColors.lightTextSecondary);
         }),

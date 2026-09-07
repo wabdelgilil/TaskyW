@@ -38,7 +38,7 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.text('Tasky 3.0'), findsOneWidget);
+    expect(find.text('TaskyW'), findsOneWidget);
     expect(find.text('العمل الأساسي'), findsOneWidget);
     expect(find.text('☀️ مهام اليوم'), findsOneWidget);
   });

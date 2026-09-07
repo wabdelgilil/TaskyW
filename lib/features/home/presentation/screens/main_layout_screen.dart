@@ -14,6 +14,7 @@ import '../../../tasks/presentation/widgets/task_detail_drawer.dart';
 import '../../../tasks/presentation/widgets/task_list_view.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../auth/presentation/screens/auth_screen.dart';
+import '../../../../core/widgets/sync_status_button.dart';
 
 /// الشاشة الهيكلية الرئيسية للتطبيق (Master Responsive Layout Screen)
 /// تجمع بين الشجرة الهرمية الجانبية، شريط البحث المقيّد بالسياق، مساحة العمل، درج التفاصيل، والشريط السفلي
@@ -25,6 +26,7 @@ class MainLayoutScreen extends StatefulWidget {
   final List<SubtaskModel> subtasks;
 
   // دوال العمليات التفاعلية (Callbacks)
+  final Future<void> Function()? onSyncRequested;
   final Function(TaskModel task)? onSaveTask;
   final Function(String taskId)? onDeleteTask;
   final Function(TaskModel task, String newStatus)? onTaskStatusChanged;
@@ -46,6 +48,7 @@ class MainLayoutScreen extends StatefulWidget {
     required this.projects,
     required this.tasks,
     this.subtasks = const [],
+    this.onSyncRequested,
     this.onSaveTask,
     this.onDeleteTask,
     this.onTaskStatusChanged,
@@ -782,6 +785,11 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
             selected: {_viewMode},
             onSelectionChanged: (set) => setState(() => _viewMode = set.first),
           ),
+
+          const SizedBox(width: 10),
+
+          // زر حالة وطلب المزامنة السحابية (Offline-First Sync)
+          SyncStatusButton(onTriggerSync: widget.onSyncRequested),
 
           const SizedBox(width: 10),
 

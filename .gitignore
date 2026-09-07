@@ -47,3 +47,9 @@ app.*.map.json
 # Widget Preview related
 .widget_preview/
 .vercel
+
+# Supabase local temp artifacts
+supabase/.temp/
+
+# Screenshots from local playwright tests
+test_playwright.png

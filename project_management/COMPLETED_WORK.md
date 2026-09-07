@@ -139,3 +139,57 @@
   - ربط المشروع ونشره للإنتاج بنجاح تحت اسم **`taskyw`**.
   - الرابط المباشر للإنتاج: [https://taskyw.vercel.app](https://taskyw.vercel.app).
 
+### [2026-09-07] - بناء وتجهيز واجهات المصادقة وتكامل Supabase Auth
+- **طبقة إدارة المصادقة (Auth Controller & Service)**:
+  - ربط وتهيئة `supabase_flutter` بمشروع `yjcpevqahefzcpbvajcq` الرسمي وحفظ البيانات في [supabase_service.dart](file:///d:/programming/Tasky3.0/lib/core/services/supabase_service.dart).
+  - إنشاء [auth_controller.dart](file:///d:/programming/Tasky3.0/lib/features/auth/presentation/controllers/auth_controller.dart) للاستماع لتغيرات الجلسة، تسجيل الدخول بالبريد وكلمة المرور، إنشاء الحساب، واستعادة كلمة المرور مع ترجمة واضحة للأخطاء.
+- **واجهات المستخدم (UI & Screens)**:
+  - إنشاء شاشة [auth_screen.dart](file:///d:/programming/Tasky3.0/lib/features/auth/presentation/screens/auth_screen.dart) بتصميم أنيق متجاوب (Sign In / Sign Up / Forgot Password) مع الحفاظ على مبدأ **Offline-First** وإمكانية المتابعة كضيف محلياً دون إجبار.
+  - إضافة زر الملف الشخصي وتسجيل الدخول في أعلى شريط التطبيق [main_layout_screen.dart](file:///d:/programming/Tasky3.0/lib/features/home/presentation/screens/main_layout_screen.dart).
+  - إضافة بطاقة المستخدم وحالة الاتصال بالسحابة في أسفل الشجرة الجانبية [hierarchical_tree_sidebar.dart](file:///d:/programming/Tasky3.0/lib/features/areas/presentation/widgets/hierarchical_tree_sidebar.dart).
+- **قواعد العمل الجديدة**:
+  - إضافة قاعدة صارمة في [AGENTS.md](file:///d:/programming/Tasky3.0/AGENTS.md) تمنع نهائياً أي نشر على Vercel أو رفع على GitHub إلا بعد موافقة صريحة مسبقة من المستخدم.
+- **الاختبارات والتحقق**:
+  - فحص `flutter analyze`: نتيجة خالية تماماً من الأخطاء والتحذيرات (`No issues found!`).
+  - فحص كافة الاختبارات `flutter test`: نجاح 47 اختباراً من أصل 47 بنسبة 100%.
+
+### [2026-09-07] - اعتماد وتطبيق هوية وشعار TaskyW الجديد فائق الدقة (Vector SVG & Brand Identity)
+- **إعادة بناء وتوليد الشعار المتجهي (Vector Master SVG)**:
+  - رسم دقيق لمونوغرام **TW** مع السهم الصاعد ↗ والانحناءات المتناسقة والتدرج اللوني الأزرق الأصلي (`#49B7E3` إلى `#0B4684`).
+  - رقمنة الخط الطباعي الرسمي لكلمة **TaskyW** في صيغ متجهة نقية لا نهائية الدقة (`taskyw_emblem.svg`, `taskyw_logo_vertical.svg`, `taskyw_logo_horizontal.svg`, `taskyw_logo_horizontal_dark.svg`).
+- **تصدير حزمة الأيقونات والصور النقطية فائقة الدقة (Ultra High-Res PNGs)**:
+  - توليد نسخ الماستر بدقة `1024×1024` و `512×512` و `256×256` و `128×128` و `64×64` و `32×32` و `16×16`.
+  - تحديث أيقونات المنصات:
+    - Web Favicon وأيقونات PWA (`web/favicon.png`, `web/icons/Icon-192.png`, `web/icons/Icon-512.png`).
+    - Android Mipmap Launchers (`android/app/src/main/res/mipmap-*`).
+    - Windows App Icon (`windows/runner/resources/app_icon.ico`).
+    - macOS App Icons (`macos/Runner/Assets.xcassets/AppIcon.appiconset/`).
+- **تحديث الهوية البصرية عبر التطبيق (Flutter UI & Themes)**:
+  - إنشاء ويدجت فلاتر مخصص وموحد [tasky_logo.dart](file:///d:/programming/Tasky3.0/lib/core/widgets/tasky_logo.dart) يدعم عرض الرمز منفرداً، والشعار الأفقي، والشعار الرأسي مع التوافق التام مع الوضع الليلي والنهاري.
+  - تحديث [app_colors.dart](file:///d:/programming/Tasky3.0/lib/core/theme/app_colors.dart) بإضافة ألوان وهوية العلامة التجارية (`brandPrimary`, `brandLight`, `brandDeep`, `brandGradient`).
+  - تحديث [app_theme.dart](file:///d:/programming/Tasky3.0/lib/core/theme/app_theme.dart) لربط الثيمات باللون الأساسي الموحد.
+  - تحديث القائمة الجانبية [hierarchical_tree_sidebar.dart](file:///d:/programming/Tasky3.0/lib/features/areas/presentation/widgets/hierarchical_tree_sidebar.dart) لتعرض الشعار الرسمي الجديد بدلاً من الصندوق المؤقت.
+  - تحديث اسم التطبيق وعناوينه في [main.dart](file:///d:/programming/Tasky3.0/lib/main.dart) و [index.html](file:///d:/programming/Tasky3.0/web/index.html) و [manifest.json](file:///d:/programming/Tasky3.0/web/manifest.json) و [AndroidManifest.xml](file:///d:/programming/Tasky3.0/android/app/src/main/AndroidManifest.xml) و [main.cpp](file:///d:/programming/Tasky3.0/windows/runner/main.cpp) و [Runner.rc](file:///d:/programming/Tasky3.0/windows/runner/Runner.rc).
+- **الاختبارات والتحقق الآلي**:
+  - فحص `flutter analyze`: **0 أخطاء و 0 تحذيرات (`No issues found!`)**.
+  - فحص `flutter test`: **نجاح 47 اختباراً من أصل 47 بنسبة 100%**.
+
+### [2026-09-07] - بناء منظومة وواجهات المزامنة السحابية اللحظية (Offline-First Sync UI)
+- **متحكم المزامنة اللحظي (Sync Controller)**:
+  - إنشاء [sync_controller.dart](file:///d:/programming/Tasky3.0/lib/core/services/sync_controller.dart) كـ `ChangeNotifier` تفاعلي يدير حالات المزامنة:
+    - 🟢 `synced`: متزامن تماماً مع عرض توقيت آخر مزامنة.
+    - 🔵 `syncing`: جاري الرفع والاتصال مع حركة دوران سلسة للأيقونة.
+    - 🟡 `pending`: وجود تعديلات محلية معلقة مع إبراز عدد العمليات المعلقة.
+    - ⚪ `offline`: انقطاع الإنترنت والعمل محلياً بالكامل (Offline-First).
+    - 🔴 `error`: تنبيه المستخدم عند فشل الاتصال مع إتاحة إعادة المحاولة فوراً.
+  - دعم بدء وطلب المزامنة القسرية الفورية (`triggerSync`).
+- **المكونات البصرية التفاعلية (Sync Widgets)**:
+  - إنشاء مكون زر المزامنة الذكي [sync_status_button.dart](file:///d:/programming/Tasky3.0/lib/core/widgets/sync_status_button.dart) بحركة أنيميشن ومظهر كبسولة تفاعلية (Pill) يتغير لونها وأيقونتها تلقائياً حسب الحالة.
+  - دمجه في أعلى شريط التطبيق [main_layout_screen.dart](file:///d:/programming/Tasky3.0/lib/features/home/presentation/screens/main_layout_screen.dart) بجوار زر إنشاء مهمة والملف الشخصي.
+  - إضافة مؤشر حالة المزامنة اللحظي (Live Sync Indicator) في بطاقة المستخدم بأسفل الشجرة الجانبية [hierarchical_tree_sidebar.dart](file:///d:/programming/Tasky3.0/lib/features/areas/presentation/widgets/hierarchical_tree_sidebar.dart).
+- **الاختبارات والتحقق**:
+  - خلو الكود تماماً من التحذيرات والأخطاء (`flutter analyze` -> `No issues found!`).
+  - اجتياز كافة الاختبارات بنجاح تام: **58 من أصل 58 اختباراً آلياً بنسبة 100%** عبر (`sync_service_test.dart`, `sharing_service_test.dart`, `controllers_test.dart`, `database_test.dart`, `date_time_utils_test.dart`, `validators_test.dart`, `widget_test.dart`).
+
+
+
