@@ -3,6 +3,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/models/area_model.dart';
 import '../../../projects/data/models/project_model.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
+import '../../../auth/presentation/screens/auth_screen.dart';
 
 /// الشجرة الهرمية التفاعلية للقائمة الجانبية (Hierarchical Tree Sidebar)
 class HierarchicalTreeSidebar extends StatefulWidget {
@@ -346,32 +348,167 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
 
           const Divider(height: 1),
 
-          // 3. الجزء السفلي: مبدل الثيم والخيارات
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            child: Row(
+          // 3. الجزء السفلي: مبدل الثيم وبطاقة الحساب
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: isDark ? Colors.black12 : Colors.grey.withOpacity(0.05),
+            ),
+            child: Column(
               children: [
+                // بطاقة المستخدم والمصادقة
                 ListenableBuilder(
-                  listenable: ThemeController.instance,
+                  listenable: AuthController.instance,
                   builder: (context, _) {
-                    final isDarkNow = ThemeController.instance.isDarkMode;
-                    return IconButton(
-                      icon: Icon(
-                        isDarkNow ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-                        size: 20,
+                    final auth = AuthController.instance;
+                    if (auth.isAuthenticated) {
+                      return InkWell(
+                        onTap: () {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (ctx) => Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  ListTile(
+                                    leading: CircleAvatar(
+                                      backgroundColor: Theme.of(context).colorScheme.primary,
+                                      child: Text(
+                                        (auth.displayName?.isNotEmpty == true ? auth.displayName![0] : 'U').toUpperCase(),
+                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    title: Text(auth.displayName ?? 'مستخدم Tasky', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                    subtitle: Text(auth.userEmail ?? ''),
+                                  ),
+                                  const Divider(),
+                                  ListTile(
+                                    leading: const Icon(Icons.cloud_done_outlined, color: Colors.green),
+                                    title: const Text('متصل بسحابة Supabase'),
+                                    subtitle: const Text('المزامنة السحابية نشطة'),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                                    onPressed: () {
+                                      Navigator.of(ctx).pop();
+                                      auth.signOut();
+                                    },
+                                    icon: const Icon(Icons.logout, size: 18),
+                                    label: const Text('تسجيل الخروج'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(8),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 14,
+                                backgroundColor: Theme.of(context).colorScheme.primary,
+                                child: Text(
+                                  (auth.displayName?.isNotEmpty == true ? auth.displayName![0] : 'U').toUpperCase(),
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      auth.displayName ?? 'المستخدم',
+                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    Text(
+                                      auth.userEmail ?? '',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.more_vert, size: 16),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    return InkWell(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const AuthScreen()),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                        margin: const EdgeInsets.only(bottom: 6),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.cloud_outlined, size: 18, color: Theme.of(context).colorScheme.primary),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'تسجيل الدخول للسحابة',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                            ),
+                            const Icon(Icons.arrow_forward_ios, size: 12),
+                          ],
+                        ),
                       ),
-                      tooltip: isDarkNow ? 'الوضع النهاري' : 'الوضع الليلي',
-                      onPressed: () => ThemeController.instance.toggleTheme(),
                     );
                   },
                 ),
-                const SizedBox(width: 4),
-                Text(
-                  isDark ? 'الوضع الليلي' : 'الوضع النهاري',
-                  style: TextStyle(
-                    fontSize: 12.5,
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                  ),
+
+                const SizedBox(height: 4),
+
+                // زر مبدل الثيم (دارك / لايت)
+                Row(
+                  children: [
+                    ListenableBuilder(
+                      listenable: ThemeController.instance,
+                      builder: (context, _) {
+                        final isDarkNow = ThemeController.instance.isDarkMode;
+                        return IconButton(
+                          icon: Icon(
+                            isDarkNow ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+                            size: 18,
+                          ),
+                          tooltip: isDarkNow ? 'الوضع النهاري' : 'الوضع الليلي',
+                          onPressed: () => ThemeController.instance.toggleTheme(),
+                        );
+                      },
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      isDark ? 'الوضع الليلي' : 'الوضع النهاري',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

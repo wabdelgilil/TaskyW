@@ -28,3 +28,23 @@
 ## أوامر تحقق مفيدة
 - معرف الجداول العامة: `supabase db query --linked "select table_name from information_schema.tables where table_schema='public' order by table_name;"`
 - الفهارس: `supabase db query --linked "select indexname, tablename from pg_indexes where schemaname='public' order by tablename;"`
+
+## استكشاف الأخطاء (Troubleshooting)
+
+### خطأ `cli_login_postgres` (permission denied to alter role)
+أحياناً تعلق آلية تسجيل الدخول المؤقتة للـ CLI على جهة Supabase، ويظهر هذا الخطأ في كل أوامر `supabase db query/push`:
+```
+Failed to create login role: ERROR: 42501: permission denied to alter role "cli_login_postgres"
+```
+- هذا خلل **خادمي** (server-side) وليس في الكود المحلي، ولا يعني فشل أي ترحيل طُبّق سابقاً.
+- الحل الأول: في **Dashboard → SQL Editor** شغّل:
+  ```sql
+  DROP ROLE IF EXISTS cli_login_postgres;
+  ```
+  ثم أعد المحاولة من CLI (عادةً تتظهّر آلية جديدة).
+- الحل الثاني: استخدم اتصالاً مباشراً بـ `--db-url` مع باسورد قاعدة البيانات:
+  ```
+  supabase db query --linked ...  # بعد تعذرها
+  supabase db query --db-url "postgresql://postgres.<ref>:<password>@aws-1-pooler.supabase.com:5432/postgres" "<SQL>"
+  ```
+- بخلاف ذلك، يتنظّف الدور المعلق تلقائياً بعد فترة من Supabase.

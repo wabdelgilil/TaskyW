@@ -12,6 +12,8 @@ import '../../../tasks/data/models/task_model.dart';
 import '../../../tasks/presentation/widgets/kanban_board_view.dart';
 import '../../../tasks/presentation/widgets/task_detail_drawer.dart';
 import '../../../tasks/presentation/widgets/task_list_view.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
+import '../../../auth/presentation/screens/auth_screen.dart';
 
 /// الشاشة الهيكلية الرئيسية للتطبيق (Master Responsive Layout Screen)
 /// تجمع بين الشجرة الهرمية الجانبية، شريط البحث المقيّد بالسياق، مساحة العمل، درج التفاصيل، والشريط السفلي
@@ -788,6 +790,67 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
             onPressed: () => _showAddTaskDialog(),
             icon: const Icon(Icons.add, size: 18),
             label: const Text('مهمة جديدة'),
+          ),
+
+          const SizedBox(width: 10),
+
+          // زر الحساب والمصادقة (Supabase Auth)
+          ListenableBuilder(
+            listenable: AuthController.instance,
+            builder: (context, _) {
+              final auth = AuthController.instance;
+              if (auth.isAuthenticated) {
+                return PopupMenuButton<String>(
+                  tooltip: 'الملف الشخصي',
+                  onSelected: (val) {
+                    if (val == 'signout') {
+                      auth.signOut();
+                    }
+                  },
+                  itemBuilder: (ctx) => [
+                    PopupMenuItem(
+                      enabled: false,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(auth.displayName ?? 'مستخدم Tasky', style: const TextStyle(fontWeight: FontWeight.bold)),
+                          Text(auth.userEmail ?? '', style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuDivider(),
+                    const PopupMenuItem(
+                      value: 'signout',
+                      child: Row(
+                        children: [
+                          Icon(Icons.logout, size: 16, color: Colors.red),
+                          SizedBox(width: 8),
+                          Text('تسجيل الخروج', style: TextStyle(color: Colors.red)),
+                        ],
+                      ),
+                    ),
+                  ],
+                  child: CircleAvatar(
+                    radius: 18,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    child: Text(
+                      (auth.displayName?.isNotEmpty == true ? auth.displayName![0] : 'U').toUpperCase(),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                  ),
+                );
+              }
+
+              return OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const AuthScreen()),
+                  );
+                },
+                icon: const Icon(Icons.person_outline, size: 18),
+                label: const Text('تسجيل الدخول'),
+              );
+            },
           ),
         ],
       ),
