@@ -3,6 +3,8 @@ class DatabaseTables {
   static const String projectTable = 'projects';
   static const String taskTable = 'tasks';
   static const String subtaskTable = 'subtasks';
+  static const String tagTable = 'tags';
+  static const String taskTagTable = 'task_tags';
 
   static const String createAreaTable = '''
     CREATE TABLE IF NOT EXISTS areas (
@@ -75,6 +77,30 @@ class DatabaseTables {
     );
   ''';
 
+  static const String createTagTable = '''
+    CREATE TABLE IF NOT EXISTS tags (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      color_hex TEXT NOT NULL DEFAULT '#64748B',
+      order_index INTEGER NOT NULL DEFAULT 0,
+      sync_status TEXT NOT NULL DEFAULT 'pending_insert',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      deleted_at TEXT
+    );
+  ''';
+
+  static const String createTaskTagTable = '''
+    CREATE TABLE IF NOT EXISTS task_tags (
+      task_id TEXT NOT NULL,
+      tag_id TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      PRIMARY KEY (task_id, tag_id),
+      FOREIGN KEY (task_id) REFERENCES tasks (id) ON DELETE CASCADE,
+      FOREIGN KEY (tag_id) REFERENCES tags (id) ON DELETE CASCADE
+    );
+  ''';
+
   static const String createAreaIndex = '''
     CREATE INDEX IF NOT EXISTS idx_areas_deleted ON areas (deleted_at);
   ''';
@@ -103,11 +129,25 @@ class DatabaseTables {
     CREATE INDEX IF NOT EXISTS idx_subtasks_task ON subtasks (task_id, deleted_at);
   ''';
 
+  static const String createTagDeletedIndex = '''
+    CREATE INDEX IF NOT EXISTS idx_tags_deleted ON tags (deleted_at);
+  ''';
+
+  static const String createTaskTagsTaskIndex = '''
+    CREATE INDEX IF NOT EXISTS idx_task_tags_task ON task_tags (task_id);
+  ''';
+
+  static const String createTaskTagsTagIndex = '''
+    CREATE INDEX IF NOT EXISTS idx_task_tags_tag ON task_tags (tag_id);
+  ''';
+
   static List<String> get allCreateStatements => [
     createAreaTable,
     createProjectTable,
     createTaskTable,
     createSubtaskTable,
+    createTagTable,
+    createTaskTagTable,
     createAreaIndex,
     createProjectIndex,
     createTaskProjectIndex,
@@ -115,5 +155,8 @@ class DatabaseTables {
     createTaskStatusIndex,
     createTaskDueDateIndex,
     createSubtaskIndex,
+    createTagDeletedIndex,
+    createTaskTagsTaskIndex,
+    createTaskTagsTagIndex,
   ];
 }

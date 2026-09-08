@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/services/supabase_service.dart';
 
@@ -114,9 +114,12 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final String? redirectTo = kIsWeb ? Uri.base.origin : null;
+
       final response = await SupabaseService.client.auth.signUp(
         email: email.trim(),
         password: password,
+        emailRedirectTo: redirectTo,
         data: displayName != null ? {'display_name': displayName.trim()} : null,
       );
       _currentUser = response.user;
@@ -174,9 +177,12 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final String? redirectTo = kIsWeb ? Uri.base.origin : null;
+
       await SupabaseService.client.auth.resend(
         type: OtpType.signup,
         email: targetEmail,
+        emailRedirectTo: redirectTo,
       );
       _isLoading = false;
       _successMessage = 'تمت إعادة إرسال رابط التفعيل إلى $targetEmail بنجاح!';
@@ -203,7 +209,12 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await SupabaseService.client.auth.resetPasswordForEmail(email.trim());
+      final String? redirectTo = kIsWeb ? Uri.base.origin : null;
+
+      await SupabaseService.client.auth.resetPasswordForEmail(
+        email.trim(),
+        redirectTo: redirectTo,
+      );
       _isLoading = false;
       _successMessage = 'تم إرسال رابط استعادة كلمة المرور إلى بريدك.';
       notifyListeners();

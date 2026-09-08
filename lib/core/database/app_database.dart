@@ -35,10 +35,13 @@ class AppDatabase {
       return await databaseFactoryFfiWeb.openDatabase(
         path,
         options: OpenDatabaseOptions(
-          version: 1,
+          version: 2,
           onCreate: (db, version) async {
             await _createTables(db);
             await _seeder.seedInitialData(db);
+          },
+          onUpgrade: (db, oldVersion, newVersion) async {
+            await _createTables(db);
           },
         ),
       );
@@ -61,10 +64,13 @@ class AppDatabase {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: (db, version) async {
         await _createTables(db);
         await _seeder.seedInitialData(db);
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        await _createTables(db);
       },
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');

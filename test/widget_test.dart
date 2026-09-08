@@ -132,7 +132,6 @@ void main() {
     await tester.pump();
 
     expect(tester.takeException(), isNull);
-    final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
     // في وضع OLED يجب أن تكون الخلفية سوداء نقية بالكامل
     expect(Theme.of(tester.element(find.byType(Scaffold))).scaffoldBackgroundColor, equals(AppColors.oledBackground));
   });
