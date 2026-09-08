@@ -136,19 +136,28 @@ class SupabaseCollaborationCloud implements CollaborationCloud {
   Future<List<Map<String, dynamic>>> fetchSharedWithMe() async {
     final client = _client;
     final uid = await currentUserId;
-    final email = await currentUserEmail;
+    final email = (await currentUserEmail)?.trim().toLowerCase();
     if (client == null || (uid == null && email == null)) return [];
     await _tryAutoLink();
 
-    var query = client.from('entity_shares').select().eq('status', 'active');
-    if (uid != null) {
+    // نجلب الدعوات النشطة والمعلقة الموجهة لهذا المستخدم أو بريده
+    var query = client
+        .from('entity_shares')
+        .select()
+        .inFilter('status', ['active', 'pending'])
+        .isFilter('deleted_at', null);
+
+    if (uid != null && email != null) {
       query = query.or('collaborator_id.eq.$uid,collaborator_email.eq.$email');
+    } else if (uid != null) {
+      query = query.eq('collaborator_id', uid);
     } else {
       query = query.eq('collaborator_email', email!);
     }
     final rows = await query.order('created_at');
     return rows;
   }
+
 
   @override
   Future<Map<String, dynamic>?> fetchEntityRow({
@@ -157,14 +166,24 @@ class SupabaseCollaborationCloud implements CollaborationCloud {
   }) async {
     final client = _client;
     if (client == null) return null;
+    
+    // تحويل نوع الكيان إلى اسم الجدول الفعلي في قاعدة البيانات
+    final tableName = switch (entityType) {
+      'project' => 'projects',
+      'area' => 'areas',
+      'task' => 'tasks',
+      _ => entityType,
+    };
+
     final result = await client
-        .from(entityType)
+        .from(tableName)
         .select()
         .eq('id', entityId)
         .maybeSingle();
     return result;
   }
 }
+
 
 /// خدمة التعاون: دعوة متعاونين، إدارة الصلاحيات، السحب، وجلب المشاركات.
 ///
@@ -333,14 +352,26 @@ class CollaborationService {
           entityType: row['entity_type'] as String,
           entityId: row['entity_id'] as String,
         );
-        if (entity == null) continue;
-        result.add({
-          ...entity,
-          '_entity_type': row['entity_type'],
-          '_share_id': row['id'],
-          '_permission_level': row['permission_level'],
-          '_status': row['status'],
-        });
+        if (entity != null) {
+          result.add({
+            ...entity,
+            '_entity_type': row['entity_type'],
+            '_share_id': row['id'],
+            '_permission_level': row['permission_level'],
+            '_status': row['status'],
+          });
+        } else {
+          // في حال كانت الدعوة قيد الانتظار (pending) أو الكيان لا يزال في المزامنة
+          result.add({
+            'id': row['entity_id'],
+            'title': 'مشروع مشترك (${row['permission_level'] ?? 'مشارك'})',
+            'name': 'مشروع مشترك',
+            '_entity_type': row['entity_type'],
+            '_share_id': row['id'],
+            '_permission_level': row['permission_level'],
+            '_status': row['status'],
+          });
+        }
       }
       return result;
     } catch (e) {

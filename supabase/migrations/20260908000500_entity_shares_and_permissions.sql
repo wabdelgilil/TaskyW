@@ -203,7 +203,7 @@ begin
        set collaborator_id = new.id,
            status = case when es.status = 'pending' then 'active' else es.status end,
            updated_at = to_char(now(), 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')
-     where es.collaborator_email = lower(new.email)
+     where lower(es.collaborator_email) = lower(new.email)
        and es.collaborator_id is null
        and es.deleted_at is null;
   end if;
@@ -227,14 +227,23 @@ as $$
      set collaborator_id = auth.uid(),
          status = case when es.status = 'pending' then 'active' else es.status end,
          updated_at = to_char(now(), 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')
-   where es.collaborator_email = auth.jwt()->>'email'
+   where lower(es.collaborator_email) = lower(auth.jwt()->>'email')
      and es.collaborator_id is null
      and es.deleted_at is null
      and auth.uid() is not null;
 $$;
 
 grant execute on function public.auto_link_collaborator_current() to authenticated;
-
--- إبطال التنفيذ العام للدوالمساعدة (يُستدعى فقط عبر trigger أو من Authenticated)
 revoke all on function public.auto_link_collaborators() from public;
 revoke all on function public.auto_link_collaborator_current() from anon, public;
+
+-- ─── 6) ربط خلفي لسجلات pending الموجودة مسبقاً بحسابات قائمة (تعبئة مرة واحدة) ──
+update public.entity_shares es
+   set collaborator_id = u.id,
+       status = 'active',
+       updated_at = to_char(now(), 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')
+ from auth.users u
+where lower(es.collaborator_email) = lower(u.email)
+  and es.status = 'pending'
+  and es.collaborator_id is null
+  and es.deleted_at is null;
