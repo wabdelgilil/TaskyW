@@ -23,15 +23,30 @@ class TaskyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: ThemeController.instance.activeTheme,
           onGenerateRoute: (settings) {
-            final uri = Uri.tryParse(settings.name ?? '');
+            final name = settings.name ?? '';
+            final uri = Uri.tryParse(name);
+
+            // فحص المسار العادي أو المسار المجزأ (#)
+            String? token;
             if (uri != null && uri.pathSegments.isNotEmpty) {
               if (uri.pathSegments.first == 'share' && uri.pathSegments.length > 1) {
-                final token = uri.pathSegments[1];
-                return MaterialPageRoute(
-                  builder: (_) => PublicShareScreen(shareToken: token),
-                );
+                token = uri.pathSegments[1];
               }
             }
+
+            if (token == null && uri != null && uri.fragment.isNotEmpty) {
+              final fragUri = Uri.tryParse(uri.fragment);
+              if (fragUri != null && fragUri.pathSegments.length > 1 && fragUri.pathSegments.first == 'share') {
+                token = fragUri.pathSegments[1];
+              }
+            }
+
+            if (token != null && token.isNotEmpty) {
+              return MaterialPageRoute(
+                builder: (_) => PublicShareScreen(shareToken: token!),
+              );
+            }
+
             return MaterialPageRoute(
               builder: (_) => const TaskyHomeScreen(),
             );

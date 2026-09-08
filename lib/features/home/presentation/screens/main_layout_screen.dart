@@ -252,12 +252,23 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
 
   // نافذة إضافة مهمة سريعة
   void _showAddTaskDialog({String? defaultStatus}) {
+    if (widget.areas.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('يجب إنشاء مجال أولاً قبل إضافة المهام.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      _showAddAreaDialog();
+      return;
+    }
+
     final titleCtrl = TextEditingController();
     final descCtrl = TextEditingController();
     String status = defaultStatus ?? 'todo';
     String priority = 'medium';
     String? colorHex;
-    String areaId = _selectedAreaId ?? (widget.areas.isNotEmpty ? widget.areas.first.id : 'area-work-main');
+    String areaId = _selectedAreaId ?? widget.areas.first.id;
     String? projectId = _selectedProjectId;
     DateTime? dueDate = (_activeFilter == 'today') ? DateTime.now() : null;
 

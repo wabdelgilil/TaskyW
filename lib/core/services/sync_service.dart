@@ -175,6 +175,22 @@ class SyncService {
             whereArgs: [id],
           );
         } catch (e) {
+          // إذا كان الخطأ بسبب ربط بمجال غير موجود في السحابة، محاولة معالجة الربط التلقائي
+          if (t.table == DatabaseTables.taskTable && e.toString().contains('tasks_area_id_fkey')) {
+            try {
+              // البحث عن أول مجال موجود سحابياً أو محلياً لإنقاذ المهمة
+              final availableAreas = await db.query(DatabaseTables.areaTable, limit: 1);
+              if (availableAreas.isNotEmpty) {
+                final validAreaId = availableAreas.first['id'] as String;
+                await db.update(
+                  DatabaseTables.taskTable,
+                  {'area_id': validAreaId, 'sync_status': 'pending_update'},
+                  where: 'id = ?',
+                  whereArgs: [id],
+                );
+              }
+            } catch (_) {}
+          }
           errors++;
           debugPrint('[SyncService] Error pushing ${t.table}/$id: $e');
         }

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../core/models/tag_model.dart';
 import '../../../../core/services/notification_service.dart';
+import '../../../../core/utils/url_helper.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/color_picker_dialog.dart';
 import '../../../../core/widgets/confirm_delete_dialog.dart';
@@ -218,7 +219,7 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
                       final updated = widget.task.copyWith(shareToken: token);
                       widget.onSaveTask(updated);
                     }
-                    final shareUrl = 'https://tasky.app/share/$token';
+                    final shareUrl = UrlHelper.buildShareUrl(token);
                     Clipboard.setData(ClipboardData(text: shareUrl));
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
