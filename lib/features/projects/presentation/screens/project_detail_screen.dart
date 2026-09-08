@@ -9,7 +9,10 @@ import '../../../tasks/data/models/task_model.dart';
 import '../../../tasks/presentation/widgets/kanban_board_view.dart';
 import '../../../tasks/presentation/widgets/task_list_view.dart';
 import '../../../tasks/presentation/widgets/tasks_table_view.dart';
+import '../../../collaboration/presentation/widgets/universal_share_dialog.dart';
 import '../../data/models/project_model.dart';
+
+
 
 /// صفحة تفاصيل وإدارة المشروع المتكاملة
 class ProjectDetailScreen extends StatefulWidget {
@@ -258,21 +261,15 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                       icon: const Icon(Icons.share_outlined, size: 20),
                       tooltip: 'مشاركة المشروع مع الفريق',
                       onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Row(
-                              children: [
-                                Icon(Icons.info_outline, color: Colors.white, size: 18),
-                                SizedBox(width: 8),
-                                Expanded(child: Text('ميزة مشاركة المشاريع مع الفريق عبر السحابة (Team Collaboration) قيد الإعداد ضمن التحديثات القادمة')),
-                              ],
-                            ),
-                            behavior: SnackBarBehavior.floating,
-                            duration: Duration(seconds: 3),
-                          ),
+                        UniversalShareDialog.show(
+                          context,
+                          entityType: 'project',
+                          entityId: widget.project.id,
+                          entityTitle: widget.project.name,
                         );
                       },
                     ),
+
                     // أزرار التحكم
                     IconButton(
                       icon: const Icon(Icons.edit_outlined, size: 20),

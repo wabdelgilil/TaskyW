@@ -14,7 +14,8 @@
 5. 🤝 [05_COLLABORATION_AND_SHARING.md](file:///d:/programming/Tasky3.0/project_management/05_COLLABORATION_AND_SHARING.md): مواصفات رابط المشاركة العام للمهمة الواحدة، ومشاركة المشاريع مع فرق العمل وصلاحياتها.
 6. 🚀 [06_FUTURE_MODULES_ROADMAP.md](file:///d:/programming/Tasky3.0/project_management/06_FUTURE_MODULES_ROADMAP.md): تفاصيل ومواصفات العرض الجدولي (Notion/Excel-like DataGrid)، والوسوم، والتكرار الدوري، والمرفقات.
 7. ⚙️ [07_BACKEND_AND_LOGIC_AGENT_TASKS.md](file:///d:/programming/Tasky3.0/project_management/07_BACKEND_AND_LOGIC_AGENT_TASKS.md): دليل مهام وكيل المنطق وإدارة الحالة وخدمات التنبيهات (Headless Logic & State).
-8. ✅ [COMPLETED_WORK.md](file:///d:/programming/Tasky3.0/project_management/COMPLETED_WORK.md): السجل الرسمي لتتبع الأعمال والإنجازات المكتملة.
+8. 👥 [08_COLLABORATION_BACKEND_TASKS.md](file:///d:/programming/Tasky3.0/project_management/08_COLLABORATION_BACKEND_TASKS.md): دليل مهام وكيل المنطق لمنظومة المشاركة مع أعضاء الفريق وتحديد الصلاحيات (Viewer/Editor/Admin).
+9. ✅ [COMPLETED_WORK.md](file:///d:/programming/Tasky3.0/project_management/COMPLETED_WORK.md): السجل الرسمي لتتبع الأعمال والإنجازات المكتملة.
 
 ---
 
@@ -106,20 +107,21 @@
 
 ### 2. منظومة المشاركة والصلاحيات والعمل الجماعي (Sharing & Collaboration)
 *(المواصفات التفصيلية للمشاركة متوفرة في: [05_COLLABORATION_AND_SHARING.md](file:///d:/programming/Tasky3.0/project_management/05_COLLABORATION_AND_SHARING.md))*
-- [ ] **المشاركة متعددة المستويات (Multi-Level Scope)**:
+- [x] **المشاركة متعددة المستويات (Multi-Level Scope)**:
   - مشاركة على مستوى **المجال (Area)**: الوصول للمجال بكامل مشاريعه ومهامه.
   - مشاركة على مستوى **المشروع (Project)**: الوصول للمشروع المحدد ومهامه فقط.
   - مشاركة على مستوى **المهمة (Task)**: الوصول لمهمة فردية وخطواتها الفرعية.
 - [x] **المشاركة برابط عام خارجي بدون حساب (Public Read-Only Links)**:
   - توليد رابط فريد ومؤمن (`https://domain/share/[share_token]`) لأي مجال أو مشروع أو مهمة.
   - صلاحية **رؤية وعرض فقط (Read-Only)** 100% دون حاجة لحساب، عبر واجهة PublicShareScreen المخصصة مع إمكانية تعطيل الرابط في أي وقت.
-- [ ] **المشاركة مع أعضاء الفريق بحساب (Authenticated Collaborators with Roles)**:
+- [x] **المشاركة مع أعضاء الفريق بحساب (Authenticated Collaborators with Roles)**:
   - دعوة الأشخاص بالبريد الإلكتروني للوصول إلى المجال أو المشروع أو المهمة عبر السحابة.
   - **تحديد الصلاحية أثناء المشاركة بدقة**:
     - 👁️ **مشاهدة فقط (Viewer)**: استعراض وتتبع التحديثات دون تعديل أو حذف.
     - ✏️ **رؤية وتعديل (Editor)**: تغيير الحالات، وتعديل النصوص، وإضافة مهام دون صلاحية الحذف.
     - 🗑️ **تحكم كامل (Admin)**: رؤية وتعديل وحذف المهام والمشاريع التابعة للنطاق.
-  - جدول صلاحيات ومشاركات موحد (`entity_shares`) مع إسناد المهام لأعضاء الفريق (`assigned_to`).
+  - جدول صلاحيات ومشاركات موحد (`entity_shares`) مع إسناد المهام لأعضاء الفريق (`assigned_to`) وواجهة موحدة `UniversalShareDialog`.
+
 
 ### 3. وحدات وميزات متقدمة وتوسعية (Advanced Modular Features)
 *(المواصفات وخارطة الطريق متوفرة في: [06_FUTURE_MODULES_ROADMAP.md](file:///d:/programming/Tasky3.0/project_management/06_FUTURE_MODULES_ROADMAP.md))*

@@ -10,7 +10,10 @@ import '../../../tasks/data/models/task_model.dart';
 import '../../../tasks/presentation/widgets/kanban_board_view.dart';
 import '../../../tasks/presentation/widgets/task_list_view.dart';
 import '../../../tasks/presentation/widgets/tasks_table_view.dart';
+import '../../../collaboration/presentation/widgets/universal_share_dialog.dart';
 import '../../data/models/area_model.dart';
+
+
 
 /// صفحة تفاصيل وإدارة المجال المتكاملة
 class AreaDetailScreen extends StatelessWidget {
@@ -205,11 +208,25 @@ class AreaDetailScreen extends StatelessWidget {
                         ],
                       ),
                     ),
+                    // زر مشاركة المجال
+                    IconButton(
+                      icon: const Icon(Icons.share_outlined, size: 20),
+                      tooltip: 'مشاركة المجال مع الفريق',
+                      onPressed: () {
+                        UniversalShareDialog.show(
+                          context,
+                          entityType: 'area',
+                          entityId: area.id,
+                          entityTitle: area.name,
+                        );
+                      },
+                    ),
                     IconButton(
                       icon: const Icon(Icons.edit_outlined, size: 20),
                       tooltip: 'تعديل المجال',
                       onPressed: () => _showEditAreaDialog(context),
                     ),
+
                     IconButton(
                       icon: const Icon(Icons.delete_outline, size: 20, color: Colors.redAccent),
                       tooltip: 'حذف المجال',

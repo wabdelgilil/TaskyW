@@ -168,3 +168,43 @@
 | `flutter test` | **113/113** اختباراً ناجحاً |
 | روابط المشاركة العامة | تعمل (Fetches entity + children كمجموعة anon) |
 | سجل الترحيلات | حتى `20260908000400` |
+
+---
+
+## 11) ملحق: منظومة التعاون وتحديد الصلاحيات (Collaboration & Access Control)
+
+> بلا واجهات UI — منطق قاعدة بيانات / خدمات / تحكم فقط، وفق [08_COLLABORATION_BACKEND_TASKS.md](/d:/programming/Tasky3.0/project_management/08_COLLABORATION_BACKEND_TASKS.md).
+
+**أ) ترحيل السحابة** `20260908000500_entity_shares_and_permissions.sql` (غير مدمر):
+- أعمدة جديدة في `entity_shares`: `collaborator_id` (uuid FK→`auth.users` بتسلسل حذف), `collaborator_email`, `permission_level`, `status` (افتراضي `active`), `deleted_at (timestamptz)` — عبر `ADD COLUMN IF NOT EXISTS`.
+- قيود `CHECK (permission_level in viewer/editor/admin)` و `CHECK (status in pending/active/revoked)` و unique `(entity_type, entity_id, collaborator_email)` بكتل `DO` (Postgres بلا `ADD CONSTRAINT IF NOT EXISTS`؛ الفريدة تُتخطى عند وجود مكررات حمايةً للبيانات).
+- فهارس: `idx_entity_shares_collab_email`, `idx_entity_shares_collab_user`.
+- **RLS**: 13 سياسة تعاون جديدة (select/update/delete) على `areas / projects / tasks / subtasks` عبر `EXISTS` في `entity_shares` بشرط `status='active'` و مطابقة `collaborator_id = auth.uid()` أو `collaborator_email = auth.jwt()->>'email'`، مع قراءة editor/admin للتعديل و admin للحذف، إضافةً إلى سياسة `entity_shares_select_collaborator` للمتعاون نفسه وسياسات المالك القائمة.
+- **Auto-Link بالبريد**: دالة `auto_link_collaborators()` (security definer) + Trigger `trg_auto_link_collaborators` على `auth.users` (بعد Insert/تغيير البريد) تُفعّل الدعوات المعلقة وتربطها بالحساب، ودالة RPC `auto_link_collaborator_current()` تُستدعى لحظة تسجيل الدخول. الأذونات مقيّدة بـ authenticated فقط.
+
+**ب) الواجهة المحلية (Offline-First):**
+- جدول `entity_shares` في SQLite (v3 → **v4**) ضمن `allCreateStatements` في `database_tables.dart` (يُبنى على القواعد القديمة عبر `onUpgrade/_createTables` IF NOT EXISTS).
+- نموذج `EntityShareModel` (enums `CollaborationPermission`/`CollaborationShareStatus`, `canEdit/canDelete/isActive`) ومستودع `CollaborationRepositoryImpl` (كاش محلي + `getUserPermission` السريع + `getSharesForUser`).
+- `CollaborationService` بعقد `CollaborationCloud` قابل للحقن: `inviteCollaborator` (pending + كاش)، `updateCollaboratorPermission`, `revokeShare`, `getEntityShares` (سحابة ثم احتياط محلي), `fetchSharedWithMe` (entity + صلاحية).
+- `PermissionGuardService`: فحوص متزامنة `canEdit/canDelete/isOwner/getPermission`؛ المالك=owner دائماً، pending/revoked → none، غير المذكور → ملكية محلية.
+- `CollaborationController` (ChangeNotifier): `loadEntityShares/invite/updatePermission/revoke/loadSharedWithMe` + تجميع حارس الصلاحيات.
+
+**ج) النشر والتحقق (مشروع yjcpevqahefzcpbvajcq فقط):**
+- `supabase db push --db-url` طبق `20260908000500` بنجاح (تحذير Docker كاش محلي فقط).
+- التحقق من: الأعمدة الـ17 في `information_schema`, قيود `entity_shares_permission_level_check`/`entity_shares_status_check`/`entity_shares_entity_collaborator_uniq`, 17 سياسة (4 مالك entity_shares + 1 متعاون + 12 كيانات), الفهرسين المعجلين, الدالتان security definer, والـ Trigger على `auth.users`.
+
+**د) الاختبارات:**
+
+| الملف | العدد | التغطية |
+| --- | --- | --- |
+| `test/permission_guard_test.dart` | 8 | owner/viewer/editor/admin، البريد، pending/revoked |
+| `test/collaboration_service_test.dart` | 8 | دعوة/تعديل/سحب، Offline-First، repository، fake cloud |
+
+**النتيجة النهائية للفصل:**
+
+| الفحص | النتيجة |
+| --- | --- |
+| `flutter analyze` | No issues found (0 أخطاء / 0 تحذيرات) |
+| `flutter test` | **129/129** اختباراً ناجحاً |
+| الترحيل السحابي | `20260908000500_entity_shares_and_permissions.sql` ✅ منشور ومُفعّل |
+| RLS التعاون | present على الكيانات الأربعة + entity_shares |

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:uuid/uuid.dart';
 import '../../../../core/models/tag_model.dart';
 import '../../../../core/services/notification_service.dart';
-import '../../../../core/utils/url_helper.dart';
 import '../../../../core/theme/app_colors.dart';
+
 import '../../../../core/widgets/color_picker_dialog.dart';
 import '../../../../core/widgets/confirm_delete_dialog.dart';
 import '../../../../core/widgets/priority_badge.dart';
@@ -13,7 +11,9 @@ import '../../../../core/widgets/status_badge.dart';
 import '../../data/models/subtask_model.dart';
 import '../../data/models/task_model.dart';
 import '../../../areas/data/models/area_model.dart';
+import '../../../collaboration/presentation/widgets/universal_share_dialog.dart';
 import '../../../projects/data/models/project_model.dart';
+
 
 /// درج وصفحة تفاصيل وإدارة المهمة الكاملة
 class TaskDetailDrawer extends StatefulWidget {
@@ -209,34 +209,25 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
                   'تفاصيل المهمة',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                // زر مشاركة المهمة برابط عام
+                // زر مشاركة المهمة
                 IconButton(
                   icon: const Icon(Icons.share_outlined, size: 20),
-                  tooltip: 'مشاركة المهمة برابط عام',
+                  tooltip: 'مشاركة المهمة مع الفريق برابط أو حساب',
                   onPressed: () {
-                    final token = widget.task.shareToken ?? const Uuid().v4().substring(0, 8);
-                    if (widget.task.shareToken == null) {
-                      final updated = widget.task.copyWith(shareToken: token);
-                      widget.onSaveTask(updated);
-                    }
-                    final shareUrl = UrlHelper.buildShareUrl(token);
-                    Clipboard.setData(ClipboardData(text: shareUrl));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Row(
-                          children: [
-                            const Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
-                            const SizedBox(width: 8),
-                            Expanded(child: Text('تم نسخ رابط المشاركة العام: $shareUrl')),
-                          ],
-                        ),
-                        behavior: SnackBarBehavior.floating,
-                        backgroundColor: AppColors.priorityMedium,
-                        duration: const Duration(seconds: 4),
-                      ),
+                    UniversalShareDialog.show(
+                      context,
+                      entityType: 'task',
+                      entityId: widget.task.id,
+                      entityTitle: widget.task.title,
+                      existingShareToken: widget.task.shareToken,
+                      onShareTokenChanged: (newToken) {
+                        final updated = widget.task.copyWith(shareToken: newToken);
+                        widget.onSaveTask(updated);
+                      },
                     );
                   },
                 ),
+
                 // زر منتقي لون المهمة
                 IconButton(
                   icon: Icon(Icons.palette_outlined, size: 20, color: customColor ?? Colors.grey),

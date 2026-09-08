@@ -2,7 +2,29 @@
 
 ## سجل الإنجازات والمهام المكتملة
 
+### [2026-09-08] - بناء وتكامل نافذة المشاركة والتعاون الموحدة مع تحديد الصلاحيات (Universal Share Dialog & Permissions)
+- **نافذة المشاركة التفاعلية الموحدة (`UniversalShareDialog`)**:
+  - تصميم نافذة موحدة أنيقة متجاوبة بتبويبين للتحكم الشامل في مشاركة الكيانات (مجال / مشروع / مهمة):
+    1. **تبويب أعضاء الفريق (بحساب)**:
+       - إمكانية كتابة البريد الإلكتروني للشخص المدعو.
+       - قائمة منسدلة لتحديد مستوى الصلاحية: 👁️ مشاهدة فقط (`viewer`)، ✏️ محرر / تعديل (`editor`)، أو 🗑️ تحكم كامل (`admin`).
+       - استعراض قائمة المشتركين الفعليين مع شارات الحالة (نشط / معلّق)، وقائمة منسدلة فورية لتعديل الصلاحيات أو زر لسحب الصلاحية (`Revoke`).
+    2. **تبويب الرابط العام (بدون حساب)**:
+       - مفتاح تفعيل/تعطيل الرابط العام، مع توليد الرابط وعرضه بضغطة زر لنسخه للحافظة.
+       - تنبيه أمني واضح يوضح أن الرابط العام يتيح القراءة فقط للمحتوى المعني دون المساس بأي بيانات أخرى.
+- **ربط الواجهات ونقاط المشاركة**:
+  - ربط زر المشاركة في رأس صفحة تفاصيل المشروع (`ProjectDetailScreen`).
+  - ربط زر المشاركة في رأس صفحة تفاصيل المجال (`AreaDetailScreen`).
+  - ربط زر المشاركة في درج تفاصيل المهمة (`TaskDetailDrawer`).
+- **تحديث إعدادات بناء أندرويد (Core Library Desugaring & Incremental Cache)**:
+  - تفعيل `isCoreLibraryDesugaringEnabled = true` وإضافة مكتبة `desugar_jdk_libs:2.0.4` لحل متطلبات حزمة `flutter_local_notifications`.
+  - ضبط `kotlin.incremental=false` في `gradle.properties` لمنع تضارب الكاش عبر الأقراص على بيئة ويندوز.
+- **التحقق والاختبار**:
+  - اجتياز جميع اختبارات المشروع بنجاح (129/129 اختباراً).
+  - اجتياز فحص `flutter analyze` بنظافة تامة (No issues found!).
+
 ### [2026-09-08] - إزالة التكرار الداخلي وتوحيد أنماط الرؤية في الشريط العلوي وإضافة أشرطة التمرير الأفقية
+
 - **إبقاء شريط التنقل السفلي (`bottomNavigationBar`)**:
   - تم الإبقاء الكامل على شريط التنقل السفلي في `MainLayoutScreen` مع خياراته وتكامله بسلاسة على شاشات الموبايل.
 - **إزالة محدد العرض الداخلي المكرر في تفاصيل المشروع والمجال**:
@@ -15,7 +37,7 @@
   - **عرض الكانبان (`KanbanBoardView`)**: تزويد لوحة الكانبان بشريط تمرير أفقي دائم وظاهر (`thumbVisibility: true`, `trackVisibility: true`) مع `ScrollController` مخصص لتسهيل التنقل والسحب بين الأعمدة على سطح المكتب وشاشات اللمس.
   - **عرض الجدول (`TasksTableView`)**: تزويد جدول البيانات بأشرطة تمرير أفقية ورأسية واضحة ومستقلة مع فصل إشعارات التمرير (`notificationPredicate`) لسهولة فحص الأعمدة العريضة.
 - **التحقق والاختبار**:
-  - اجتياز جميع اختبارات المشروع بنجاح (113/113 اختباراً).
+  - اجتياز جميع اختبارات المشروع بنجاح (129/129 اختباراً).
   - اجتياز فحص `flutter analyze` بنظافة كاملة (0 أخطاء و 0 تحذيرات).
 
 ### [2026-09-08] - بناء وتكامل طريقة العرض الجدولي التفاعلي (Interactive DataGrid / Table View - Notion/Airtable Style)
@@ -42,7 +64,7 @@
   - إضافة وضع العرض الجدولي لمهام المشروع في الـ `SegmentedButton` لتمكين المستخدم من إدارة مهام مشروعه بأسلوب جدول بيانات Notion.
 - **حزمة الاختبارات والتحقق المعماري**:
   - إنشاء حزمة اختبارات مخصصة `test/tasks_table_view_test.dart` لتغطية تصيير الرؤوس، عدادات المهام، حالة الجدول الفارغ، فرز الأعمدة، ونقر خلايا الإكمال.
-  - اجتياز جميع اختبارات المشروع بنجاح تام (113/113 اختباراً اجتياز كامل 100%).
+  - اجتياز جميع اختبارات المشروع بنجاح تام (129/129 اختباراً اجتياز كامل 100%).
   - اجتياز فحص `flutter analyze` بنظافة كاملة وبدون أي تحذيرات أو أخطاء (`No issues found!`).
 
 ### [2026-09-08] - استكمال واجهات المستخدم (UI & Aesthetics) للوسوم والتكرار والتصدير والمشاركة العامة
@@ -452,6 +474,33 @@
 ### [2026-09-08] - التحقق النهائي من المهام الخلفية الأربع
 - `flutter analyze`: **0 أخطاء و 0 تحذيرات (`No issues found!`)**.
 - `flutter test`: **نجاح 113 من 113 اختباراً آلياً بنسبة 100%**.
+
+### [2026-09-08] - منظومة التعاون وتحديد الصلاحيات (Collaboration & Access Control) - Backend
+> يتبع مواصفات [08_COLLABORATION_BACKEND_TASKS.md](file:///d:/programming/Tasky3.0/project_management/08_COLLABORATION_BACKEND_TASKS.md) — بلا واجهات UI، منطق قاعدة بيانات/خدمات/تحكم فقط.
+
+- **ترحيل سحابي غير مدمر** [20260908000500_entity_shares_and_permissions.sql](file:///d:/programming/Tasky3.0/supabase/migrations/20260908000500_entity_shares_and_permissions.sql):
+  - أعمدة جديدة في `entity_shares` عبر `ADD COLUMN IF NOT EXISTS`: `collaborator_id (uuid FK→auth.users)`, `collaborator_email`, `permission_level`, `status (default active)`, `deleted_at (timestamptz)`.
+  - قيود `CHECK` (permission_level: viewer/editor/admin) و (status: pending/active/revoked) و unique `(entity_type, entity_id, collaborator_email)` بكتل `DO` آمنة (لا توجد IF NOT EXISTS للقيود في Postgres).
+  - فهارس أداء: `idx_entity_shares_collab_email` و `idx_entity_shares_collab_user`.
+  - سياسات RLS للمتعاونين على **areas / projects / tasks / subtasks**: قراءة (active)، تعديل (editor/admin)، حذف (admin فقط) — إلى جانب بقاء سياسات المالك القائمة.
+  - سياسة قراءة لسجلات المتعاون نفسه في `entity_shares` (`entity_shares_select_collaborator`).
+  - **Auto-Link بالبريد**: دالة `auto_link_collaborators()` (security definer) + Trigger `trg_auto_link_collaborators` على `auth.users` (بعد إدراج أو تغيير البريد) لربط الدعوات المعلقة بحساب المستخدم وتفعيلها، ودالة `auto_link_collaborator_current()` (RPC) لربطها لحظة تسجيل الدخول. حُدّدت الأذونات (تعمل عبر authenticated فقط).
+- **قاعدة SQLite المحلية (Offline-First)**: جدول `entity_shares` جديد في [database_tables.dart](file:///d:/programming/Tasky3.0/lib/core/database/database_tables.dart) (id/entity_type/entity_id/owner_id/collaborator_id/collaborator_email/permission_level/status/created_at/updated_at/deleted_at/sync_status + فهرس) وترقية **v3 → v4** في [app_database.dart](file:///d:/programming/Tasky3.0/lib/core/database/app_database.dart) (عبر `_createTables` IF NOT EXISTS في `onUpgrade`).
+- **[EntityShareModel](file:///d:/programming/Tasky3.0/lib/features/collaboration/data/models/entity_share_model.dart)**: نموذج تعاون جديد بمعرّف الكيان والمتعاون (`collaboratorId/collaboratorEmail/permissionLevel/status`) مع enums `CollaborationPermission` و `CollaborationShareStatus` ودوال `canEdit/canDelete/isActive` و `fromMap/toMap/copyWith`.
+- **[CollaborationRepository](file:///d:/programming/Tasky3.0/lib/features/collaboration/data/repositories/collaboration_repository.dart)** (`ICollaborationRepository` + `CollaborationRepositoryImpl`):
+  - `getEntityShares/getShareById/upsertShare/upsertShares/updatePermission/revokeShare` (حذف ناعم عبر `deleted_at`).
+  - فحص الصلاحية المحلي السريع `getUserPermission(entityId, currentUserId)` → owner/editor/admin/viewer.
+  - `getSharesForUser` لجلب مشاركات المستخدم النشطة دون اتصال.
+- **[CollaborationService](file:///d:/programming/Tasky3.0/lib/core/services/collaboration_service.dart)** مع عقد ضخ `CollaborationCloud` (معتمد بـ `SupabaseCollaborationCloud` الحقيقي، وقابل للاستبدال في الاختبارات):
+  - `inviteCollaborator` (بريد → pending + الكاش المحلي)، `updateCollaboratorPermission`، `revokeShare`، `getEntityShares` (سحابة أولاً ثم احتياط محلي)، `fetchSharedWithMe` (دمج بيانات الكيان مع الصلاحية، واحتياط محلي عند الانقطاع).
+- **[PermissionGuardService](file:///d:/programming/Tasky3.0/lib/core/services/permission_guard_service.dart)**: فحوص متزامنة `canEdit/canDelete/isOwner/getPermission` من خريطة داخلية تُغذّى بـ `loadShares` (المالك=owner دائماً، pending/revoked لا تمنح صلاحيات، غير المذكور يعامل كملكية محلية).
+- **[CollaborationController](file:///d:/programming/Tasky3.0/lib/features/collaboration/presentation/controllers/collaboration_controller.dart)**: `ChangeNotifier` يوفّر `loadEntityShares/invite/updatePermission/revoke/loadSharedWithMe/canEdit/canDelete/isOwner` ويبني حارس الصلاحيات من السجلات المحلية تلقائياً.
+- **النشر**: طُبّق الترحيل فعلياً على مشروع Tasky الوحيد `yjcpevqahefzcpbvajcq` عبر `supabase db push --db-url` وتحقّق من الأعمدة والقيود والفهارس والسياسات (17 سياسة تعاون) والدالتين والـ Trigger.
+- **الاختبارات**: إضافة [test/permission_guard_test.dart](file:///d:/programming/Tasky3.0/test/permission_guard_test.dart) (+8) و [test/collaboration_service_test.dart](file:///d:/programming/Tasky3.0/test/collaboration_service_test.dart) (+8) بذكاء اختبار fake cloud يحاكي Supabase والانقطاع.
+
+### [2026-09-08] - التحقق النهائي من منظومة التعاون
+- `flutter analyze`: **0 أخطاء و 0 تحذيرات (`No issues found!`)**.
+- `flutter test`: **نجاح 129 من 129 اختباراً آلياً بنسبة 100%**.
 
 
 

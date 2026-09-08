@@ -5,6 +5,7 @@ class DatabaseTables {
   static const String subtaskTable = 'subtasks';
   static const String tagTable = 'tags';
   static const String taskTagTable = 'task_tags';
+  static const String entityShareTable = 'entity_shares';
 
   static const String createAreaTable = '''
     CREATE TABLE IF NOT EXISTS areas (
@@ -150,6 +151,27 @@ class DatabaseTables {
     CREATE INDEX IF NOT EXISTS idx_task_tags_tag ON task_tags (tag_id);
   ''';
 
+  static const String createEntityShareTable = '''
+    CREATE TABLE IF NOT EXISTS entity_shares (
+      id TEXT PRIMARY KEY,
+      entity_type TEXT NOT NULL,
+      entity_id TEXT NOT NULL,
+      owner_id TEXT,
+      collaborator_id TEXT,
+      collaborator_email TEXT,
+      permission_level TEXT NOT NULL DEFAULT 'viewer',
+      status TEXT NOT NULL DEFAULT 'pending',
+      created_at TEXT NOT NULL,
+      updated_at TEXT,
+      deleted_at TEXT,
+      sync_status TEXT NOT NULL DEFAULT 'synced'
+    );
+  ''';
+
+  static const String createEntityShareIndex = '''
+    CREATE INDEX IF NOT EXISTS idx_entity_shares_entity ON entity_shares (entity_type, entity_id);
+  ''';
+
   static List<String> get allCreateStatements => [
     createAreaTable,
     createProjectTable,
@@ -157,6 +179,7 @@ class DatabaseTables {
     createSubtaskTable,
     createTagTable,
     createTaskTagTable,
+    createEntityShareTable,
     createAreaIndex,
     createProjectIndex,
     createTaskProjectIndex,
@@ -167,5 +190,6 @@ class DatabaseTables {
     createTagDeletedIndex,
     createTaskTagsTaskIndex,
     createTaskTagsTagIndex,
+    createEntityShareIndex,
   ];
 }
