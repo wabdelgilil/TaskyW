@@ -1,0 +1,65 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-prod
+  cancel-in-progress: false
+
+env:
+  VERCEL_ORG_ID: team_JwVv0P69agJCaX48LCDHMWzq
+  VERCEL_PROJECT_ID: prj_uP7ewV0AYcu55NdSPZLqrlZa7H5i
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.47.0
+          cache: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify Vercel secrets configured
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "::error::VERCEL_TOKEN secret is missing. Add it in GitHub → Settings → Secrets and variables → Actions → New repository secret."
+            exit 1
+          fi
+
+      - name: Verify production destination (staging rollback)
+        run: |
+          echo "VERCEL_ORG_ID=$VERCEL_ORG_ID"
+          echo "VERCEL_PROJECT_ID=$VERCEL_PROJECT_ID"
+          echo "Target project: taskyw (supabase ref yjcpevqahefzcpbvajcq)"
+
+      - name: Build with Vercel CLI (runs flutter build web + packages output)
+        run: npx vercel build --yes
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ env.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ env.VERCEL_PROJECT_ID }}
+
+      - name: Deploy to production
+        run: npx vercel deploy --prebuilt --prod --yes
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ env.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ env.VERCEL_PROJECT_ID }}
