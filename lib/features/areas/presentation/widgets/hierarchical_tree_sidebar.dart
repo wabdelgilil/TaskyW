@@ -88,6 +88,15 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
             width: 1.2,
           ),
         ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.025),
+                  blurRadius: 6,
+                  offset: const Offset(1, 0),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -123,7 +132,7 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
                 _buildSectionHeader('الفلاتر السريعة'),
                 _buildSmartFilterTile(
                   icon: Icons.wb_sunny_rounded,
-                  iconColor: Colors.amber,
+                  iconColor: isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706), // Amber 400 vs 600
                   title: 'اليوم',
                   count: widget.todayCount,
                   isSelected: widget.selectedFilter == 'today',
@@ -131,7 +140,7 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
                 ),
                 _buildSmartFilterTile(
                   icon: Icons.calendar_month_rounded,
-                  iconColor: Colors.blueAccent,
+                  iconColor: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7), // Sky 400 vs 600 (عالي التباين)
                   title: 'القادمة',
                   count: widget.upcomingCount,
                   isSelected: widget.selectedFilter == 'upcoming',
@@ -139,7 +148,7 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
                 ),
                 _buildSmartFilterTile(
                   icon: Icons.pause_circle_filled_rounded,
-                  iconColor: AppColors.statusWaiting,
+                  iconColor: AppColors.adaptiveStatusColor('waiting', isDark),
                   title: 'معلّقة (Waiting)',
                   count: widget.waitingCount,
                   isSelected: widget.selectedFilter == 'waiting',
@@ -147,7 +156,7 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
                 ),
                 _buildSmartFilterTile(
                   icon: Icons.local_fire_department_rounded,
-                  iconColor: AppColors.priorityUrgent,
+                  iconColor: AppColors.adaptivePriorityColor('urgent', isDark),
                   title: 'عاجل (Urgent)',
                   count: widget.urgentCount,
                   isSelected: widget.selectedFilter == 'urgent',
@@ -155,7 +164,7 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
                 ),
                 _buildSmartFilterTile(
                   icon: Icons.all_inbox_rounded,
-                  iconColor: Colors.teal,
+                  iconColor: isDark ? const Color(0xFF34D399) : const Color(0xFF0D9488), // Teal/Emerald 400 vs 600
                   title: 'جميع المهام',
                   count: null,
                   isSelected: widget.selectedFilter == 'all',
@@ -183,8 +192,9 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
                 ...widget.areas.map((area) {
                   final isExpanded = _expandedAreaIds.contains(area.id);
                   final areaProjects = widget.projects.where((p) => p.areaId == area.id).toList();
+                  final rawAreaColor = AppColors.fromHex(area.colorHex);
+                  final areaColor = AppColors.adaptiveCustomColor(rawAreaColor, isDark);
                   final isAreaSelected = widget.selectedAreaId == area.id && widget.selectedProjectId == null;
-                  final areaColor = AppColors.fromHex(area.colorHex);
                   final taskCount = widget.areaTaskCounts[area.id] ?? 0;
 
                   return Column(
@@ -263,7 +273,8 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
                             children: [
                               ...areaProjects.map((proj) {
                                 final isProjSelected = widget.selectedProjectId == proj.id;
-                                final projColor = AppColors.fromHex(proj.colorHex);
+                                final rawProjColor = AppColors.fromHex(proj.colorHex);
+                                final projColor = AppColors.adaptiveCustomColor(rawProjColor, isDark);
                                 final pTaskCount = widget.projectTaskCounts[proj.id] ?? 0;
 
                                 return InkWell(

@@ -12,18 +12,8 @@ class PriorityBadge extends StatelessWidget {
     this.onTap,
   });
 
-  static Color getPriorityColor(String priority) {
-    switch (priority.toLowerCase()) {
-      case 'urgent':
-        return AppColors.priorityUrgent;
-      case 'high':
-        return AppColors.priorityHigh;
-      case 'low':
-        return AppColors.priorityLow;
-      case 'medium':
-      default:
-        return AppColors.priorityMedium;
-    }
+  static Color getPriorityColor(String priority, {bool isDark = false}) {
+    return AppColors.adaptivePriorityColor(priority, isDark);
   }
 
   static String getPriorityLabel(String priority) {
@@ -56,16 +46,20 @@ class PriorityBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = getPriorityColor(priority);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final color = getPriorityColor(priority, isDark: isDark);
     final label = getPriorityLabel(priority);
     final icon = getPriorityIcon(priority);
 
     final widget = Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: isDark ? color.withOpacity(0.20) : color.withOpacity(0.12),
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: color.withOpacity(0.3), width: 1),
+        border: Border.all(
+          color: isDark ? color.withOpacity(0.55) : color.withOpacity(0.40),
+          width: 1.2,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

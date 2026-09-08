@@ -161,7 +161,8 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final projectColor = AppColors.fromHex(widget.project.colorHex);
+    final rawProjectColor = AppColors.fromHex(widget.project.colorHex);
+    final projectColor = AppColors.adaptiveCustomColor(rawProjectColor, isDark);
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -176,6 +177,15 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
               border: Border(
                 bottom: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
               ),
+              boxShadow: isDark
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.03),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

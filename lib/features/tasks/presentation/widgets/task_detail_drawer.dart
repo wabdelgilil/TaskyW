@@ -130,7 +130,8 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final customColor = _colorHex != null ? AppColors.fromHex(_colorHex) : null;
+    final rawColor = _colorHex != null ? AppColors.fromHex(_colorHex) : null;
+    final customColor = rawColor != null ? AppColors.adaptiveCustomColor(rawColor, isDark) : null;
 
     final areaProjects = widget.projects.where((p) => p.areaId == _areaId).toList();
 
@@ -138,12 +139,21 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
       width: 420,
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-        border: Border(
-          right: BorderSide(
+        border: BorderDirectional(
+          start: BorderSide(
             color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-            width: 1,
+            width: 1.2,
           ),
         ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 8,
+                  offset: const Offset(-2, 0),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

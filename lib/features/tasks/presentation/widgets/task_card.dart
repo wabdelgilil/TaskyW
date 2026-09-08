@@ -48,20 +48,22 @@ class TaskCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final customColor = task.colorHex != null ? AppColors.fromHex(task.colorHex) : null;
+    final rawColor = task.colorHex != null ? AppColors.fromHex(task.colorHex) : null;
+    final customColor = rawColor != null ? AppColors.adaptiveCustomColor(rawColor, isDark) : null;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       clipBehavior: Clip.antiAlias,
-      elevation: 0,
+      elevation: isDark ? 0 : 1,
+      shadowColor: Colors.black.withOpacity(0.08),
       color: customColor != null
-          ? (isDark ? customColor.withOpacity(0.12) : customColor.withOpacity(0.06))
+          ? (isDark ? customColor.withOpacity(0.14) : customColor.withOpacity(0.08))
           : null,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
           color: customColor != null
-              ? customColor.withOpacity(0.5)
+              ? (isDark ? customColor.withOpacity(0.65) : customColor.withOpacity(0.50))
               : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
           width: customColor != null ? 1.5 : 1,
         ),

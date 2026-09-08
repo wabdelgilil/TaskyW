@@ -92,7 +92,7 @@ class _KanbanColumn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final color = StatusBadge.getStatusColor(status);
+    final color = StatusBadge.getStatusColor(status, isDark: isDark);
     final label = StatusBadge.getStatusLabel(status);
 
     return DragTarget<TaskModel>(

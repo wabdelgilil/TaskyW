@@ -132,7 +132,8 @@ class AreaDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final areaColor = AppColors.fromHex(area.colorHex);
+    final rawAreaColor = AppColors.fromHex(area.colorHex);
+    final areaColor = AppColors.adaptiveCustomColor(rawAreaColor, isDark);
     final standaloneTasks = areaTasks.where((t) => t.projectId == null).toList();
 
     return Scaffold(
@@ -147,6 +148,15 @@ class AreaDetailScreen extends StatelessWidget {
               color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+              boxShadow: isDark
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -309,6 +319,15 @@ class AreaDetailScreen extends StatelessWidget {
                       color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                      boxShadow: isDark
+                          ? null
+                          : [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.04),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

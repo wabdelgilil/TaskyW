@@ -9,8 +9,8 @@ class AppTheme {
       brightness: Brightness.dark,
       scaffoldBackgroundColor: AppColors.darkBackground,
       colorScheme: const ColorScheme.dark(
-        primary: AppColors.brandPrimary,
-        onPrimary: Colors.white,
+        primary: AppColors.brandLight, // ساطع وعالي التباين على الخلفيات الداكنة بدلاً من الأزرق الغامق
+        onPrimary: Color(0xFF0F172A),
         surface: AppColors.darkSurface,
         onSurface: AppColors.darkTextPrimary,
         background: AppColors.darkBackground,
@@ -55,7 +55,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.brandPrimary, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.brandLight, width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       ),
@@ -66,16 +66,16 @@ class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.darkSurface,
-        indicatorColor: AppColors.brandPrimary.withOpacity(0.2),
+        indicatorColor: AppColors.brandLight.withOpacity(0.2),
         labelTextStyle: MaterialStateProperty.resolveWith((states) {
           if (states.contains(MaterialState.selected)) {
-            return const TextStyle(color: AppColors.brandPrimary, fontWeight: FontWeight.bold, fontSize: 12);
+            return const TextStyle(color: AppColors.brandLight, fontWeight: FontWeight.bold, fontSize: 12);
           }
           return const TextStyle(color: AppColors.darkTextSecondary, fontSize: 12);
         }),
         iconTheme: MaterialStateProperty.resolveWith((states) {
           if (states.contains(MaterialState.selected)) {
-            return const IconThemeData(color: AppColors.brandPrimary);
+            return const IconThemeData(color: AppColors.brandLight);
           }
           return const IconThemeData(color: AppColors.darkTextSecondary);
         }),
@@ -99,7 +99,8 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         color: AppColors.lightCard,
-        elevation: 0,
+        elevation: 1,
+        shadowColor: Colors.black.withOpacity(0.08),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
           side: const BorderSide(color: AppColors.lightBorder, width: 1),

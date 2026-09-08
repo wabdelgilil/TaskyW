@@ -12,20 +12,8 @@ class StatusBadge extends StatelessWidget {
     this.onTap,
   });
 
-  static Color getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'in_progress':
-        return AppColors.statusInProgress;
-      case 'waiting':
-        return AppColors.statusWaiting;
-      case 'review':
-        return AppColors.statusReview;
-      case 'completed':
-        return AppColors.statusCompleted;
-      case 'todo':
-      default:
-        return AppColors.statusTodo;
-    }
+  static Color getStatusColor(String status, {bool isDark = false}) {
+    return AppColors.adaptiveStatusColor(status, isDark);
   }
 
   static String getStatusLabel(String status) {
@@ -62,16 +50,20 @@ class StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = getStatusColor(status);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final color = getStatusColor(status, isDark: isDark);
     final label = getStatusLabel(status);
     final icon = getStatusIcon(status);
 
     final widget = Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: isDark ? color.withOpacity(0.20) : color.withOpacity(0.12),
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: color.withOpacity(0.4), width: 1),
+        border: Border.all(
+          color: isDark ? color.withOpacity(0.55) : color.withOpacity(0.40),
+          width: 1.2,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

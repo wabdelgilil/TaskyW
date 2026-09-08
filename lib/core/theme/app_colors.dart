@@ -37,9 +37,9 @@ class AppColors {
   static const Color darkSurface = Color(0xFF1E293B);    // Slate 800
   static const Color darkCard = Color(0xFF243247);       // Elevated Card Slate
   static const Color darkBorder = Color(0xFF334155);     // Slate 700
-  static const Color darkTextPrimary = Color(0xFFF8FAFC); // Slate 50
-  static const Color darkTextSecondary = Color(0xFF94A3B8); // Slate 400
-  static const Color darkTextMuted = Color(0xFF64748B);   // Slate 500
+  static const Color darkTextPrimary = Color(0xFFF8FAFC); // Slate 50 (أبيض ناصع عالي التباين)
+  static const Color darkTextSecondary = Color(0xFFCBD5E1); // Slate 300 (أفتح وأوضح بكثير للقراءة المريحة)
+  static const Color darkTextMuted = Color(0xFF94A3B8);   // Slate 400 (بدل 500 الغامق جداً)
 
   // --- الوضع النهاري (Crisp Light Palette) ---
   static const Color lightBackground = Color(0xFFF1F5F9); // Slate 100 (تباين أوضح مع الكروت البيضاء)
@@ -49,8 +49,8 @@ class AppColors {
   static const Color lightBorder = Color(0xFFCBD5E1);     // Slate 300 (حدود واضحة ومحددة بدلاً من الرمادي الباهت)
   static const Color lightBorderStrong = Color(0xFF94A3B8); // Slate 400 (حدود أقوى للفواصل والأعمدة)
   static const Color lightTextPrimary = Color(0xFF0F172A); // Slate 900
-  static const Color lightTextSecondary = Color(0xFF475569); // Slate 600
-  static const Color lightTextMuted = Color(0xFF94A3B8);   // Slate 400
+  static const Color lightTextSecondary = Color(0xFF334155); // Slate 700 (أغمق وأكثر حدة ووضوحاً بدلاً من الرمادي الباهت)
+  static const Color lightTextMuted = Color(0xFF64748B);   // Slate 500 (أكثر قتامة وقراءة مريحة للعين)
 
   // --- ألوان الأولويات (Priority Accents) ---
   static const Color priorityUrgent = Color(0xFFEF4444);  // Red 500
@@ -64,6 +64,57 @@ class AppColors {
   static const Color statusWaiting = Color(0xFFF59E0B);     // Amber 500
   static const Color statusReview = Color(0xFF8B5CF6);      // Purple 500
   static const Color statusCompleted = Color(0xFF10B981);   // Emerald 500
+
+  // --- دوال الألوان المتكيفة الحادة (Adaptive High-Contrast Helpers) ---
+
+  /// لون الحالة المتكيف: يمنح ألواناً زاهية وفاتحة في الليلي (Cyan/Sky/Lime) وألواناً عميقة في النهاري
+  static Color adaptiveStatusColor(String status, bool isDark) {
+    switch (status.toLowerCase()) {
+      case 'in_progress':
+        return isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7); // Sky 400 vs Sky 600
+      case 'waiting':
+        return isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706); // Amber 400 vs Amber 600
+      case 'review':
+        return isDark ? const Color(0xFFA78BFA) : const Color(0xFF7C3AED); // Purple 400 vs Purple 600
+      case 'completed':
+        return isDark ? const Color(0xFF34D399) : const Color(0xFF059669); // Emerald 400 vs Emerald 600
+      case 'todo':
+      default:
+        return isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569); // Slate 400 vs Slate 600
+    }
+  }
+
+  /// لون الأولوية المتكيف: حاد ومتباين على أي خلفية
+  static Color adaptivePriorityColor(String priority, bool isDark) {
+    switch (priority.toLowerCase()) {
+      case 'urgent':
+        return isDark ? const Color(0xFFF87171) : const Color(0xFFDC2626); // Red 400 vs Red 600
+      case 'high':
+        return isDark ? const Color(0xFFFB923C) : const Color(0xFFEA580C); // Orange 400 vs Orange 600
+      case 'low':
+        return isDark ? const Color(0xFF34D399) : const Color(0xFF059669); // Emerald 400 vs Emerald 600
+      case 'medium':
+      default:
+        return isDark ? const Color(0xFF60A5FA) : const Color(0xFF2563EB); // Blue 400 vs Blue 600
+    }
+  }
+
+  /// مواءمة أي لون مخصص ليصبح حاداً ومريحاً على الخلفية (Dark vs Light)
+  static Color adaptiveCustomColor(Color color, bool isDark) {
+    final hsl = HSLColor.fromColor(color);
+    if (isDark) {
+      // في الوضع الليلي: نضمن سطوع لا يقل عن 60% حتى لا يختفي في الخلفية الداكنة
+      if (hsl.lightness < 0.58) {
+        return hsl.withLightness(0.62).toColor();
+      }
+    } else {
+      // في الوضع النهاري: نضمن سطوع لا يزيد عن 45% حتى لا يكون باهتاً على الخلفية البيضاء
+      if (hsl.lightness > 0.48) {
+        return hsl.withLightness(0.42).toColor();
+      }
+    }
+    return color;
+  }
 
   // --- لوحة الألوان المقترحة للاختيار الحر (Custom Color Palette Presets) ---
   static const List<String> presetHexColors = [

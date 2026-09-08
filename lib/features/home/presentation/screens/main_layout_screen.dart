@@ -716,6 +716,15 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
             width: 1.2,
           ),
         ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.03),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
       ),
       child: Row(
         children: [
