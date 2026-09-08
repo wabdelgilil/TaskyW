@@ -45,7 +45,7 @@ class TaskListView extends StatelessWidget {
                 child: Icon(
                   Icons.task_alt_rounded,
                   size: 36,
-                  color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                  color: AppColors.textMuted(context),
                 ),
               ),
               const SizedBox(height: 16),
@@ -54,7 +54,7 @@ class TaskListView extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  color: AppColors.textSecondary(context),
                 ),
               ),
               const SizedBox(height: 8),
@@ -62,7 +62,7 @@ class TaskListView extends StatelessWidget {
                 'ابدأ بإضافة مهمة جديدة لمتابعة إنجازك اليومي',
                 style: TextStyle(
                   fontSize: 12.5,
-                  color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                  color: AppColors.textMuted(context),
                 ),
               ),
               if (onAddTask != null) ...[

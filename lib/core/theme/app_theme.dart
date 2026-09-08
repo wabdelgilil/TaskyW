@@ -163,26 +163,169 @@ class AppTheme {
       ),
     );
   }
+
+  /// ثيم السواد العميق (OLED Pure Black Theme)
+  static ThemeData get oledTheme {
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      scaffoldBackgroundColor: AppColors.oledBackground,
+      colorScheme: const ColorScheme.dark(
+        primary: AppColors.brandLight, // سماوي ساطع عالي التباين
+        onPrimary: Color(0xFF000000),
+        surface: AppColors.oledSurface,
+        onSurface: AppColors.oledTextPrimary,
+        background: AppColors.oledBackground,
+        onBackground: AppColors.oledTextPrimary,
+        outline: AppColors.oledBorder,
+      ),
+      cardTheme: CardThemeData(
+        color: AppColors.oledCard,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: AppColors.oledBorder, width: 1.2),
+        ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: AppColors.oledSurface,
+        elevation: 12,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: AppColors.oledBorder, width: 1.2),
+        ),
+      ),
+      drawerTheme: const DrawerThemeData(
+        backgroundColor: AppColors.oledSurface,
+      ),
+      popupMenuTheme: PopupMenuThemeData(
+        color: AppColors.oledSurface,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: AppColors.oledBorder, width: 1),
+        ),
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: AppColors.oledSurface,
+        modalBackgroundColor: AppColors.oledSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: AppColors.oledBackground,
+        hintStyle: const TextStyle(color: AppColors.oledTextMuted, fontSize: 14),
+        labelStyle: const TextStyle(color: AppColors.oledTextSecondary, fontSize: 14),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppColors.oledBorder),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppColors.oledBorder),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppColors.brandLight, width: 1.5),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      ),
+      dividerTheme: const DividerThemeData(
+        color: AppColors.oledBorder,
+        thickness: 1,
+        space: 1,
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: AppColors.oledSurface,
+        indicatorColor: AppColors.brandLight.withOpacity(0.25),
+        labelTextStyle: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return const TextStyle(color: AppColors.brandLight, fontWeight: FontWeight.bold, fontSize: 12);
+          }
+          return const TextStyle(color: AppColors.oledTextSecondary, fontSize: 12);
+        }),
+        iconTheme: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return const IconThemeData(color: AppColors.brandLight);
+          }
+          return const IconThemeData(color: AppColors.oledTextSecondary);
+        }),
+      ),
+    );
+  }
 }
 
-/// متحكم لإدارة وضع الثيم (Dark / Light) في الذاكرة ومشاركته عبر الواجهات
+/// أنماط الثيم المتاحة في التطبيق (النهاري، الليلي المريح، والسواد التام OLED)
+enum AppThemeStyle {
+  light,  // الوضع النهاري الصافي
+  dark,   // الوضع الليلي الهادئ (Dark Slate)
+  oled,   // وضع السواد العميق فائق التباين وتوفير الطاقة (Pure Black)
+}
+
+/// متحكم لإدارة واختيار وضع الثيم في الذاكرة ومشاركته عبر الواجهات
 class ThemeController extends ChangeNotifier {
   static final ThemeController instance = ThemeController._internal();
-  ThemeMode _themeMode = ThemeMode.dark;
+  AppThemeStyle _currentStyle = AppThemeStyle.dark;
 
   ThemeController._internal();
 
-  ThemeMode get themeMode => _themeMode;
-  bool get isDarkMode => _themeMode == ThemeMode.dark;
+  AppThemeStyle get currentStyle => _currentStyle;
 
-  void toggleTheme() {
-    _themeMode = isDarkMode ? ThemeMode.light : ThemeMode.dark;
+  /// متوافق مع ThemeData في MaterialApp
+  ThemeData get activeTheme {
+    switch (_currentStyle) {
+      case AppThemeStyle.light:
+        return AppTheme.lightTheme;
+      case AppThemeStyle.oled:
+        return AppTheme.oledTheme;
+      case AppThemeStyle.dark:
+        return AppTheme.darkTheme;
+    }
+  }
+
+  /// هل النمط الحالي داكن (Dark أو OLED)
+  bool get isDarkMode => _currentStyle == AppThemeStyle.dark || _currentStyle == AppThemeStyle.oled;
+
+  /// هل النمط الحالي هو OLED حصراً
+  bool get isOledMode => _currentStyle == AppThemeStyle.oled;
+
+  /// اسم النمط المعروض
+  String get styleDisplayName {
+    switch (_currentStyle) {
+      case AppThemeStyle.light:
+        return 'الوضع النهاري';
+      case AppThemeStyle.oled:
+        return 'سواد عميق (OLED)';
+      case AppThemeStyle.dark:
+        return 'الوضع الليلي';
+    }
+  }
+
+  /// التبديل الدائري بين الأوضاع الثلاثة بضغطة زر (Light -> Dark -> OLED -> Light)
+  void cycleTheme() {
+    switch (_currentStyle) {
+      case AppThemeStyle.light:
+        _currentStyle = AppThemeStyle.dark;
+        break;
+      case AppThemeStyle.dark:
+        _currentStyle = AppThemeStyle.oled;
+        break;
+      case AppThemeStyle.oled:
+        _currentStyle = AppThemeStyle.light;
+        break;
+    }
     notifyListeners();
   }
 
-  void setThemeMode(ThemeMode mode) {
-    if (_themeMode != mode) {
-      _themeMode = mode;
+  /// للتوافق القديم مع أي استدعاء toggleTheme
+  void toggleTheme() => cycleTheme();
+
+  /// تعيين نمط محدد
+  void setStyle(AppThemeStyle style) {
+    if (_currentStyle != style) {
+      _currentStyle = style;
       notifyListeners();
     }
   }

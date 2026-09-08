@@ -138,10 +138,10 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
     return Container(
       width: 420,
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+        color: AppColors.surface(context),
         border: BorderDirectional(
           start: BorderSide(
-            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+            color: AppColors.border(context),
             width: 1.2,
           ),
         ),
@@ -164,7 +164,7 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
-                  color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                  color: AppColors.border(context),
                 ),
               ),
             ),
@@ -421,9 +421,9 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkBackground : Colors.grey.withOpacity(0.06),
+        color: AppColors.background(context),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+        border: Border.all(color: AppColors.border(context)),
       ),
       child: Column(
         children: [

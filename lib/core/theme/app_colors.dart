@@ -32,6 +32,15 @@ class AppColors {
     ],
   );
 
+  // --- وضع السواد العميق (OLED Pure Black Palette) ---
+  static const Color oledBackground = Color(0xFF000000); // Absolute Pure Black
+  static const Color oledSurface = Color(0xFF101216);    // Deep Obsidian Card
+  static const Color oledCard = Color(0xFF161920);       // Elevated Obsidian Slate
+  static const Color oledBorder = Color(0xFF262C36);     // Crisp Border 
+  static const Color oledTextPrimary = Color(0xFFFFFFFF); // 100% Pure White
+  static const Color oledTextSecondary = Color(0xFFE2E8F0); // Crisp Bright Silver
+  static const Color oledTextMuted = Color(0xFF94A3B8);   // Muted Slate
+
   // --- الوضع الليلي (Dark Slate Palette) ---
   static const Color darkBackground = Color(0xFF0F172A); // Slate 900
   static const Color darkSurface = Color(0xFF1E293B);    // Slate 800
@@ -114,6 +123,55 @@ class AppColors {
       }
     }
     return color;
+  }
+
+  // --- محددات الألوان التكيفية التلقائية مع كافة الأنماط الثلاثة (Light / Dark Slate / OLED) ---
+
+  /// فحص هل النمط النشط حالياً هو OLED (سواد عميق)
+  static bool isOled(BuildContext context) {
+    return Theme.of(context).scaffoldBackgroundColor == oledBackground;
+  }
+
+  /// لون السطح المتكيف (OLED: #101216 / Dark Slate: #1E293B / Light: #FFFFFF)
+  static Color surface(BuildContext context) {
+    if (isOled(context)) return oledSurface;
+    return Theme.of(context).brightness == Brightness.dark ? darkSurface : lightSurface;
+  }
+
+  /// لون البطاقات المتكيف (OLED: #161920 / Dark Slate: #243247 / Light: #FFFFFF)
+  static Color card(BuildContext context) {
+    if (isOled(context)) return oledCard;
+    return Theme.of(context).brightness == Brightness.dark ? darkCard : lightCard;
+  }
+
+  /// لون الخلفية المتكيف (OLED: #000000 / Dark Slate: #0F172A / Light: #F1F5F9)
+  static Color background(BuildContext context) {
+    if (isOled(context)) return oledBackground;
+    return Theme.of(context).brightness == Brightness.dark ? darkBackground : lightBackground;
+  }
+
+  /// لون الحدود والفواصل المتكيف (OLED: #262C36 / Dark Slate: #334155 / Light: #CBD5E1)
+  static Color border(BuildContext context) {
+    if (isOled(context)) return oledBorder;
+    return Theme.of(context).brightness == Brightness.dark ? darkBorder : lightBorder;
+  }
+
+  /// لون النصوص الأساسية المتكيف (OLED: #FFFFFF نقي / Dark Slate: #F8FAFC / Light: #0F172A)
+  static Color textPrimary(BuildContext context) {
+    if (isOled(context)) return oledTextPrimary;
+    return Theme.of(context).brightness == Brightness.dark ? darkTextPrimary : lightTextPrimary;
+  }
+
+  /// لون النصوص الثانوية المتكيف (OLED: #E2E8F0 ساطع / Dark Slate: #CBD5E1 / Light: #334155)
+  static Color textSecondary(BuildContext context) {
+    if (isOled(context)) return oledTextSecondary;
+    return Theme.of(context).brightness == Brightness.dark ? darkTextSecondary : lightTextSecondary;
+  }
+
+  /// لون النصوص المكتومة المتكيف (OLED: #94A3B8 / Dark Slate: #94A3B8 / Light: #64748B)
+  static Color textMuted(BuildContext context) {
+    if (isOled(context)) return oledTextMuted;
+    return Theme.of(context).brightness == Brightness.dark ? darkTextMuted : lightTextMuted;
   }
 
   // --- لوحة الألوان المقترحة للاختيار الحر (Custom Color Palette Presets) ---

@@ -20,9 +20,7 @@ class TaskyApp extends StatelessWidget {
         return MaterialApp(
           title: 'TaskyW',
           debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
-          themeMode: ThemeController.instance.themeMode,
+          theme: ThemeController.instance.activeTheme,
           home: const TaskyHomeScreen(),
         );
       },

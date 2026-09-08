@@ -105,12 +105,14 @@ class _KanbanColumn extends StatelessWidget {
           decoration: BoxDecoration(
             color: isHovered
                 ? color.withOpacity(0.12)
-                : (isDark ? AppColors.darkSurface : AppColors.lightSurfaceSubtle),
+                : (AppColors.isOled(context)
+                    ? AppColors.oledSurface
+                    : (isDark ? AppColors.darkSurface : AppColors.lightSurfaceSubtle)),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: isHovered
                   ? color
-                  : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                  : AppColors.border(context),
               width: isHovered ? 2 : 1.2,
             ),
           ),
@@ -178,7 +180,7 @@ class _KanbanColumn extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 12,
-                            color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                            color: AppColors.textMuted(context),
                           ),
                         ),
                       )

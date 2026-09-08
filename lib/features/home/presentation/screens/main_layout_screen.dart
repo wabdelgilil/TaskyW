@@ -84,6 +84,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
   bool _isSearchActive = false;
   List<TaskModel> _searchResults = [];
   bool _forceGlobalSearch = false;
+  bool _isMobileSearchOpen = false;
 
   // فهرس الشريط السفلي
   int _bottomNavIndex = 0;
@@ -630,6 +631,13 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
 
     return Scaffold(
       drawer: isDesktop ? null : Drawer(child: treeSidebar),
+      floatingActionButton: isDesktop
+          ? null
+          : FloatingActionButton(
+              onPressed: () => _showAddTaskDialog(),
+              tooltip: 'مهمة جديدة',
+              child: const Icon(Icons.add, size: 26),
+            ),
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -642,7 +650,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // رأس الصفحة وشريط البحث
-                _buildTopHeader(isDark, isDesktop),
+                _buildTopHeader(isDark, screenWidth),
 
                 // المحتوى النشط لمساحة العمل
                 Expanded(
@@ -704,28 +712,150 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
     );
   }
 
-  // رأس الصفحة ومحرك البحث
-  Widget _buildTopHeader(bool isDark, bool isDesktop) {
+  // رأس الصفحة ومحرك البحث المتجاوب مع كل الشاشات
+  Widget _buildTopHeader(bool isDark, double screenWidth) {
+    final isDesktop = screenWidth >= 900;
+    final isMobile = screenWidth < 600;
+
+    final headerDecoration = BoxDecoration(
+      color: AppColors.surface(context),
+      border: Border(
+        bottom: BorderSide(
+          color: AppColors.border(context),
+          width: 1.2,
+        ),
+      ),
+      boxShadow: isDark
+          ? null
+          : [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+    );
+
+    // 1. وضع البحث الممتد بالكامل على شاشات الموبايل
+    if (isMobile && _isMobileSearchOpen) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        decoration: headerDecoration,
+        child: Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.arrow_back),
+              tooltip: 'إغلاق البحث',
+              onPressed: () {
+                setState(() {
+                  _isMobileSearchOpen = false;
+                  _searchController.clear();
+                  _onSearchChanged('');
+                });
+              },
+            ),
+            Expanded(
+              child: TextField(
+                controller: _searchController,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: _searchHint,
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  prefixIcon: const Icon(Icons.search, size: 18),
+                  suffixIcon: _searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear, size: 16),
+                          onPressed: () {
+                            _searchController.clear();
+                            _onSearchChanged('');
+                          },
+                        )
+                      : null,
+                ),
+                onChanged: _onSearchChanged,
+              ),
+            ),
+            if ((_selectedAreaId != null || _selectedProjectId != null) && _isSearchActive) ...[
+              const SizedBox(width: 4),
+              IconButton(
+                icon: Icon(_forceGlobalSearch ? Icons.filter_alt_off : Icons.public, size: 20),
+                tooltip: _forceGlobalSearch ? 'إلغاء البحث الشامل' : 'بحث شامل في كل التطبيق',
+                onPressed: () {
+                  setState(() {
+                    _forceGlobalSearch = !_forceGlobalSearch;
+                    _onSearchChanged(_searchController.text);
+                  });
+                },
+              ),
+            ],
+          ],
+        ),
+      );
+    }
+
+    // 2. الهيدر المدمج لشاشات الموبايل (< 600px)
+    if (isMobile) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        decoration: headerDecoration,
+        child: Row(
+          children: [
+            Builder(
+              builder: (ctx) => IconButton(
+                icon: const Icon(Icons.menu),
+                tooltip: 'القائمة الجانبية',
+                onPressed: () => Scaffold.of(ctx).openDrawer(),
+              ),
+            ),
+
+            // عنوان السياق الحالي
+            Expanded(
+              child: Text(
+                _currentContextTitle,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+
+            // زر فتح البحث
+            IconButton(
+              icon: const Icon(Icons.search, size: 22),
+              tooltip: 'بحث',
+              onPressed: () => setState(() => _isMobileSearchOpen = true),
+            ),
+
+            // زر التبديل السريع بين القائمة والكانبان (أيقونة مدمجة)
+            IconButton(
+              icon: Icon(
+                _viewMode == 'kanban' ? Icons.view_list_rounded : Icons.view_kanban_rounded,
+                size: 20,
+              ),
+              tooltip: _viewMode == 'kanban' ? 'عرض القوائم' : 'عرض الكانبان',
+              onPressed: () => setState(() => _viewMode = _viewMode == 'kanban' ? 'list' : 'kanban'),
+            ),
+
+            const SizedBox(width: 2),
+
+            // زر المزامنة السحابية المدمج بدون نص يفيض
+            SyncStatusButton(
+              onTriggerSync: widget.onSyncRequested,
+              compact: true,
+            ),
+
+            const SizedBox(width: 4),
+
+            // زر الحساب والمصادقة المدمج
+            _buildAuthButton(isCompact: true),
+          ],
+        ),
+      );
+    }
+
+    // 3. الهيدر للتابلت والشاشات الكبيرة (Desktop & Tablet)
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-        border: Border(
-          bottom: BorderSide(
-            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-            width: 1.2,
-          ),
-        ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.03),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-      ),
+      decoration: headerDecoration,
       child: Row(
         children: [
           if (!isDesktop)
@@ -801,7 +931,10 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
           const SizedBox(width: 10),
 
           // زر حالة وطلب المزامنة السحابية (Offline-First Sync)
-          SyncStatusButton(onTriggerSync: widget.onSyncRequested),
+          SyncStatusButton(
+            onTriggerSync: widget.onSyncRequested,
+            compact: !isDesktop,
+          ),
 
           const SizedBox(width: 10),
 
@@ -815,65 +948,86 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
           const SizedBox(width: 10),
 
           // زر الحساب والمصادقة (Supabase Auth)
-          ListenableBuilder(
-            listenable: AuthController.instance,
-            builder: (context, _) {
-              final auth = AuthController.instance;
-              if (auth.isAuthenticated) {
-                return PopupMenuButton<String>(
-                  tooltip: 'الملف الشخصي',
-                  onSelected: (val) {
-                    if (val == 'signout') {
-                      auth.signOut();
-                    }
-                  },
-                  itemBuilder: (ctx) => [
-                    PopupMenuItem(
-                      enabled: false,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(auth.displayName ?? 'مستخدم Tasky', style: const TextStyle(fontWeight: FontWeight.bold)),
-                          Text(auth.userEmail ?? '', style: const TextStyle(fontSize: 11, color: Colors.grey)),
-                        ],
-                      ),
-                    ),
-                    const PopupMenuDivider(),
-                    const PopupMenuItem(
-                      value: 'signout',
-                      child: Row(
-                        children: [
-                          Icon(Icons.logout, size: 16, color: Colors.red),
-                          SizedBox(width: 8),
-                          Text('تسجيل الخروج', style: TextStyle(color: Colors.red)),
-                        ],
-                      ),
-                    ),
-                  ],
-                  child: CircleAvatar(
-                    radius: 18,
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    child: Text(
-                      (auth.displayName?.isNotEmpty == true ? auth.displayName![0] : 'U').toUpperCase(),
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-                    ),
-                  ),
-                );
-              }
-
-              return OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const AuthScreen()),
-                  );
-                },
-                icon: const Icon(Icons.person_outline, size: 18),
-                label: const Text('تسجيل الدخول'),
-              );
-            },
-          ),
+          _buildAuthButton(isCompact: false),
         ],
       ),
+    );
+  }
+
+  // زر الحساب وتسجيل الدخول المتجاوب
+  Widget _buildAuthButton({bool isCompact = false}) {
+    return ListenableBuilder(
+      listenable: AuthController.instance,
+      builder: (context, _) {
+        final auth = AuthController.instance;
+        if (auth.isAuthenticated) {
+          return PopupMenuButton<String>(
+            tooltip: 'الملف الشخصي',
+            onSelected: (val) {
+              if (val == 'signout') {
+                auth.signOut();
+              }
+            },
+            itemBuilder: (ctx) => [
+              PopupMenuItem(
+                enabled: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(auth.displayName ?? 'مستخدم Tasky', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text(auth.userEmail ?? '', style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              const PopupMenuItem(
+                value: 'signout',
+                child: Row(
+                  children: [
+                    Icon(Icons.logout, size: 16, color: Colors.red),
+                    SizedBox(width: 8),
+                    Text('تسجيل الخروج', style: TextStyle(color: Colors.red)),
+                  ],
+                ),
+              ),
+            ],
+            child: CircleAvatar(
+              radius: isCompact ? 14 : 18,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              child: Text(
+                (auth.displayName?.isNotEmpty == true ? auth.displayName![0] : 'U').toUpperCase(),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: isCompact ? 11 : 13,
+                ),
+              ),
+            ),
+          );
+        }
+
+        if (isCompact) {
+          return IconButton(
+            icon: const Icon(Icons.person_outline, size: 22),
+            tooltip: 'تسجيل الدخول',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const AuthScreen()),
+              );
+            },
+          );
+        }
+
+        return OutlinedButton.icon(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const AuthScreen()),
+            );
+          },
+          icon: const Icon(Icons.person_outline, size: 18),
+          label: const Text('تسجيل الدخول'),
+        );
+      },
     );
   }
 

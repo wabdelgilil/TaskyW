@@ -1,7 +1,22 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/services/supabase_service.dart';
+
+/// نتيجة محاولة إنشاء الحساب
+class SignUpResult {
+  final bool success;
+  final bool needsEmailConfirmation;
+  final String? email;
+  final String? errorMessage;
+
+  const SignUpResult({
+    required this.success,
+    this.needsEmailConfirmation = false,
+    this.email,
+    this.errorMessage,
+  });
+}
 
 /// متحكم إدارة حالة المصادقة وحسابات المستخدمين
 class AuthController extends ChangeNotifier {
@@ -15,19 +30,28 @@ class AuthController extends ChangeNotifier {
   User? _currentUser;
   bool _isLoading = false;
   String? _errorMessage;
+  String? _successMessage;
+  bool _isEmailNotConfirmed = false;
+  String? _unconfirmedEmail;
 
   User? get currentUser => _currentUser;
   bool get isAuthenticated => _currentUser != null;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  String? get successMessage => _successMessage;
+  bool get isEmailNotConfirmed => _isEmailNotConfirmed;
+  String? get unconfirmedEmail => _unconfirmedEmail;
 
   String? get userEmail => _currentUser?.email;
-  String? get displayName => _currentUser?.userMetadata?['display_name'] as String? ?? _currentUser?.email?.split('@').first;
+  String? get displayName =>
+      _currentUser?.userMetadata?['display_name'] as String? ??
+      _currentUser?.email?.split('@').first;
 
   void _initListener() {
     try {
       _currentUser = SupabaseService.client.auth.currentUser;
-      _authSubscription = SupabaseService.client.auth.onAuthStateChange.listen((data) {
+      _authSubscription =
+          SupabaseService.client.auth.onAuthStateChange.listen((data) {
         _currentUser = data.session?.user;
         _isLoading = false;
         _errorMessage = null;
@@ -45,6 +69,9 @@ class AuthController extends ChangeNotifier {
   }) async {
     _isLoading = true;
     _errorMessage = null;
+    _successMessage = null;
+    _isEmailNotConfirmed = false;
+    _unconfirmedEmail = null;
     notifyListeners();
 
     try {
@@ -57,7 +84,11 @@ class AuthController extends ChangeNotifier {
       notifyListeners();
       return true;
     } on AuthException catch (e) {
-      _errorMessage = _translateAuthError(e.message);
+      _isEmailNotConfirmed = isUnconfirmedError(e.message, e.statusCode);
+      if (_isEmailNotConfirmed) {
+        _unconfirmedEmail = email.trim();
+      }
+      _errorMessage = translateAuthError(e.message, e.statusCode);
       _isLoading = false;
       notifyListeners();
       return false;
@@ -70,13 +101,16 @@ class AuthController extends ChangeNotifier {
   }
 
   /// إنشاء حساب جديد
-  Future<bool> signUpWithEmail({
+  Future<SignUpResult> signUpWithEmail({
     required String email,
     required String password,
     String? displayName,
   }) async {
     _isLoading = true;
     _errorMessage = null;
+    _successMessage = null;
+    _isEmailNotConfirmed = false;
+    _unconfirmedEmail = null;
     notifyListeners();
 
     try {
@@ -87,16 +121,75 @@ class AuthController extends ChangeNotifier {
       );
       _currentUser = response.user;
       _isLoading = false;
+
+      // إذا كان session == null و user != null، فالمستخدم يتطلب تأكيد البريد
+      final needsEmailConfirmation =
+          response.session == null && response.user != null;
+      if (needsEmailConfirmation) {
+        _isEmailNotConfirmed = true;
+        _unconfirmedEmail = email.trim();
+      }
+
       notifyListeners();
-      return true;
+      return SignUpResult(
+        success: true,
+        needsEmailConfirmation: needsEmailConfirmation,
+        email: email.trim(),
+      );
     } on AuthException catch (e) {
-      _errorMessage = _translateAuthError(e.message);
+      _isEmailNotConfirmed = isUnconfirmedError(e.message, e.statusCode);
+      if (_isEmailNotConfirmed) {
+        _unconfirmedEmail = email.trim();
+      }
+      _errorMessage = translateAuthError(e.message, e.statusCode);
       _isLoading = false;
       notifyListeners();
-      return false;
+      return SignUpResult(
+        success: false,
+        errorMessage: _errorMessage,
+      );
     } catch (e) {
       _errorMessage = 'حدث خطأ في إنشاء الحساب، يرجى المحاولة لاحقاً';
       _isLoading = false;
+      notifyListeners();
+      return SignUpResult(
+        success: false,
+        errorMessage: _errorMessage,
+      );
+    }
+  }
+
+  /// إعادة إرسال رابط تأكيد البريد الإلكتروني
+  Future<bool> resendConfirmationEmail([String? email]) async {
+    final targetEmail = (email ?? _unconfirmedEmail)?.trim();
+    if (targetEmail == null || targetEmail.isEmpty) {
+      _errorMessage = 'يرجى إدخال البريد الإلكتروني لإعادة إرسال الرابط';
+      notifyListeners();
+      return false;
+    }
+
+    _isLoading = true;
+    _errorMessage = null;
+    _successMessage = null;
+    notifyListeners();
+
+    try {
+      await SupabaseService.client.auth.resend(
+        type: OtpType.signup,
+        email: targetEmail,
+      );
+      _isLoading = false;
+      _successMessage = 'تمت إعادة إرسال رابط التفعيل إلى $targetEmail بنجاح!';
+      notifyListeners();
+      return true;
+    } on AuthException catch (e) {
+      _isLoading = false;
+      _errorMessage = translateAuthError(e.message, e.statusCode);
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = 'تعذر إعادة إرسال رابط التفعيل، يرجى المحاولة لاحقاً';
       notifyListeners();
       return false;
     }
@@ -106,15 +199,17 @@ class AuthController extends ChangeNotifier {
   Future<bool> resetPassword(String email) async {
     _isLoading = true;
     _errorMessage = null;
+    _successMessage = null;
     notifyListeners();
 
     try {
       await SupabaseService.client.auth.resetPasswordForEmail(email.trim());
       _isLoading = false;
+      _successMessage = 'تم إرسال رابط استعادة كلمة المرور إلى بريدك.';
       notifyListeners();
       return true;
     } on AuthException catch (e) {
-      _errorMessage = _translateAuthError(e.message);
+      _errorMessage = translateAuthError(e.message, e.statusCode);
       _isLoading = false;
       notifyListeners();
       return false;
@@ -133,6 +228,9 @@ class AuthController extends ChangeNotifier {
     } catch (_) {}
     _currentUser = null;
     _errorMessage = null;
+    _successMessage = null;
+    _isEmailNotConfirmed = false;
+    _unconfirmedEmail = null;
     notifyListeners();
   }
 
@@ -141,15 +239,38 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  String _translateAuthError(String message) {
-    if (message.contains('Invalid login credentials')) {
+  void clearSuccess() {
+    _successMessage = null;
+    notifyListeners();
+  }
+
+  static bool isUnconfirmedError(String message, [String? code]) {
+    final lower = message.toLowerCase();
+    final lowerCode = code?.toLowerCase();
+    return lowerCode == 'email_not_confirmed' ||
+        lower.contains('email not confirmed') ||
+        lower.contains('email is not confirmed');
+  }
+
+  static String translateAuthError(String message, [String? code]) {
+    final lower = message.toLowerCase();
+    final lowerCode = code?.toLowerCase();
+
+    if (lowerCode == 'email_not_confirmed' ||
+        lower.contains('email not confirmed') ||
+        lower.contains('email is not confirmed')) {
+      return 'لم يتم تأكيد بريدك الإلكتروني بعد. يرجى فتح الرسالة المرسلة إلى بريدك والنقر على رابط التفعيل لتسجيل الدخول.';
+    } else if (lower.contains('invalid login credentials')) {
       return 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
-    } else if (message.contains('User already registered')) {
+    } else if (lower.contains('user already registered')) {
       return 'هذا البريد الإلكتروني مسجل بالفعل';
-    } else if (message.contains('Password should be at least')) {
+    } else if (lower.contains('password should be at least')) {
       return 'كلمة المرور يجب ألا تقل عن 6 أحرف';
-    } else if (message.contains('invalid email')) {
+    } else if (lower.contains('invalid email')) {
       return 'صيغة البريد الإلكتروني غير صالحة';
+    } else if (lower.contains('rate limit') ||
+        lower.contains('for security purposes')) {
+      return 'يرجى الانتظار دقيقة قبل طلب إرسال رابط جديد';
     }
     return message;
   }

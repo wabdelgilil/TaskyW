@@ -39,8 +39,6 @@ class ConfirmDeleteDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Row(
@@ -71,7 +69,7 @@ class ConfirmDeleteDialog extends StatelessWidget {
         style: TextStyle(
           fontSize: 14,
           height: 1.5,
-          color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+          color: AppColors.textMuted(context),
         ),
       ),
       actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -81,7 +79,7 @@ class ConfirmDeleteDialog extends StatelessWidget {
           child: Text(
             cancelLabel,
             style: TextStyle(
-              color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+              color: AppColors.textMuted(context),
               fontWeight: FontWeight.bold,
             ),
           ),

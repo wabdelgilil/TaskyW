@@ -173,9 +173,9 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+              color: AppColors.surface(context),
               border: Border(
-                bottom: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                bottom: BorderSide(color: AppColors.border(context)),
               ),
               boxShadow: isDark
                   ? null
@@ -239,7 +239,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                               widget.project.description!,
                               style: TextStyle(
                                 fontSize: 13,
-                                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                color: AppColors.textSecondary(context),
                               ),
                             ),
                           ],

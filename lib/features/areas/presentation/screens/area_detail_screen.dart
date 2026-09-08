@@ -145,9 +145,9 @@ class AreaDetailScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+              color: AppColors.surface(context),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+              border: Border.all(color: AppColors.border(context)),
               boxShadow: isDark
                   ? null
                   : [
@@ -188,7 +188,7 @@ class AreaDetailScreen extends StatelessWidget {
                             'مجال مسؤولية يضم ${areaProjects.length} مشاريع و ${areaTasks.length} مهام',
                             style: TextStyle(
                               fontSize: 13,
-                              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                              color: AppColors.textSecondary(context),
                             ),
                           ),
                         ],
@@ -295,7 +295,7 @@ class AreaDetailScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isDark ? Colors.white.withOpacity(0.02) : Colors.black.withOpacity(0.02),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                border: Border.all(color: AppColors.border(context)),
               ),
               child: const Text('لا توجد مشاريع مضافة تحت هذا المجال بعد', style: TextStyle(color: Colors.grey, fontSize: 13)),
             )
@@ -316,9 +316,9 @@ class AreaDetailScreen extends StatelessWidget {
                     width: 260,
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+                      color: AppColors.surface(context),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                      border: Border.all(color: AppColors.border(context)),
                       boxShadow: isDark
                           ? null
                           : [
@@ -402,7 +402,7 @@ class AreaDetailScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isDark ? Colors.white.withOpacity(0.02) : Colors.black.withOpacity(0.02),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                border: Border.all(color: AppColors.border(context)),
               ),
               child: const Text('لا توجد مهام عامة خارج المشاريع لهذا المجال', style: TextStyle(color: Colors.grey, fontSize: 13)),
             )

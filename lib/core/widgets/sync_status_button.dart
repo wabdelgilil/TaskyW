@@ -1,11 +1,16 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../services/sync_controller.dart';
 
 /// زر ذكي وتفاعلي في الهيدر يعرض حالة المزامنة ويتيح طلبها بضغطة زر
 class SyncStatusButton extends StatefulWidget {
   final Future<void> Function()? onTriggerSync;
+  final bool compact;
 
-  const SyncStatusButton({super.key, this.onTriggerSync});
+  const SyncStatusButton({
+    super.key,
+    this.onTriggerSync,
+    this.compact = false,
+  });
 
   @override
   State<SyncStatusButton> createState() => _SyncStatusButtonState();
@@ -50,13 +55,13 @@ class _SyncStatusButtonState extends State<SyncStatusButton> with SingleTickerPr
         // تحديد اللون والأيقونة والنص التوضيحي بقيم أولية آمنة
         Color color = Colors.green;
         Widget iconWidget = const Icon(Icons.cloud_done_rounded, size: 18, color: Colors.green);
-        String tooltip = 'جميع بياناتك متزامنة مع السحابة ()';
+        String tooltip = 'جميع بياناتك متزامنة مع السحابة';
 
         switch (sync.state) {
           case SyncStatusState.synced:
             color = Colors.green;
             iconWidget = const Icon(Icons.cloud_done_rounded, size: 18, color: Colors.green);
-            tooltip = 'جميع بياناتك متزامنة مع السحابة ()';
+            tooltip = 'جميع بياناتك متزامنة مع السحابة';
             break;
 
           case SyncStatusState.syncing:
@@ -83,7 +88,7 @@ class _SyncStatusButtonState extends State<SyncStatusButton> with SingleTickerPr
                       decoration: const BoxDecoration(color: Colors.amber, shape: BoxShape.circle),
                       constraints: const BoxConstraints(minWidth: 12, minHeight: 12),
                       child: Text(
-                        '',
+                        '${sync.pendingCount}',
                         style: const TextStyle(color: Colors.black, fontSize: 8, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.center,
                       ),
@@ -91,7 +96,7 @@ class _SyncStatusButtonState extends State<SyncStatusButton> with SingleTickerPr
                   ),
               ],
             );
-            tooltip = 'توجد  تعديلات محلية بانتظار الرفع. اضغط للمزامنة.';
+            tooltip = 'توجد ${sync.pendingCount} تعديلات محلية بانتظار الرفع. اضغط للمزامنة.';
             break;
 
           case SyncStatusState.offline:
@@ -128,31 +133,36 @@ class _SyncStatusButtonState extends State<SyncStatusButton> with SingleTickerPr
             },
             borderRadius: BorderRadius.circular(20),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              padding: widget.compact
+                  ? const EdgeInsets.all(8)
+                  : const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: color.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(20),
+                shape: widget.compact ? BoxShape.circle : BoxShape.rectangle,
+                borderRadius: widget.compact ? null : BorderRadius.circular(20),
                 border: Border.all(color: color.withOpacity(0.3), width: 1),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  iconWidget,
-                  const SizedBox(width: 6),
-                  Text(
-                    sync.isSyncing
-                        ? 'مزامنة...'
-                        : sync.hasPending
-                            ? ' معلق'
-                            : 'متزامن',
-                    style: TextStyle(
-                      color: color,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
+              child: widget.compact
+                  ? iconWidget
+                  : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        iconWidget,
+                        const SizedBox(width: 6),
+                        Text(
+                          sync.isSyncing
+                              ? 'مزامنة...'
+                              : sync.hasPending
+                                  ? '${sync.pendingCount} معلق'
+                                  : 'متزامن',
+                          style: TextStyle(
+                            color: color,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
             ),
           ),
         );

@@ -52,7 +52,7 @@
 
 ### 2. واجهات وتجربة المستخدم (UI & UX Experience)
 *(المواصفات التفصيلية للواجهات متوفرة في: [03_UI_UX_DESIGN_SPECIFICATIONS.md](file:///d:/programming/Tasky3.0/project_management/03_UI_UX_DESIGN_SPECIFICATIONS.md))*
-- [x] تصميم نظام الثيم المزدوج (Dark Mode / Light Mode) متجاوب مع الشاشات العريضة (Desktop/Web) والشاشات الصغيرة (Mobile).
+- [x] تصميم نظام الثيم الثلاثي (Dark Slate / Crisp Light / Pure OLED Midnight) عالي التباين متجاوب بالكامل مع الشاشات العريضة (Desktop/Web) والشاشات الصغيرة والموبايل مع معالجة فيض الهيدر (Zero Overflow).
 - [x] القائمة الجانبية (Hierarchical Tree Sidebar):
   - مقسمة إلى مجموعات منطقية (Smart Views, Areas & Projects, Settings).
   - شجرة تفرعية تفاعلية: فتح وطي المجال (Expand/Collapse) لإظهار المشاريع التابعة له ونسب الإنجاز.

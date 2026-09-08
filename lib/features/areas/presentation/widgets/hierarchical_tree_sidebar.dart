@@ -81,10 +81,10 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
     return Container(
       width: 280,
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+        color: AppColors.surface(context),
         border: BorderDirectional(
           end: BorderSide(
-            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+            color: AppColors.border(context),
             width: 1.2,
           ),
         ),
@@ -223,7 +223,7 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
                                   child: Icon(
                                     isExpanded ? Icons.keyboard_arrow_down_rounded : Icons.keyboard_arrow_left_rounded,
                                     size: 18,
-                                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                    color: AppColors.textSecondary(context),
                                   ),
                                 ),
                               ),
@@ -238,7 +238,7 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
                                     fontWeight: isAreaSelected ? FontWeight.bold : FontWeight.w500,
                                     color: isAreaSelected
                                         ? areaColor
-                                        : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
+                                        : AppColors.textPrimary(context),
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -255,7 +255,7 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.bold,
-                                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                      color: AppColors.textSecondary(context),
                                     ),
                                   ),
                                 ),
@@ -301,7 +301,7 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
                                               fontWeight: isProjSelected ? FontWeight.bold : FontWeight.normal,
                                               color: isProjSelected
                                                   ? projColor
-                                                  : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary),
+                                                  : AppColors.textSecondary(context),
                                             ),
                                             overflow: TextOverflow.ellipsis,
                                           ),
@@ -311,7 +311,7 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
                                             '$pTaskCount',
                                             style: TextStyle(
                                               fontSize: 10.5,
-                                              color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                                              color: AppColors.textMuted(context),
                                             ),
                                           ),
                                       ],
@@ -328,13 +328,13 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                   child: Row(
                                     children: [
-                                      Icon(Icons.add, size: 14, color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted),
+                                      Icon(Icons.add, size: 14, color: AppColors.textMuted(context)),
                                       const SizedBox(width: 4),
                                       Text(
                                         'مشروع جديد...',
                                         style: TextStyle(
                                           fontSize: 11.5,
-                                          color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                                          color: AppColors.textMuted(context),
                                         ),
                                       ),
                                     ],
@@ -460,7 +460,7 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
                                                       : 'متزامن',
                                               style: TextStyle(
                                                 fontSize: 10,
-                                                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                                color: AppColors.textSecondary(context),
                                               ),
                                             ),
                                           ],
@@ -515,32 +515,68 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
 
                 const SizedBox(height: 4),
 
-                // زر مبدل الثيم (دارك / لايت)
-                Row(
-                  children: [
-                    ListenableBuilder(
-                      listenable: ThemeController.instance,
-                      builder: (context, _) {
-                        final isDarkNow = ThemeController.instance.isDarkMode;
-                        return IconButton(
-                          icon: Icon(
-                            isDarkNow ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-                            size: 18,
-                          ),
-                          tooltip: isDarkNow ? 'الوضع النهاري' : 'الوضع الليلي',
-                          onPressed: () => ThemeController.instance.toggleTheme(),
-                        );
-                      },
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      isDark ? 'الوضع الليلي' : 'الوضع النهاري',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                // زر مبدل الثيم الثلاثي (نهاري / ليلي هادئ / سواد تام OLED)
+                ListenableBuilder(
+                  listenable: ThemeController.instance,
+                  builder: (context, _) {
+                    final themeCtrl = ThemeController.instance;
+                    IconData themeIcon;
+                    Color themeColor;
+
+                    switch (themeCtrl.currentStyle) {
+                      case AppThemeStyle.light:
+                        themeIcon = Icons.light_mode_rounded;
+                        themeColor = Colors.amber;
+                        break;
+                      case AppThemeStyle.oled:
+                        themeIcon = Icons.brightness_2_rounded; // قمر سواد تام
+                        themeColor = AppColors.brandLight;
+                        break;
+                      case AppThemeStyle.dark:
+                        themeIcon = Icons.dark_mode_rounded;
+                        themeColor = Colors.blueAccent;
+                        break;
+                    }
+
+                    return InkWell(
+                      onTap: () => themeCtrl.cycleTheme(),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                        child: Row(
+                          children: [
+                            Icon(themeIcon, size: 18, color: themeColor),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                themeCtrl.styleDisplayName,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textSecondary(context),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: themeColor.withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                'تبديل',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: themeColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ],
             ),
@@ -599,7 +635,7 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                   color: isSelected
                       ? Theme.of(context).colorScheme.primary
-                      : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
+                      : AppColors.textPrimary(context),
                 ),
               ),
             ),
@@ -619,7 +655,7 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
                     fontWeight: FontWeight.bold,
                     color: isSelected
                         ? Theme.of(context).colorScheme.primary
-                        : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary),
+                        : AppColors.textSecondary(context),
                   ),
                 ),
               ),
