@@ -145,7 +145,7 @@ class SyncService {
             await client.from(t.table).delete().eq('id', id);
             deletes++;
           } else {
-            final payload = _toCloudPayload(row);
+            final payload = toCloudPayload(row, userId);
             if (syncStatus == 'pending_insert') {
               await client.from(t.table).upsert(payload, onConflict: 'id');
               inserts++;
@@ -193,7 +193,7 @@ class SyncService {
           final local = localById[id];
 
           if (shouldOverlayCloud(localRow: local, cloudRow: cloudRow)) {
-            final localPayload = _toLocalRow(cloudRow);
+            final localPayload = toLocalRow(cloudRow, t.columns);
             if (local == null) {
               toInsert.add(localPayload);
             } else {
@@ -258,16 +258,44 @@ class SyncService {
     }
   }
 
-  /// تحويل صف من SQLite إلى حمولة سحابية (إزالة `sync_status`).
-  static Map<String, dynamic> _toCloudPayload(Map<String, dynamic> row) {
+  /// تحويل صف من SQLite إلى حمولة سحابية (إزالة `sync_status` وتضمين `user_id`).
+  @visibleForTesting
+  static Map<String, dynamic> toCloudPayload(
+    Map<String, dynamic> row, [
+    String? userId,
+  ]) {
     final payload = Map<String, dynamic>.from(row);
     payload.remove('sync_status');
+    if (userId != null && !payload.containsKey('user_id')) {
+      payload['user_id'] = userId;
+    }
     return payload;
   }
 
-  /// تحويل صف من السحابة إلى صف محلي (إضافة `sync_status`='synced').
-  static Map<String, dynamic> _toLocalRow(Map<String, dynamic> cloudRow) {
-    final row = Map<String, dynamic>.from(cloudRow);
+  /// تحويل صف من السحابة إلى صف محلي (فلترة الأعمدة غير الموجودة في SQLite وإضافة `sync_status`='synced').
+  @visibleForTesting
+  static Map<String, dynamic> toLocalRow(
+    Map<String, dynamic> cloudRow, [
+    List<String>? validColumns,
+  ]) {
+    final row = <String, dynamic>{};
+    if (validColumns != null) {
+      for (final col in validColumns) {
+        if (cloudRow.containsKey(col)) {
+          var val = cloudRow[col];
+          if (col == 'is_completed' && val is bool) {
+            val = val ? 1 : 0;
+          }
+          row[col] = val;
+        }
+      }
+    } else {
+      row.addAll(cloudRow);
+      row.remove('user_id');
+      if (row.containsKey('is_completed') && row['is_completed'] is bool) {
+        row['is_completed'] = (row['is_completed'] as bool) ? 1 : 0;
+      }
+    }
     row['sync_status'] = 'synced';
     return row;
   }

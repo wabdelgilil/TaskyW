@@ -2,6 +2,14 @@
 
 ## سجل الإنجازات والمهام المكتملة
 
+### [2026-09-08] - إصلاح مزامنة SQLite مع Supabase (تصفية أعمدة السحابة user_id)
+- **حل خطأ SQLite: `table areas has no column named user_id`**:
+  - جداول Supabase تحتوي على عمود `user_id` لسياسات الأمان RLS، بينما جداول SQLite المحلية لا تحتاج هذا الحقل.
+  - عند جلب البيانات من السحابة، كان يتم تمرير الحقول بالكامل بما فيها `user_id` إلى جمل `INSERT/UPDATE` في SQLite مما يسبب فشل المزامنة بـ `SqliteException(1)`.
+  - تحديث [SyncService.toLocalRow](file:///d:/programming/Tasky3.0/lib/core/services/sync_service.dart) لفلترة وتصفية أي أعمدة غير معرفة محلياً وقصرها على أعمدة الجدول المحلي فقط، وضمان تحويل `is_completed` للأعداد الصحيحة.
+  - تحديث [SyncService.toCloudPayload](file:///d:/programming/Tasky3.0/lib/core/services/sync_service.dart) لإرفاق `user_id` في حمولة الرفع السحابي لضمان نجاح سياسات RLS.
+  - إضافة اختبارات وحدة واجتياز 61/61 اختبار بنجاح، و`flutter analyze` خالٍ تماماً (0 issues).
+
 ### [2026-09-08] - إعداد البناء التلقائي لمشروع Flutter Web على Vercel
 - **حل خطأ البناء على Vercel (`flutter: command not found`)**:
   - خوادم Vercel القياسية لا تحتوي على Flutter SDK مثبتاً بشكل افتراضي.
