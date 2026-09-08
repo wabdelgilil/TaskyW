@@ -42,10 +42,12 @@ class AppColors {
   static const Color darkTextMuted = Color(0xFF64748B);   // Slate 500
 
   // --- الوضع النهاري (Crisp Light Palette) ---
-  static const Color lightBackground = Color(0xFFF8FAFC); // Slate 50
+  static const Color lightBackground = Color(0xFFF1F5F9); // Slate 100 (تباين أوضح مع الكروت البيضاء)
   static const Color lightSurface = Color(0xFFFFFFFF);    // Pure White
   static const Color lightCard = Color(0xFFFFFFFF);
-  static const Color lightBorder = Color(0xFFE2E8F0);     // Slate 200
+  static const Color lightSurfaceSubtle = Color(0xFFF8FAFC); // Slate 50 (خلفية ناعمة لأعمدة الكانبان)
+  static const Color lightBorder = Color(0xFFCBD5E1);     // Slate 300 (حدود واضحة ومحددة بدلاً من الرمادي الباهت)
+  static const Color lightBorderStrong = Color(0xFF94A3B8); // Slate 400 (حدود أقوى للفواصل والأعمدة)
   static const Color lightTextPrimary = Color(0xFF0F172A); // Slate 900
   static const Color lightTextSecondary = Color(0xFF475569); // Slate 600
   static const Color lightTextMuted = Color(0xFF94A3B8);   // Slate 400

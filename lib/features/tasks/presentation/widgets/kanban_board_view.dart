@@ -105,13 +105,13 @@ class _KanbanColumn extends StatelessWidget {
           decoration: BoxDecoration(
             color: isHovered
                 ? color.withOpacity(0.12)
-                : (isDark ? AppColors.darkSurface : AppColors.lightSurface),
+                : (isDark ? AppColors.darkSurface : AppColors.lightSurfaceSubtle),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: isHovered
                   ? color
                   : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
-              width: isHovered ? 2 : 1,
+              width: isHovered ? 2 : 1.2,
             ),
           ),
           child: Column(

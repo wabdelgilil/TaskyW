@@ -82,10 +82,10 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
       width: 280,
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-        border: Border(
-          left: BorderSide(
+        border: BorderDirectional(
+          end: BorderSide(
             color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-            width: 1,
+            width: 1.2,
           ),
         ),
       ),

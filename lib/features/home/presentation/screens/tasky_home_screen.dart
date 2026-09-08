@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../areas/data/models/area_model.dart';
 import '../../../areas/data/repositories/area_repository_impl.dart';
@@ -31,10 +32,19 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
   List<TaskModel> _tasks = [];
   List<SubtaskModel> _subtasks = [];
 
+  Timer? _autoSyncTimer;
+  bool _initialSyncDone = false;
+
   @override
   void initState() {
     super.initState();
     _loadAllData();
+  }
+
+  @override
+  void dispose() {
+    _autoSyncTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadAllData() async {
@@ -59,6 +69,12 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
         });
       }
       _updatePendingSyncStatus();
+
+      // مزامنة تلقائية أولية عند بدء التطبيق لسحب أي تحديثات من الأجهزة الأخرى
+      if (!_initialSyncDone) {
+        _initialSyncDone = true;
+        _handleSilentSync();
+      }
     } catch (e) {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -71,7 +87,67 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
     } catch (_) {}
   }
 
+  /// جدولة مزامنة تلقائية في الخلفية (Debounced Auto-Sync)
+  /// تنتظر 1.5 ثانية بعد آخر تعديل لترفع البيانات دفعة واحدة دون إرهاق الشبكة
+  void _scheduleAutoSync() {
+    _autoSyncTimer?.cancel();
+    _autoSyncTimer = Timer(const Duration(milliseconds: 1500), () {
+      _handleSilentSync();
+    });
+  }
+
+  /// مزامنة هادئة تلقائية بدون إظهار رسائل خطأ مزعجة إذا كان المستخدم غير متصل
+  Future<void> _handleSilentSync() async {
+    try {
+      SyncController.instance.startSyncing();
+      final result = await SyncService.instance.syncNow();
+      if (result.authenticated) {
+        if (result.success) {
+          SyncController.instance.setSynced();
+          // إعادة تحميل البيانات إذا طُبقت أي تحديثات قادمة من السحابة
+          if (result.fetchedApplied > 0) {
+            await _reloadLocalDataOnly();
+          }
+        } else {
+          SyncController.instance.setError(result.message ?? 'تعذر إتمام المزامنة التلقائية');
+        }
+      } else {
+        // المستخدم غير مسجل الدخول، نعيد حالة الـ pending بدون إظهار خطأ
+        _updatePendingSyncStatus();
+      }
+    } catch (_) {
+      _updatePendingSyncStatus();
+    }
+  }
+
+  /// إعادة قراءة البيانات المحلية فقط دون تشغيل مزامنة إضافية
+  Future<void> _reloadLocalDataOnly() async {
+    try {
+      final areas = await _areaRepo.getAllAreas();
+      final projects = await _projectRepo.getAllProjects();
+      final tasks = await _taskRepo.getTasks();
+
+      final allSubtasks = <SubtaskModel>[];
+      for (final t in tasks) {
+        final subs = await _subtaskRepo.getSubtasksForTask(t.id);
+        allSubtasks.addAll(subs);
+      }
+
+      if (mounted) {
+        setState(() {
+          _areas = areas;
+          _projects = projects;
+          _tasks = tasks;
+          _subtasks = allSubtasks;
+        });
+      }
+      _updatePendingSyncStatus();
+    } catch (_) {}
+  }
+
   Future<void> _handleSyncRequested() async {
+    _autoSyncTimer?.cancel();
+    SyncController.instance.startSyncing();
     final result = await SyncService.instance.syncNow();
     if (result.authenticated) {
       if (result.success) {
@@ -79,7 +155,7 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
       } else {
         SyncController.instance.setError(result.message ?? 'اكتملت المزامنة مع بعض الأخطاء');
       }
-      await _loadAllData();
+      await _reloadLocalDataOnly();
     } else {
       SyncController.instance.setError(result.message ?? 'يجب تسجيل الدخول لمزامنة البيانات');
     }
@@ -94,22 +170,26 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
       await _taskRepo.insertTask(task);
     }
     await _loadAllData();
+    _scheduleAutoSync();
   }
 
   Future<void> _handleDeleteTask(String taskId) async {
     await _taskRepo.softDeleteTask(taskId);
     await _loadAllData();
+    _scheduleAutoSync();
   }
 
   Future<void> _handleTaskStatusChanged(TaskModel task, String newStatus) async {
     await _taskRepo.updateTaskStatus(task.id, newStatus);
     await _loadAllData();
+    _scheduleAutoSync();
   }
 
   Future<void> _handleToggleTaskCompleted(TaskModel task, bool isCompleted) async {
     final newStatus = isCompleted ? 'completed' : 'todo';
     await _taskRepo.updateTaskStatus(task.id, newStatus);
     await _loadAllData();
+    _scheduleAutoSync();
   }
 
   // عمليات المهام الفرعية
@@ -123,16 +203,19 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
     );
     await _subtaskRepo.insertSubtask(newSubtask);
     await _loadAllData();
+    _scheduleAutoSync();
   }
 
   Future<void> _handleToggleSubtask(SubtaskModel subtask, bool isCompleted) async {
     await _subtaskRepo.toggleSubtaskCompletion(subtask.id, isCompleted);
     await _loadAllData();
+    _scheduleAutoSync();
   }
 
   Future<void> _handleDeleteSubtask(String subtaskId) async {
     await _subtaskRepo.softDeleteSubtask(subtaskId);
     await _loadAllData();
+    _scheduleAutoSync();
   }
 
   // عمليات المجالات والمشاريع
@@ -144,11 +227,13 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
       await _areaRepo.insertArea(area);
     }
     await _loadAllData();
+    _scheduleAutoSync();
   }
 
   Future<void> _handleDeleteArea(String areaId) async {
     await _areaRepo.softDeleteArea(areaId);
     await _loadAllData();
+    _scheduleAutoSync();
   }
 
   Future<void> _handleSaveProject(ProjectModel project) async {
@@ -159,11 +244,13 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
       await _projectRepo.insertProject(project);
     }
     await _loadAllData();
+    _scheduleAutoSync();
   }
 
   Future<void> _handleDeleteProject(String projectId) async {
     await _projectRepo.softDeleteProject(projectId);
     await _loadAllData();
+    _scheduleAutoSync();
   }
 
   @override

@@ -711,7 +711,10 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
         border: Border(
-          bottom: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+          bottom: BorderSide(
+            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+            width: 1.2,
+          ),
         ),
       ),
       child: Row(
