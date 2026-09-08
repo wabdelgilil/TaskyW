@@ -383,7 +383,7 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
                         itemBuilder: (context, index) {
 
                           final share = shares[index];
-                          return _buildShareMemberTile(context, share);
+                          return _buildShareMemberTile(share);
                         },
                       ),
               ),
@@ -394,7 +394,7 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
     );
   }
 
-  Widget _buildShareMemberTile(BuildContext context, EntityShareModel share) {
+  Widget _buildShareMemberTile(EntityShareModel share) {
     final primaryColor = Theme.of(context).colorScheme.primary;
 
     return Padding(
@@ -443,11 +443,24 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
                   DropdownMenuItem(value: 'editor', child: Text('محرر', style: TextStyle(fontSize: 11))),
                   DropdownMenuItem(value: 'admin', child: Text('مسؤول', style: TextStyle(fontSize: 11))),
                 ],
-                onChanged: (newPerm) {
+                onChanged: (newPerm) async {
                   if (newPerm != null && newPerm != share.permissionLevel) {
-                    _collabController.updatePermission(
+                    final success = await _collabController.updatePermission(
                       shareId: share.id,
                       newPermissionLevel: newPerm,
+                    );
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          success
+                              ? 'تم تحديث الصلاحية إلى (${newPerm == 'admin' ? 'مسؤول' : newPerm == 'editor' ? 'محرر' : 'مشاهدة فقط'}) بنجاح'
+                              : 'تعذر تحديث الصلاحية، يرجى المحاولة لاحقاً',
+                        ),
+                        backgroundColor: success ? Colors.green.shade700 : Colors.red.shade700,
+                        duration: const Duration(seconds: 2),
+                        behavior: SnackBarBehavior.floating,
+                      ),
                     );
                   }
                 },
@@ -459,8 +472,35 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
           IconButton(
             icon: const Icon(Icons.delete_outline, size: 18, color: Colors.redAccent),
             tooltip: 'سحب الصلاحية',
-            onPressed: () {
-              _collabController.revoke(shareId: share.id);
+            onPressed: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: const Text('سحب الصلاحية', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  content: Text('هل أنت متأكد من إلغاء مشاركة هذا العنصر مع ${share.collaboratorEmail}؟'),
+                  actions: [
+                    TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('إلغاء')),
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      style: TextButton.styleFrom(foregroundColor: Colors.red),
+                      child: const Text('تأكيد السحب'),
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirm == true) {
+                final ok = await _collabController.revoke(shareId: share.id);
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(ok ? 'تم سحب الصلاحية بنجاح' : 'تعذر سحب الصلاحية'),
+                    backgroundColor: ok ? Colors.green.shade700 : Colors.red.shade700,
+                    duration: const Duration(seconds: 2),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
             },
           ),
         ],
