@@ -121,9 +121,16 @@
     - ✏️ **رؤية وتعديل (Editor)**: تغيير الحالات، وتعديل النصوص، وإضافة مهام دون صلاحية الحذف.
     - 🗑️ **تحكم كامل (Admin)**: رؤية وتعديل وحذف المهام والمشاريع التابعة للنطاق.
   - جدول صلاحيات ومشاركات موحد (`entity_shares`) مع إسناد المهام لأعضاء الفريق (`assigned_to`) وواجهة موحدة `UniversalShareDialog`.
+  - [ ] **تقييد صلاحية إعادة المشاركة وإدارة الصلاحيات (Admin-Only Re-sharing & Permission Delegation)**:
+    - منع المتعاونين من مشاركة الكيان أو تعديل صلاحيات أي عضو آخر إلا إذا كانت صلاحيتهم **مسؤول (Admin)** أو **المالك الأصلي (Owner)**؛ وحظر وصول الـ Viewers والـ Editors لنافذة التعديل أو قفلها للعرض فقط.
+
+### 3. تجربة وسلوك المهام المكتملة (Completed Tasks UX & Grouping)
+- [ ] **عزل وتمييز المهام المكتملة في أسفل القائمة (Completed Tasks Section with Distinct Styling)**:
+  - عند الضغط على الـ Checkbox وإكمال المهمة، تنتقل تلقائياً إلى قسم سفلي منفصل مخصص للمهام المكتملة (`Completed Tasks Section`).
+  - تطبيق تصميم وشكل بصري مختلف ومميز للمهام المكتملة (مثال: خط مشطوب Strikethrough، شفافية خفيفة Opacity، لون باهت هادئ، وخيار طي/فتح للقسم).
 
 
-### 3. وحدات وميزات متقدمة وتوسعية (Advanced Modular Features)
+### 4. وحدات وميزات متقدمة وتوسعية (Advanced Modular Features)
 *(المواصفات وخارطة الطريق متوفرة في: [06_FUTURE_MODULES_ROADMAP.md](file:///d:/programming/Tasky3.0/project_management/06_FUTURE_MODULES_ROADMAP.md))*
 - [x] نظام الوسوم والتصنيفات الديناميكية الحرة (Tags & Labels) مع فلترة متعددة وواجهات كاملة (قائمة، كانبان، درج تفاصيل، شريط جانبي).
 - [x] المهام المتكررة والمجدولة دورياً (Recurring Tasks / Scheduled Routines) بدعم يومي/أسبوعي/شهري/سنوي وشارة 🔁 وتوليد تلقائي للنسخة التالية عند الإكمال.
@@ -131,7 +138,7 @@
 - [ ] قسم الموارد والمعرفة (Resources & Knowledge Vault): ملاحظات عامة، جهات اتصال، مراجع، روابط سريعة.
 - [ ] تقارير ومؤشرات أداء متقدمة (Productivity Analytics & Time Tracking).
 
-### 4. طريقة العرض الجدولي التفاعلي (Interactive Table / DataGrid View - شبيه بجداول Notion/Excel)
+### 5. طريقة العرض الجدولي التفاعلي (Interactive Table / DataGrid View - شبيه بجداول Notion/Excel)
 *(تفاصيل سيناريو الجداول متوفرة في: [06_FUTURE_MODULES_ROADMAP.md](file:///d:/programming/Tasky3.0/project_management/06_FUTURE_MODULES_ROADMAP.md))*
 - [x] **العرض الجدولي الشامل (Global Table View)**:
   - جدول بيانات تفاعلي متقدم للمهام (`TasksTableView`) مدمج في مساحة العمل الرئيسية مع مبدل ثلاثي (قائمة | كانبان | جدول).
