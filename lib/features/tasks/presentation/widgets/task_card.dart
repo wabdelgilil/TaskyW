@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/models/tag_model.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/priority_badge.dart';
 import '../../../../core/widgets/status_badge.dart';
@@ -14,6 +15,7 @@ class TaskCard extends StatelessWidget {
   final String? projectName;
   final String? projectEmoji;
   final String? areaName;
+  final List<TagModel> tags;
 
   const TaskCard({
     super.key,
@@ -25,6 +27,7 @@ class TaskCard extends StatelessWidget {
     this.projectName,
     this.projectEmoji,
     this.areaName,
+    this.tags = const [],
   });
 
   bool get isCompleted => task.status == 'completed';
@@ -253,6 +256,74 @@ class TaskCard extends StatelessWidget {
                                   ],
                                 ),
                               ),
+
+                              // شارة المهمة المتكررة
+                              if (task.isRecurring)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: isDark ? const Color(0xFF8B5CF6).withOpacity(0.2) : const Color(0xFF8B5CF6).withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(
+                                      color: isDark ? const Color(0xFFA78BFA).withOpacity(0.4) : const Color(0xFF7C3AED).withOpacity(0.3),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.repeat_rounded, size: 11, color: Color(0xFF8B5CF6)),
+                                      const SizedBox(width: 3),
+                                      Text(
+                                        task.recurrencePattern == 'daily'
+                                            ? 'يومياً'
+                                            : (task.recurrencePattern == 'weekly'
+                                                ? 'أسبوعياً'
+                                                : (task.recurrencePattern == 'monthly' ? 'شهرياً' : 'متكررة')),
+                                        style: const TextStyle(
+                                          fontSize: 10.5,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF8B5CF6),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                              // شارات الوسوم
+                              for (final tag in tags)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.fromHex(tag.colorHex).withOpacity(isDark ? 0.22 : 0.12),
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(
+                                      color: AppColors.fromHex(tag.colorHex).withOpacity(isDark ? 0.6 : 0.4),
+                                      width: 0.9,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Container(
+                                        width: 6,
+                                        height: 6,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.fromHex(tag.colorHex),
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        tag.name,
+                                        style: TextStyle(
+                                          fontSize: 10.5,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.adaptiveCustomColor(AppColors.fromHex(tag.colorHex), isDark),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                           ],
                         ),
                       ),

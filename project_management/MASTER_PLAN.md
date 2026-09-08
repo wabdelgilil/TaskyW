@@ -100,9 +100,9 @@
 ## القسم الثاني: التحديثات المستقبلية (Section 2: Future Updates)
 
 ### 1. المزامنة السحابية والحسابات (Supabase Cloud Sync & Auth)
-- [ ] تفعيل خادم Supabase وتطبيق قواعد البيانات (PostgreSQL Migrations).
-- [ ] محرك المزامنة التلقائي في الخلفية (Offline-to-Cloud Sync Engine) مع معالجة النزاعات (Conflict Resolution).
-- [ ] تسجيل الدخول والمصادقة (Email/Password, Magic Link, Google Auth).
+- [x] تفعيل خادم Supabase وتطبيق قواعد البيانات (PostgreSQL Migrations).
+- [x] محرك المزامنة التلقائي في الخلفية (Offline-to-Cloud Sync Engine) مع معالجة النزاعات (Conflict Resolution).
+- [x] تسجيل الدخول والمصادقة (Email/Password, Magic Link, Google Auth).
 
 ### 2. منظومة المشاركة والصلاحيات والعمل الجماعي (Sharing & Collaboration)
 *(المواصفات التفصيلية للمشاركة متوفرة في: [05_COLLABORATION_AND_SHARING.md](file:///d:/programming/Tasky3.0/project_management/05_COLLABORATION_AND_SHARING.md))*
@@ -110,9 +110,9 @@
   - مشاركة على مستوى **المجال (Area)**: الوصول للمجال بكامل مشاريعه ومهامه.
   - مشاركة على مستوى **المشروع (Project)**: الوصول للمشروع المحدد ومهامه فقط.
   - مشاركة على مستوى **المهمة (Task)**: الوصول لمهمة فردية وخطواتها الفرعية.
-- [ ] **المشاركة برابط عام خارجي بدون حساب (Public Read-Only Links)**:
+- [x] **المشاركة برابط عام خارجي بدون حساب (Public Read-Only Links)**:
   - توليد رابط فريد ومؤمن (`https://domain/share/[share_token]`) لأي مجال أو مشروع أو مهمة.
-  - صلاحية **رؤية وعرض فقط (Read-Only)** 100% دون حاجة لحساب، مع إمكانية تعطيل الرابط في أي وقت.
+  - صلاحية **رؤية وعرض فقط (Read-Only)** 100% دون حاجة لحساب، عبر واجهة PublicShareScreen المخصصة مع إمكانية تعطيل الرابط في أي وقت.
 - [ ] **المشاركة مع أعضاء الفريق بحساب (Authenticated Collaborators with Roles)**:
   - دعوة الأشخاص بالبريد الإلكتروني للوصول إلى المجال أو المشروع أو المهمة عبر السحابة.
   - **تحديد الصلاحية أثناء المشاركة بدقة**:
@@ -123,8 +123,8 @@
 
 ### 3. وحدات وميزات متقدمة وتوسعية (Advanced Modular Features)
 *(المواصفات وخارطة الطريق متوفرة في: [06_FUTURE_MODULES_ROADMAP.md](file:///d:/programming/Tasky3.0/project_management/06_FUTURE_MODULES_ROADMAP.md))*
-- [ ] نظام الوسوم والتصنيفات الديناميكية الحرة (Tags & Labels) مع فلترة متعددة.
-- [ ] المهام المتكررة والمجدولة دورياً (Recurring Tasks / Scheduled Routines).
+- [x] نظام الوسوم والتصنيفات الديناميكية الحرة (Tags & Labels) مع فلترة متعددة وواجهات كاملة (قائمة، كانبان، درج تفاصيل، شريط جانبي).
+- [x] المهام المتكررة والمجدولة دورياً (Recurring Tasks / Scheduled Routines) بدعم يومي/أسبوعي/شهري/سنوي وشارة 🔁 وتوليد تلقائي للنسخة التالية عند الإكمال.
 - [ ] إرفاق المستندات والصور والملفات (File & Document Attachments) ومزامنتها مع Supabase Storage.
 - [ ] قسم الموارد والمعرفة (Resources & Knowledge Vault): ملاحظات عامة، جهات اتصال، مراجع، روابط سريعة.
 - [ ] تقارير ومؤشرات أداء متقدمة (Productivity Analytics & Time Tracking).

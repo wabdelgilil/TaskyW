@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/models/tag_model.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../data/models/area_model.dart';
@@ -12,11 +13,14 @@ import '../../../../core/services/sync_controller.dart';
 class HierarchicalTreeSidebar extends StatefulWidget {
   final List<AreaModel> areas;
   final List<ProjectModel> projects;
+  final List<TagModel> tags;
   final String? selectedFilter; // 'today', 'upcoming', 'waiting', 'urgent', 'all'
   final String? selectedAreaId;
   final String? selectedProjectId;
+  final String? selectedTagId;
   final Map<String, int> areaTaskCounts;
   final Map<String, int> projectTaskCounts;
+  final Map<String, int> tagTaskCounts;
   final int todayCount;
   final int upcomingCount;
   final int waitingCount;
@@ -24,18 +28,23 @@ class HierarchicalTreeSidebar extends StatefulWidget {
   final Function(String filter) onSelectFilter;
   final Function(AreaModel area) onSelectArea;
   final Function(ProjectModel project) onSelectProject;
+  final ValueChanged<String?>? onSelectTag;
   final VoidCallback? onAddNewArea;
   final Function(String areaId)? onAddNewProject;
+  final VoidCallback? onAddTag;
 
   const HierarchicalTreeSidebar({
     super.key,
     required this.areas,
     required this.projects,
+    this.tags = const [],
     this.selectedFilter,
     this.selectedAreaId,
     this.selectedProjectId,
+    this.selectedTagId,
     this.areaTaskCounts = const {},
     this.projectTaskCounts = const {},
+    this.tagTaskCounts = const {},
     this.todayCount = 0,
     this.upcomingCount = 0,
     this.waitingCount = 0,
@@ -43,8 +52,10 @@ class HierarchicalTreeSidebar extends StatefulWidget {
     required this.onSelectFilter,
     required this.onSelectArea,
     required this.onSelectProject,
+    this.onSelectTag,
     this.onAddNewArea,
     this.onAddNewProject,
+    this.onAddTag,
   });
 
   @override
@@ -348,6 +359,102 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
                     ],
                   );
                 }),
+
+                const SizedBox(height: 16),
+
+                // 3. قسم الوسوم والتصنيفات (Tags & Labels)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildSectionHeader('الوسوم والتصنيفات'),
+                    if (widget.onAddTag != null)
+                      IconButton(
+                        icon: const Icon(Icons.add, size: 16),
+                        tooltip: 'إنشاء وسم جديد',
+                        splashRadius: 14,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        onPressed: widget.onAddTag,
+                      ),
+                  ],
+                ),
+                if (widget.tags.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    child: Text(
+                      'لا توجد وسوم مضافة',
+                      style: TextStyle(fontSize: 11.5, color: AppColors.textMuted(context)),
+                    ),
+                  )
+                else
+                  ...widget.tags.map((tag) {
+                    final isSelected = widget.selectedTagId == tag.id;
+                    final rawTagColor = AppColors.fromHex(tag.colorHex);
+                    final tagColor = AppColors.adaptiveCustomColor(rawTagColor, isDark);
+                    final count = widget.tagTaskCounts[tag.id] ?? 0;
+
+                    return InkWell(
+                      onTap: () {
+                        if (isSelected) {
+                          widget.onSelectTag?.call(null);
+                        } else {
+                          widget.onSelectTag?.call(tag.id);
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(6),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                        margin: const EdgeInsets.symmetric(vertical: 1.5),
+                        decoration: BoxDecoration(
+                          color: isSelected ? tagColor.withOpacity(0.18) : Colors.transparent,
+                          borderRadius: BorderRadius.circular(6),
+                          border: isSelected
+                              ? Border.all(color: tagColor.withOpacity(0.5), width: 1)
+                              : null,
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: tagColor,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                tag.name,
+                                style: TextStyle(
+                                  fontSize: 12.5,
+                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                  color: isSelected ? tagColor : AppColors.textPrimary(context),
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (count > 0)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                                decoration: BoxDecoration(
+                                  color: isDark ? Colors.black38 : Colors.black.withOpacity(0.06),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  '$count',
+                                  style: TextStyle(
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textSecondary(context),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
               ],
             ),
           ),

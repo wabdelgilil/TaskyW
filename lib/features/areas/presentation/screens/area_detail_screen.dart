@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/models/tag_model.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/color_picker_dialog.dart';
 import '../../../../core/widgets/confirm_delete_dialog.dart';
@@ -14,6 +15,7 @@ class AreaDetailScreen extends StatelessWidget {
   final AreaModel area;
   final List<ProjectModel> areaProjects;
   final List<TaskModel> areaTasks;
+  final Map<String, List<TagModel>> taskTags;
   final Function(AreaModel updatedArea) onUpdateArea;
   final Function(String areaId) onDeleteArea;
   final Function(ProjectModel project)? onProjectTap;
@@ -27,6 +29,7 @@ class AreaDetailScreen extends StatelessWidget {
     required this.area,
     required this.areaProjects,
     required this.areaTasks,
+    this.taskTags = const {},
     required this.onUpdateArea,
     required this.onDeleteArea,
     this.onProjectTap,
@@ -409,6 +412,7 @@ class AreaDetailScreen extends StatelessWidget {
           else
             TaskListView(
               tasks: standaloneTasks,
+              taskTags: taskTags,
               onTaskTap: onTaskTap,
               onToggleCompleted: onToggleTaskCompleted,
               onAddTask: onAddNewTask,

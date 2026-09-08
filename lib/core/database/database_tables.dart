@@ -52,6 +52,11 @@ class DatabaseTables {
       due_date TEXT,
       reminder_time TEXT,
       share_token TEXT UNIQUE,
+      is_recurring INTEGER NOT NULL DEFAULT 0,
+      recurrence_pattern TEXT,
+      recurrence_interval INTEGER NOT NULL DEFAULT 1,
+      recurrence_end_date TEXT,
+      assigned_to TEXT,
       order_index INTEGER NOT NULL DEFAULT 0,
       sync_status TEXT NOT NULL DEFAULT 'pending_insert',
       created_at TEXT NOT NULL,
@@ -92,9 +97,13 @@ class DatabaseTables {
 
   static const String createTaskTagTable = '''
     CREATE TABLE IF NOT EXISTS task_tags (
+      id TEXT,
       task_id TEXT NOT NULL,
       tag_id TEXT NOT NULL,
       created_at TEXT NOT NULL,
+      sync_status TEXT NOT NULL DEFAULT 'pending_insert',
+      updated_at TEXT,
+      deleted_at TEXT,
       PRIMARY KEY (task_id, tag_id),
       FOREIGN KEY (task_id) REFERENCES tasks (id) ON DELETE CASCADE,
       FOREIGN KEY (tag_id) REFERENCES tags (id) ON DELETE CASCADE

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import '../../../../core/models/tag_model.dart';
+import '../../../../core/services/export_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/color_picker_dialog.dart';
 import '../../../../core/widgets/emoji_picker_dialog.dart';
@@ -24,6 +27,8 @@ class MainLayoutScreen extends StatefulWidget {
   final List<ProjectModel> projects;
   final List<TaskModel> tasks;
   final List<SubtaskModel> subtasks;
+  final List<TagModel> tags;
+  final Map<String, List<TagModel>> taskTags;
 
   // دوال العمليات التفاعلية (Callbacks)
   final Future<void> Function()? onSyncRequested;
@@ -40,6 +45,11 @@ class MainLayoutScreen extends StatefulWidget {
   final Function(ProjectModel project)? onSaveProject;
   final Function(String projectId)? onDeleteProject;
 
+  final Function(TaskModel task, TagModel tag)? onAssignTag;
+  final Function(TaskModel task, TagModel tag)? onRemoveTag;
+  final Function(String name, String colorHex)? onCreateTag;
+  final Function(TagModel tag)? onDeleteTag;
+
   final Function(String query, {String? areaId, String? projectId})? onSearch;
 
   const MainLayoutScreen({
@@ -48,6 +58,8 @@ class MainLayoutScreen extends StatefulWidget {
     required this.projects,
     required this.tasks,
     this.subtasks = const [],
+    this.tags = const [],
+    this.taskTags = const {},
     this.onSyncRequested,
     this.onSaveTask,
     this.onDeleteTask,
@@ -60,6 +72,10 @@ class MainLayoutScreen extends StatefulWidget {
     this.onDeleteArea,
     this.onSaveProject,
     this.onDeleteProject,
+    this.onAssignTag,
+    this.onRemoveTag,
+    this.onCreateTag,
+    this.onDeleteTag,
     this.onSearch,
   });
 
@@ -72,6 +88,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
   String _activeFilter = 'today'; // 'today', 'upcoming', 'waiting', 'urgent', 'all'
   String? _selectedAreaId;
   String? _selectedProjectId;
+  String? _selectedTagId;
 
   // طريقة العرض في مساحة العمل
   String _viewMode = 'list'; // 'list' أو 'kanban'
@@ -97,45 +114,66 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
 
   // --- تصفية المهام حسب السياق النشط ---
   List<TaskModel> get _contextTasks {
-    if (_isSearchActive) return _searchResults;
+    List<TaskModel> baseTasks;
+    if (_isSearchActive) {
+      baseTasks = _searchResults;
+    } else if (_selectedProjectId != null) {
+      baseTasks = widget.tasks.where((t) => t.projectId == _selectedProjectId).toList();
+    } else if (_selectedAreaId != null) {
+      baseTasks = widget.tasks.where((t) => t.areaId == _selectedAreaId).toList();
+    } else {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
 
-    if (_selectedProjectId != null) {
-      return widget.tasks.where((t) => t.projectId == _selectedProjectId).toList();
-    }
-    if (_selectedAreaId != null) {
-      return widget.tasks.where((t) => t.areaId == _selectedAreaId).toList();
+      switch (_activeFilter) {
+        case 'today':
+          baseTasks = widget.tasks.where((t) {
+            if (t.status == 'completed') return false;
+            if (t.dueDate == null) return false;
+            final d = DateTime(t.dueDate!.year, t.dueDate!.month, t.dueDate!.day);
+            return d.isAtSameMomentAs(today) || d.isBefore(today);
+          }).toList();
+          break;
+        case 'upcoming':
+          baseTasks = widget.tasks.where((t) {
+            if (t.status == 'completed') return false;
+            if (t.dueDate == null) return false;
+            final d = DateTime(t.dueDate!.year, t.dueDate!.month, t.dueDate!.day);
+            return d.isAfter(today);
+          }).toList();
+          break;
+        case 'waiting':
+          baseTasks = widget.tasks.where((t) => t.status == 'waiting').toList();
+          break;
+        case 'urgent':
+          baseTasks = widget.tasks.where((t) => t.priority == 'urgent' && t.status != 'completed').toList();
+          break;
+        case 'all':
+        default:
+          baseTasks = widget.tasks;
+          break;
+      }
     }
 
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-
-    switch (_activeFilter) {
-      case 'today':
-        return widget.tasks.where((t) {
-          if (t.status == 'completed') return false;
-          if (t.dueDate == null) return false;
-          final d = DateTime(t.dueDate!.year, t.dueDate!.month, t.dueDate!.day);
-          return d.isAtSameMomentAs(today) || d.isBefore(today);
-        }).toList();
-      case 'upcoming':
-        return widget.tasks.where((t) {
-          if (t.status == 'completed') return false;
-          if (t.dueDate == null) return false;
-          final d = DateTime(t.dueDate!.year, t.dueDate!.month, t.dueDate!.day);
-          return d.isAfter(today);
-        }).toList();
-      case 'waiting':
-        return widget.tasks.where((t) => t.status == 'waiting').toList();
-      case 'urgent':
-        return widget.tasks.where((t) => t.priority == 'urgent' && t.status != 'completed').toList();
-      case 'all':
-      default:
-        return widget.tasks;
+    if (_selectedTagId != null) {
+      return baseTasks.where((t) {
+        final tags = widget.taskTags[t.id] ?? const [];
+        return tags.any((tag) => tag.id == _selectedTagId);
+      }).toList();
     }
+
+    return baseTasks;
   }
 
   // عنوان السياق الحالي
   String get _currentContextTitle {
+    if (_selectedTagId != null) {
+      final tag = widget.tags.firstWhere(
+        (t) => t.id == _selectedTagId,
+        orElse: () => TagModel(id: '', name: 'وسم', createdAt: DateTime.now(), updatedAt: DateTime.now()),
+      );
+      return '🏷️ وسم: ${tag.name}';
+    }
     if (_selectedProjectId != null) {
       final p = widget.projects.firstWhere(
         (p) => p.id == _selectedProjectId,
@@ -552,6 +590,129 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
     );
   }
 
+  // نافذة سريعة لإنشاء وسم جديد
+  void _showCreateTagDialog() {
+    final nameCtrl = TextEditingController();
+    String selectedHex = '#3B82F6';
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final palette = [
+            '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444', '#EC4899', '#06B6D4', '#64748B',
+          ];
+
+          return AlertDialog(
+            title: const Text('إنشاء وسم جديد', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            content: SizedBox(
+              width: 340,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextField(
+                    controller: nameCtrl,
+                    autofocus: true,
+                    decoration: const InputDecoration(labelText: 'اسم الوسم', hintText: 'مثلاً: عاجل، قطع_غيار...'),
+                  ),
+                  const SizedBox(height: 14),
+                  const Text('اختر لون الوسم:', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: palette.map((hex) {
+                      final isPicked = selectedHex == hex;
+                      final c = AppColors.fromHex(hex);
+                      return GestureDetector(
+                        onTap: () => setDialogState(() => selectedHex = hex),
+                        child: Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: c,
+                            shape: BoxShape.circle,
+                            border: isPicked ? Border.all(color: Colors.white, width: 2.5) : null,
+                            boxShadow: isPicked
+                                ? [BoxShadow(color: c.withOpacity(0.6), blurRadius: 4, spreadRadius: 1)]
+                                : null,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('إلغاء')),
+              ElevatedButton(
+                onPressed: () {
+                  final name = nameCtrl.text.trim();
+                  if (name.isNotEmpty) {
+                    widget.onCreateTag?.call(name, selectedHex);
+                    Navigator.pop(ctx);
+                  }
+                },
+                child: const Text('إنشاء'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  // تصدير المهام الحالية إلى ملف CSV متوافق مع Excel
+  void _exportCurrentTasksToCsv() {
+    final tasksToExport = _contextTasks;
+    if (tasksToExport.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('لا توجد مهام لتصديرها في العرض الحالي')),
+      );
+      return;
+    }
+
+    final pMap = {for (final p in widget.projects) p.id: p.name};
+    final aMap = {for (final a in widget.areas) a.id: a.name};
+    final csv = ExportService.exportTasksToCsv(
+      tasks: tasksToExport,
+      projectNames: pMap,
+      areaNames: aMap,
+    );
+
+    Clipboard.setData(ClipboardData(text: csv));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('تم تصدير ${tasksToExport.length} مهمة ونسخ CSV إلى الحافظة بنجاح!'),
+        action: SnackBarAction(
+          label: 'معاينة',
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: const Text('بيانات CSV المُصدّرة'),
+                content: SizedBox(
+                  width: 500,
+                  height: 300,
+                  child: SingleChildScrollView(
+                    child: SelectableText(csv, style: const TextStyle(fontFamily: 'monospace', fontSize: 11)),
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text('إغلاق'),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -587,15 +748,31 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
       }
     }
 
+    final tagTaskCounts = <String, int>{};
+    for (final entry in widget.taskTags.entries) {
+      final task = widget.tasks.firstWhere(
+        (t) => t.id == entry.key,
+        orElse: () => TaskModel(id: '', areaId: '', title: '', status: 'completed', priority: 'low', createdAt: DateTime.now(), updatedAt: DateTime.now()),
+      );
+      if (task.id.isNotEmpty && task.status != 'completed') {
+        for (final tag in entry.value) {
+          tagTaskCounts[tag.id] = (tagTaskCounts[tag.id] ?? 0) + 1;
+        }
+      }
+    }
+
     // بناء الشجرة الجانبية
     final treeSidebar = HierarchicalTreeSidebar(
       areas: widget.areas,
       projects: widget.projects,
-      selectedFilter: _selectedAreaId == null && _selectedProjectId == null ? _activeFilter : null,
+      tags: widget.tags,
+      selectedFilter: _selectedAreaId == null && _selectedProjectId == null && _selectedTagId == null ? _activeFilter : null,
       selectedAreaId: _selectedAreaId,
       selectedProjectId: _selectedProjectId,
+      selectedTagId: _selectedTagId,
       areaTaskCounts: areaTaskCounts,
       projectTaskCounts: projectTaskCounts,
+      tagTaskCounts: tagTaskCounts,
       todayCount: todayCount,
       upcomingCount: upcomingCount,
       waitingCount: waitingCount,
@@ -605,6 +782,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
           _activeFilter = filter;
           _selectedAreaId = null;
           _selectedProjectId = null;
+          _selectedTagId = null;
           _isSearchActive = false;
           _searchController.clear();
         });
@@ -613,6 +791,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
         setState(() {
           _selectedAreaId = area.id;
           _selectedProjectId = null;
+          _selectedTagId = null;
           _isSearchActive = false;
           _searchController.clear();
         });
@@ -621,12 +800,25 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
         setState(() {
           _selectedProjectId = project.id;
           _selectedAreaId = project.areaId;
+          _selectedTagId = null;
+          _isSearchActive = false;
+          _searchController.clear();
+        });
+      },
+      onSelectTag: (tagId) {
+        setState(() {
+          _selectedTagId = tagId;
+          if (tagId != null) {
+            _selectedAreaId = null;
+            _selectedProjectId = null;
+          }
           _isSearchActive = false;
           _searchController.clear();
         });
       },
       onAddNewArea: _showAddAreaDialog,
       onAddNewProject: _showAddProjectDialog,
+      onAddTag: _showCreateTagDialog,
     );
 
     return Scaffold(
@@ -650,7 +842,11 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // رأس الصفحة وشريط البحث
-                _buildTopHeader(isDark, screenWidth),
+                LayoutBuilder(
+                  builder: (context, headerConstraints) {
+                    return _buildTopHeader(isDark, headerConstraints.maxWidth);
+                  },
+                ),
 
                 // المحتوى النشط لمساحة العمل
                 Expanded(
@@ -667,6 +863,11 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
               subtasks: widget.subtasks.where((s) => s.taskId == _openedTask!.id).toList(),
               areas: widget.areas,
               projects: widget.projects,
+              availableTags: widget.tags,
+              taskTags: widget.taskTags[_openedTask!.id] ?? const [],
+              onAssignTag: (tag) => widget.onAssignTag?.call(_openedTask!, tag),
+              onRemoveTag: (tag) => widget.onRemoveTag?.call(_openedTask!, tag),
+              onCreateTag: widget.onCreateTag,
               onClose: () => setState(() => _openedTask = null),
               onSaveTask: (updated) {
                 widget.onSaveTask?.call(updated);
@@ -837,6 +1038,15 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
 
             const SizedBox(width: 2),
 
+            // زر تصدير CSV مدمج للموبايل
+            IconButton(
+              icon: const Icon(Icons.download_rounded, size: 20),
+              tooltip: 'تصدير المهام إلى CSV / Excel',
+              onPressed: _exportCurrentTasksToCsv,
+            ),
+
+            const SizedBox(width: 2),
+
             // زر المزامنة السحابية المدمج بدون نص يفيض
             SyncStatusButton(
               onTriggerSync: widget.onSyncRequested,
@@ -853,8 +1063,11 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
     }
 
     // 3. الهيدر للتابلت والشاشات الكبيرة (Desktop & Tablet)
+    final bool isWide = screenWidth >= 800;
+    final bool isMedium = screenWidth >= 550;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: headerDecoration,
       child: Row(
         children: [
@@ -868,19 +1081,19 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
 
           // عنوان السياق الحالي
           Expanded(
-            flex: 2,
+            flex: isWide ? 2 : 3,
             child: Text(
               _currentContextTitle,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: isWide ? 18 : 15, fontWeight: FontWeight.bold),
               overflow: TextOverflow.ellipsis,
             ),
           ),
 
-          const SizedBox(width: 12),
+          const SizedBox(width: 8),
 
           // حقل البحث المقيّد بالسياق
           Expanded(
-            flex: 3,
+            flex: isWide ? 3 : 4,
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -903,52 +1116,86 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
 
           // زر توسيع البحث للنطاق الشامل عند التواجد داخل مشروع أو مجال
           if ((_selectedAreaId != null || _selectedProjectId != null) && _isSearchActive) ...[
-            const SizedBox(width: 8),
-            TextButton.icon(
-              icon: Icon(_forceGlobalSearch ? Icons.filter_alt_off : Icons.public, size: 16),
-              label: Text(_forceGlobalSearch ? 'إلغاء الشامل' : 'بحث شامل'),
-              onPressed: () {
-                setState(() {
-                  _forceGlobalSearch = !_forceGlobalSearch;
-                  _onSearchChanged(_searchController.text);
-                });
-              },
-            ),
+            const SizedBox(width: 6),
+            isWide
+                ? TextButton.icon(
+                    icon: Icon(_forceGlobalSearch ? Icons.filter_alt_off : Icons.public, size: 16),
+                    label: Text(_forceGlobalSearch ? 'إلغاء الشامل' : 'بحث شامل'),
+                    onPressed: () {
+                      setState(() {
+                        _forceGlobalSearch = !_forceGlobalSearch;
+                        _onSearchChanged(_searchController.text);
+                      });
+                    },
+                  )
+                : IconButton(
+                    icon: Icon(_forceGlobalSearch ? Icons.filter_alt_off : Icons.public, size: 18),
+                    tooltip: _forceGlobalSearch ? 'إلغاء الشامل' : 'بحث شامل',
+                    onPressed: () {
+                      setState(() {
+                        _forceGlobalSearch = !_forceGlobalSearch;
+                        _onSearchChanged(_searchController.text);
+                      });
+                    },
+                  ),
           ],
 
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
 
           // أزرار التبديل السريع للعرض (List / Kanban)
-          SegmentedButton<String>(
-            segments: const [
-              ButtonSegment(value: 'list', icon: Icon(Icons.view_list_rounded, size: 16)),
-              ButtonSegment(value: 'kanban', icon: Icon(Icons.view_kanban_rounded, size: 16)),
-            ],
-            selected: {_viewMode},
-            onSelectionChanged: (set) => setState(() => _viewMode = set.first),
+          if (isMedium)
+            SegmentedButton<String>(
+              segments: const [
+                ButtonSegment(value: 'list', icon: Icon(Icons.view_list_rounded, size: 16)),
+                ButtonSegment(value: 'kanban', icon: Icon(Icons.view_kanban_rounded, size: 16)),
+              ],
+              selected: {_viewMode},
+              onSelectionChanged: (set) => setState(() => _viewMode = set.first),
+            )
+          else
+            IconButton(
+              icon: Icon(_viewMode == 'kanban' ? Icons.view_list_rounded : Icons.view_kanban_rounded, size: 20),
+              tooltip: _viewMode == 'kanban' ? 'عرض القوائم' : 'عرض الكانبان',
+              onPressed: () => setState(() => _viewMode = _viewMode == 'kanban' ? 'list' : 'kanban'),
+            ),
+
+          const SizedBox(width: 6),
+
+          // زر تصدير المهام إلى CSV / Excel
+          IconButton(
+            icon: const Icon(Icons.download_rounded, size: 20),
+            tooltip: 'تصدير المهام الحالية إلى CSV / Excel',
+            onPressed: _exportCurrentTasksToCsv,
           ),
 
-          const SizedBox(width: 10),
+          const SizedBox(width: 4),
 
           // زر حالة وطلب المزامنة السحابية (Offline-First Sync)
           SyncStatusButton(
             onTriggerSync: widget.onSyncRequested,
-            compact: !isDesktop,
+            compact: !isWide,
           ),
 
-          const SizedBox(width: 10),
+          const SizedBox(width: 6),
 
           // زر إضافة مهمة سريعة
-          ElevatedButton.icon(
-            onPressed: () => _showAddTaskDialog(),
-            icon: const Icon(Icons.add, size: 18),
-            label: const Text('مهمة جديدة'),
-          ),
+          if (isWide)
+            ElevatedButton.icon(
+              onPressed: () => _showAddTaskDialog(),
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('مهمة جديدة'),
+            )
+          else
+            IconButton.filled(
+              onPressed: () => _showAddTaskDialog(),
+              icon: const Icon(Icons.add, size: 18),
+              tooltip: 'مهمة جديدة',
+            ),
 
-          const SizedBox(width: 10),
+          const SizedBox(width: 6),
 
           // زر الحساب والمصادقة (Supabase Auth)
-          _buildAuthButton(isCompact: false),
+          _buildAuthButton(isCompact: !isWide),
         ],
       ),
     );
@@ -1039,6 +1286,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
       return ProjectDetailScreen(
         project: project,
         projectTasks: _contextTasks,
+        taskTags: widget.taskTags,
         onUpdateProject: (up) => widget.onSaveProject?.call(up),
         onDeleteProject: (id) {
           widget.onDeleteProject?.call(id);
@@ -1062,6 +1310,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
         area: area,
         areaProjects: areaProjects,
         areaTasks: _contextTasks,
+        taskTags: widget.taskTags,
         onUpdateArea: (up) => widget.onSaveArea?.call(up),
         onDeleteArea: (id) {
           widget.onDeleteArea?.call(id);
@@ -1090,6 +1339,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
         tasks: _contextTasks,
         subtaskCounts: subtaskCounts,
         completedSubtaskCounts: completedSubtaskCounts,
+        taskTags: widget.taskTags,
         onTaskTap: (t) => setState(() => _openedTask = t),
         onTaskStatusChanged: (task, status) => widget.onTaskStatusChanged?.call(task, status),
         onAddTaskInColumn: (status) => _showAddTaskDialog(defaultStatus: status),
@@ -1100,6 +1350,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
       tasks: _contextTasks,
       subtaskCounts: subtaskCounts,
       completedSubtaskCounts: completedSubtaskCounts,
+      taskTags: widget.taskTags,
       emptyMessage: _isSearchActive
           ? 'لم يتم العثور على أي نتائج تطابق "${_searchController.text}"'
           : 'لا توجد مهام في هذا القسم حالياً',

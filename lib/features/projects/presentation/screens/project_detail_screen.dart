@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/models/tag_model.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/color_picker_dialog.dart';
 import '../../../../core/widgets/confirm_delete_dialog.dart';
@@ -13,6 +14,7 @@ import '../../data/models/project_model.dart';
 class ProjectDetailScreen extends StatefulWidget {
   final ProjectModel project;
   final List<TaskModel> projectTasks;
+  final Map<String, List<TagModel>> taskTags;
   final Function(ProjectModel updatedProject) onUpdateProject;
   final Function(String projectId) onDeleteProject;
   final Function(TaskModel task)? onTaskTap;
@@ -24,6 +26,7 @@ class ProjectDetailScreen extends StatefulWidget {
     super.key,
     required this.project,
     required this.projectTasks,
+    this.taskTags = const {},
     required this.onUpdateProject,
     required this.onDeleteProject,
     this.onTaskTap,
@@ -382,6 +385,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
             child: _activeView == 'list'
                 ? TaskListView(
                     tasks: widget.projectTasks,
+                    taskTags: widget.taskTags,
                     emptyMessage: 'لا توجد مهام مضافة لهذا المشروع حتى الآن',
                     onTaskTap: widget.onTaskTap,
                     onToggleCompleted: widget.onToggleTaskCompleted,
@@ -389,6 +393,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                   )
                 : KanbanBoardView(
                     tasks: widget.projectTasks,
+                    taskTags: widget.taskTags,
                     onTaskTap: widget.onTaskTap,
                     onTaskStatusChanged: (task, status) => widget.onTaskStatusChanged?.call(task, status),
                     onAddTaskInColumn: (_) => widget.onAddNewTask?.call(),

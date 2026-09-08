@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/models/tag_model.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/models/task_model.dart';
 import 'task_card.dart';
@@ -11,6 +12,7 @@ class TaskListView extends StatelessWidget {
   final VoidCallback? onAddTask;
   final Map<String, int> subtaskCounts;
   final Map<String, int> completedSubtaskCounts;
+  final Map<String, List<TagModel>> taskTags;
   final String emptyMessage;
 
   const TaskListView({
@@ -21,6 +23,7 @@ class TaskListView extends StatelessWidget {
     this.onAddTask,
     this.subtaskCounts = const {},
     this.completedSubtaskCounts = const {},
+    this.taskTags = const {},
     this.emptyMessage = 'لا توجد مهام مسجلة حالياً',
   });
 
@@ -93,6 +96,7 @@ class TaskListView extends StatelessWidget {
             task: task,
             totalSubtasksCount: totalSubs,
             completedSubtasksCount: doneSubs,
+            tags: taskTags[task.id] ?? const [],
             onTap: () => onTaskTap?.call(task),
             onToggleCompleted: (val) => onToggleCompleted?.call(task, val ?? false),
           ),

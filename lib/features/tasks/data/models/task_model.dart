@@ -10,6 +10,11 @@ class TaskModel {
   final DateTime? dueDate;
   final DateTime? reminderTime;
   final String? shareToken;
+  final bool isRecurring;
+  final String? recurrencePattern;
+  final int recurrenceInterval;
+  final DateTime? recurrenceEndDate;
+  final String? assignedTo;
   final int orderIndex;
   final String syncStatus;
   final DateTime createdAt;
@@ -28,6 +33,11 @@ class TaskModel {
     this.dueDate,
     this.reminderTime,
     this.shareToken,
+    this.isRecurring = false,
+    this.recurrencePattern,
+    this.recurrenceInterval = 1,
+    this.recurrenceEndDate,
+    this.assignedTo,
     this.orderIndex = 0,
     this.syncStatus = 'pending_insert',
     required this.createdAt,
@@ -47,6 +57,11 @@ class TaskModel {
     'due_date': dueDate?.toUtc().toIso8601String(),
     'reminder_time': reminderTime?.toUtc().toIso8601String(),
     'share_token': shareToken,
+    'is_recurring': isRecurring ? 1 : 0,
+    'recurrence_pattern': recurrencePattern,
+    'recurrence_interval': recurrenceInterval,
+    'recurrence_end_date': recurrenceEndDate?.toUtc().toIso8601String(),
+    'assigned_to': assignedTo,
     'order_index': orderIndex,
     'sync_status': syncStatus,
     'created_at': createdAt.toUtc().toIso8601String(),
@@ -66,6 +81,13 @@ class TaskModel {
     dueDate: map['due_date'] != null ? DateTime.parse(map['due_date'] as String) : null,
     reminderTime: map['reminder_time'] != null ? DateTime.parse(map['reminder_time'] as String) : null,
     shareToken: map['share_token'] as String?,
+    isRecurring: (map['is_recurring'] as int? ?? 0) == 1,
+    recurrencePattern: map['recurrence_pattern'] as String?,
+    recurrenceInterval: map['recurrence_interval'] as int? ?? 1,
+    recurrenceEndDate: map['recurrence_end_date'] != null
+        ? DateTime.parse(map['recurrence_end_date'] as String)
+        : null,
+    assignedTo: map['assigned_to'] as String?,
     orderIndex: map['order_index'] as int? ?? 0,
     syncStatus: map['sync_status'] as String? ?? 'pending_insert',
     createdAt: DateTime.parse(map['created_at'] as String),
@@ -85,6 +107,11 @@ class TaskModel {
     DateTime? dueDate,
     DateTime? reminderTime,
     String? shareToken,
+    bool? isRecurring,
+    String? recurrencePattern,
+    int? recurrenceInterval,
+    DateTime? recurrenceEndDate,
+    String? assignedTo,
     int? orderIndex,
     String? syncStatus,
     DateTime? createdAt,
@@ -102,6 +129,11 @@ class TaskModel {
     dueDate: dueDate ?? this.dueDate,
     reminderTime: reminderTime ?? this.reminderTime,
     shareToken: shareToken ?? this.shareToken,
+    isRecurring: isRecurring ?? this.isRecurring,
+    recurrencePattern: recurrencePattern ?? this.recurrencePattern,
+    recurrenceInterval: recurrenceInterval ?? this.recurrenceInterval,
+    recurrenceEndDate: recurrenceEndDate ?? this.recurrenceEndDate,
+    assignedTo: assignedTo ?? this.assignedTo,
     orderIndex: orderIndex ?? this.orderIndex,
     syncStatus: syncStatus ?? this.syncStatus,
     createdAt: createdAt ?? this.createdAt,

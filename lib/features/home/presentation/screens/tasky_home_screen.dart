@@ -1,5 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../../../core/models/tag_model.dart';
+import '../../../../core/repositories/tag_repository_impl.dart';
+import '../../../../core/services/recurrence_service.dart';
 import '../../../areas/data/models/area_model.dart';
 import '../../../areas/data/repositories/area_repository_impl.dart';
 import '../../../projects/data/models/project_model.dart';
@@ -25,12 +28,15 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
   final ProjectRepositoryImpl _projectRepo = ProjectRepositoryImpl();
   final TaskRepositoryImpl _taskRepo = TaskRepositoryImpl();
   final SubtaskRepositoryImpl _subtaskRepo = SubtaskRepositoryImpl();
+  final TagRepositoryImpl _tagRepo = TagRepositoryImpl();
 
   bool _isLoading = true;
   List<AreaModel> _areas = [];
   List<ProjectModel> _projects = [];
   List<TaskModel> _tasks = [];
   List<SubtaskModel> _subtasks = [];
+  List<TagModel> _tags = [];
+  Map<String, List<TagModel>> _taskTags = {};
 
   Timer? _autoSyncTimer;
   bool _initialSyncDone = false;
@@ -52,11 +58,14 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
       final areas = await _areaRepo.getAllAreas();
       final projects = await _projectRepo.getAllProjects();
       final tasks = await _taskRepo.getTasks();
+      final tags = await _tagRepo.getAllTags();
 
       final allSubtasks = <SubtaskModel>[];
+      final taskTagsMap = <String, List<TagModel>>{};
       for (final t in tasks) {
         final subs = await _subtaskRepo.getSubtasksForTask(t.id);
         allSubtasks.addAll(subs);
+        taskTagsMap[t.id] = await _tagRepo.getTagsForTask(t.id);
       }
 
       if (mounted) {
@@ -65,6 +74,8 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
           _projects = projects;
           _tasks = tasks;
           _subtasks = allSubtasks;
+          _tags = tags;
+          _taskTags = taskTagsMap;
           _isLoading = false;
         });
       }
@@ -126,11 +137,14 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
       final areas = await _areaRepo.getAllAreas();
       final projects = await _projectRepo.getAllProjects();
       final tasks = await _taskRepo.getTasks();
+      final tags = await _tagRepo.getAllTags();
 
       final allSubtasks = <SubtaskModel>[];
+      final taskTagsMap = <String, List<TagModel>>{};
       for (final t in tasks) {
         final subs = await _subtaskRepo.getSubtasksForTask(t.id);
         allSubtasks.addAll(subs);
+        taskTagsMap[t.id] = await _tagRepo.getTagsForTask(t.id);
       }
 
       if (mounted) {
@@ -139,6 +153,8 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
           _projects = projects;
           _tasks = tasks;
           _subtasks = allSubtasks;
+          _tags = tags;
+          _taskTags = taskTagsMap;
         });
       }
       _updatePendingSyncStatus();
@@ -181,6 +197,13 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
 
   Future<void> _handleTaskStatusChanged(TaskModel task, String newStatus) async {
     await _taskRepo.updateTaskStatus(task.id, newStatus);
+    if (newStatus == 'completed' && task.isRecurring) {
+      await RecurrenceService.generateNextRecurrence(
+        task,
+        taskRepo: _taskRepo,
+        subtaskRepo: _subtaskRepo,
+      );
+    }
     await _loadAllData();
     _scheduleAutoSync();
   }
@@ -188,6 +211,13 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
   Future<void> _handleToggleTaskCompleted(TaskModel task, bool isCompleted) async {
     final newStatus = isCompleted ? 'completed' : 'todo';
     await _taskRepo.updateTaskStatus(task.id, newStatus);
+    if (isCompleted && task.isRecurring) {
+      await RecurrenceService.generateNextRecurrence(
+        task,
+        taskRepo: _taskRepo,
+        subtaskRepo: _subtaskRepo,
+      );
+    }
     await _loadAllData();
     _scheduleAutoSync();
   }
@@ -214,6 +244,38 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
 
   Future<void> _handleDeleteSubtask(String subtaskId) async {
     await _subtaskRepo.softDeleteSubtask(subtaskId);
+    await _loadAllData();
+    _scheduleAutoSync();
+  }
+
+  // عمليات الوسوم
+  Future<void> _handleCreateTag(String name, String colorHex) async {
+    final newTag = TagModel(
+      id: 'tag-${DateTime.now().millisecondsSinceEpoch}',
+      name: name,
+      colorHex: colorHex,
+      createdAt: DateTime.now().toUtc(),
+      updatedAt: DateTime.now().toUtc(),
+    );
+    await _tagRepo.insertTag(newTag);
+    await _loadAllData();
+    _scheduleAutoSync();
+  }
+
+  Future<void> _handleAssignTag(TaskModel task, TagModel tag) async {
+    await _tagRepo.assignTagToTask(task.id, tag.id);
+    await _loadAllData();
+    _scheduleAutoSync();
+  }
+
+  Future<void> _handleRemoveTag(TaskModel task, TagModel tag) async {
+    await _tagRepo.removeTagFromTask(task.id, tag.id);
+    await _loadAllData();
+    _scheduleAutoSync();
+  }
+
+  Future<void> _handleDeleteTag(TagModel tag) async {
+    await _tagRepo.softDeleteTag(tag.id);
     await _loadAllData();
     _scheduleAutoSync();
   }
@@ -268,6 +330,8 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
       projects: _projects,
       tasks: _tasks,
       subtasks: _subtasks,
+      tags: _tags,
+      taskTags: _taskTags,
       onSyncRequested: _handleSyncRequested,
       onSaveTask: _handleSaveTask,
       onDeleteTask: _handleDeleteTask,
@@ -280,6 +344,10 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
       onDeleteArea: _handleDeleteArea,
       onSaveProject: _handleSaveProject,
       onDeleteProject: _handleDeleteProject,
+      onAssignTag: _handleAssignTag,
+      onRemoveTag: _handleRemoveTag,
+      onCreateTag: _handleCreateTag,
+      onDeleteTag: _handleDeleteTag,
     );
   }
 }

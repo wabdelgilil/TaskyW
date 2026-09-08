@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
+import '../../../../core/models/tag_model.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/color_picker_dialog.dart';
@@ -19,6 +20,11 @@ class TaskDetailDrawer extends StatefulWidget {
   final List<SubtaskModel> subtasks;
   final List<AreaModel> areas;
   final List<ProjectModel> projects;
+  final List<TagModel> availableTags;
+  final List<TagModel> taskTags;
+  final Function(TagModel tag)? onAssignTag;
+  final Function(TagModel tag)? onRemoveTag;
+  final Function(String name, String colorHex)? onCreateTag;
   final Function(TaskModel updatedTask) onSaveTask;
   final Function(String taskId)? onDeleteTask;
   final Function(String title) onAddSubtask;
@@ -32,6 +38,11 @@ class TaskDetailDrawer extends StatefulWidget {
     this.subtasks = const [],
     this.areas = const [],
     this.projects = const [],
+    this.availableTags = const [],
+    this.taskTags = const [],
+    this.onAssignTag,
+    this.onRemoveTag,
+    this.onCreateTag,
     required this.onSaveTask,
     this.onDeleteTask,
     required this.onAddSubtask,
@@ -56,6 +67,10 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
   late String? _projectId;
   late DateTime? _dueDate;
   late DateTime? _reminderTime;
+  late bool _isRecurring;
+  late String _recurrencePattern;
+  late int _recurrenceInterval;
+  late DateTime? _recurrenceEndDate;
 
   @override
   void initState() {
@@ -71,6 +86,10 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
     _projectId = widget.task.projectId;
     _dueDate = widget.task.dueDate;
     _reminderTime = widget.task.reminderTime;
+    _isRecurring = widget.task.isRecurring;
+    _recurrencePattern = widget.task.recurrencePattern ?? 'daily';
+    _recurrenceInterval = widget.task.recurrenceInterval;
+    _recurrenceEndDate = widget.task.recurrenceEndDate;
   }
 
   @override
@@ -86,6 +105,10 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
       _projectId = widget.task.projectId;
       _dueDate = widget.task.dueDate;
       _reminderTime = widget.task.reminderTime;
+      _isRecurring = widget.task.isRecurring;
+      _recurrencePattern = widget.task.recurrencePattern ?? 'daily';
+      _recurrenceInterval = widget.task.recurrenceInterval;
+      _recurrenceEndDate = widget.task.recurrenceEndDate;
     }
   }
 
@@ -108,6 +131,10 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
       projectId: _projectId,
       dueDate: _dueDate,
       reminderTime: _reminderTime,
+      isRecurring: _isRecurring,
+      recurrencePattern: _isRecurring ? _recurrencePattern : null,
+      recurrenceInterval: _isRecurring ? _recurrenceInterval : 1,
+      recurrenceEndDate: _isRecurring ? _recurrenceEndDate : null,
     );
     if (_reminderTime != null && _status != 'completed') {
       NotificationService.instance.scheduleTaskReminder(
@@ -278,6 +305,11 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
 
                 // بطاقات الخصائص السريعة
                 _buildPropertiesCard(isDark, areaProjects),
+
+                const SizedBox(height: 18),
+
+                // قسم الوسوم
+                _buildTagsSection(isDark),
 
                 const SizedBox(height: 20),
 
@@ -631,8 +663,334 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
                 ),
             ],
           ),
+          const Divider(height: 16),
+          // التكرار الدوري للمهمة
+          Row(
+            children: [
+              const SizedBox(width: 70, child: Text('التكرار:', style: TextStyle(fontSize: 12.5, color: Colors.grey))),
+              Expanded(
+                child: Row(
+                  children: [
+                    Switch.adaptive(
+                      value: _isRecurring,
+                      activeColor: const Color(0xFF8B5CF6),
+                      onChanged: (val) {
+                        setState(() => _isRecurring = val);
+                        _triggerSave();
+                      },
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      _isRecurring ? 'مفعّل' : 'معطّل',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: _isRecurring ? FontWeight.bold : FontWeight.normal,
+                        color: _isRecurring ? const Color(0xFF8B5CF6) : Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (_isRecurring) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const SizedBox(width: 70, child: Text('النمط:', style: TextStyle(fontSize: 12.5, color: Colors.grey))),
+                Expanded(
+                  child: DropdownButton<String>(
+                    value: _recurrencePattern,
+                    isDense: true,
+                    underline: const SizedBox(),
+                    items: const [
+                      DropdownMenuItem(value: 'daily', child: Text('يومياً', style: TextStyle(fontSize: 13))),
+                      DropdownMenuItem(value: 'weekly', child: Text('أسبوعياً', style: TextStyle(fontSize: 13))),
+                      DropdownMenuItem(value: 'monthly', child: Text('شهرياً', style: TextStyle(fontSize: 13))),
+                    ],
+                    onChanged: (val) {
+                      if (val != null) {
+                        setState(() => _recurrencePattern = val);
+                        _triggerSave();
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const SizedBox(width: 70, child: Text('ينتهي في:', style: TextStyle(fontSize: 12.5, color: Colors.grey))),
+                Expanded(
+                  child: InkWell(
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: _recurrenceEndDate ?? DateTime.now().add(const Duration(days: 30)),
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime(2035),
+                      );
+                      if (picked != null) {
+                        setState(() => _recurrenceEndDate = picked);
+                        _triggerSave();
+                      }
+                    },
+                    child: Text(
+                      _recurrenceEndDate != null
+                          ? '${_recurrenceEndDate!.year}/${_recurrenceEndDate!.month}/${_recurrenceEndDate!.day}'
+                          : 'بدون تاريخ انتهاء (مستمر)',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        color: _recurrenceEndDate != null ? Theme.of(context).colorScheme.primary : Colors.grey,
+                      ),
+                    ),
+                  ),
+                ),
+                if (_recurrenceEndDate != null)
+                  IconButton(
+                    icon: const Icon(Icons.clear, size: 16, color: Colors.grey),
+                    splashRadius: 12,
+                    onPressed: () {
+                      setState(() => _recurrenceEndDate = null);
+                      _triggerSave();
+                    },
+                  ),
+              ],
+            ),
+          ],
         ],
       ),
+    );
+  }
+
+  Widget _buildTagsSection(bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'الوسوم والتصنيفات (Tags)',
+              style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold),
+            ),
+            TextButton.icon(
+              onPressed: () => _showAddTagDialog(context),
+              icon: const Icon(Icons.add, size: 16),
+              label: const Text('إضافة وسم', style: TextStyle(fontSize: 12)),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        if (widget.taskTags.isEmpty)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+            decoration: BoxDecoration(
+              color: isDark ? Colors.white.withOpacity(0.03) : Colors.black.withOpacity(0.02),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.border(context), width: 0.8),
+            ),
+            child: Text(
+              'لا توجد وسوم مرتبطة بهذه المهمة. اضغط "إضافة وسم" للتصنيف.',
+              style: TextStyle(fontSize: 12, color: AppColors.textMuted(context)),
+            ),
+          )
+        else
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: widget.taskTags.map((tag) {
+              final rawColor = AppColors.fromHex(tag.colorHex);
+              final tagColor = AppColors.adaptiveCustomColor(rawColor, isDark);
+
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: rawColor.withOpacity(isDark ? 0.22 : 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: rawColor.withOpacity(isDark ? 0.6 : 0.4), width: 1),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(color: rawColor, shape: BoxShape.circle),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      tag.name,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: tagColor,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    InkWell(
+                      onTap: () => widget.onRemoveTag?.call(tag),
+                      borderRadius: BorderRadius.circular(10),
+                      child: Padding(
+                        padding: const EdgeInsets.all(2),
+                        child: Icon(Icons.close, size: 14, color: tagColor.withOpacity(0.8)),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+      ],
+    );
+  }
+
+  void _showAddTagDialog(BuildContext context) {
+    final available = widget.availableTags.where((t) => !widget.taskTags.any((assigned) => assigned.id == t.id)).toList();
+    final newTagController = TextEditingController();
+    String selectedHex = '#3B82F6';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.surface(context),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (modalContext, setModalState) {
+            final isDark = Theme.of(context).brightness == Brightness.dark;
+            final palette = [
+              '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444', '#EC4899', '#06B6D4', '#64748B',
+            ];
+
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 20,
+                bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'إضافة وسم للمهمة',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 18),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
+                    ],
+                  ),
+                  const Divider(height: 20),
+
+                  // الوسوم المتاحة للاختيار السريع
+                  if (available.isNotEmpty) ...[
+                    const Text('الوسوم المتاحة:', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: available.map((tag) {
+                        final rawColor = AppColors.fromHex(tag.colorHex);
+                        final tagColor = AppColors.adaptiveCustomColor(rawColor, isDark);
+
+                        return ActionChip(
+                          avatar: Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(color: rawColor, shape: BoxShape.circle),
+                          ),
+                          label: Text(tag.name, style: TextStyle(fontSize: 12, color: tagColor, fontWeight: FontWeight.w600)),
+                          backgroundColor: rawColor.withOpacity(isDark ? 0.2 : 0.1),
+                          side: BorderSide(color: rawColor.withOpacity(0.4)),
+                          onPressed: () {
+                            widget.onAssignTag?.call(tag);
+                            Navigator.pop(ctx);
+                          },
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
+                  // إنشاء وسم جديد
+                  const Text('أو إنشاء وسم جديد:', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Colors.grey)),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: newTagController,
+                    style: const TextStyle(fontSize: 13),
+                    decoration: const InputDecoration(
+                      hintText: 'اسم الوسم (مثلاً: عاجل، قطع_غيار...)',
+                      isDense: true,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  // باليت الألوان
+                  Row(
+                    children: [
+                      const Text('اللون: ', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: palette.map((hex) {
+                              final isPicked = selectedHex == hex;
+                              final c = AppColors.fromHex(hex);
+                              return GestureDetector(
+                                onTap: () => setModalState(() => selectedHex = hex),
+                                child: Container(
+                                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                                  width: 24,
+                                  height: 24,
+                                  decoration: BoxDecoration(
+                                    color: c,
+                                    shape: BoxShape.circle,
+                                    border: isPicked ? Border.all(color: Colors.white, width: 2) : null,
+                                    boxShadow: isPicked
+                                        ? [BoxShadow(color: c.withOpacity(0.6), blurRadius: 4, spreadRadius: 1)]
+                                        : null,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      final name = newTagController.text.trim();
+                      if (name.isNotEmpty) {
+                        widget.onCreateTag?.call(name, selectedHex);
+                        Navigator.pop(ctx);
+                      }
+                    },
+                    child: const Text('إنشاء وإضافة الوسم'),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

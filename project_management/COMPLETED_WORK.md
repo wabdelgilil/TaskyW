@@ -2,6 +2,42 @@
 
 ## سجل الإنجازات والمهام المكتملة
 
+### [2026-09-08] - استكمال واجهات المستخدم (UI & Aesthetics) للوسوم والتكرار والتصدير والمشاركة العامة
+- **واجهات الوسوم والتصنيفات (Tags & Labels UI)**:
+  - **بطاقات المهام (`TaskCard`)**: عرض رقاقات الوسوم (`Tag Chips`) الملونة بألوان متباينة تكيفية مع نقطة لونية واسم الوسم وتجاوب بصري كامل مع ثيمات التطبيق (النهاري، الليلي، وOLED).
+  - **درج تفاصيل المهمة (`TaskDetailDrawer`)**: إضافة قسم متكامل لإدارة الوسوم، استعراض الوسوم المطبقة مع خيار إزالتها بضغطة زر، زر إضافة وسم يفتح نافذة سفلية أنيقة (`BottomSheet`) لاختيار الوسوم المتوفرة أو إنشاء وسم جديد مباشرة وتحديد لونه من لوحة ألوان دائرية جذابة.
+  - **الشريط الجانبي التفاعلي (`HierarchicalTreeSidebar`)**: إضافة قسم "الوسوم والتصنيفات" مع عداد المهام لكل وسم، وإمكانية تصفية المهام بضغطة واحدة، وإضافة وسم جديد فوراً.
+  - **ربط شاشات وتخطيطات العمل**: تمرير الوسوم وربطها في `MainLayoutScreen` وعروض القائمة والكانبان وصفحات تفاصيل المشروع والمجال.
+- **واجهات المهام المتكررة (Recurring Tasks UI)**:
+  - **درج تفاصيل المهمة**: إضافة بطاقة خصائص التكرار الدوري تشمل مفتاح تفعيل (`Switch`)، وقائمة اختيار النمط (يومي، أسبوعي، شهري، سنوي)، وتحديد فاصل التكرار (`interval`) وتاريخ الانتهاء الاختياري.
+  - **شارة التكرار في البطاقة (`TaskCard`)**: إبراز المهام المتكررة بشارة أرجوانية أنيقة `🔁 [النمط]` لتمييزها بصرياً فوراً.
+  - **توليد المهمة التالية تلقائياً**: توليد المهمة القادمة مباشرة عبر `RecurrenceService.generateNextRecurrence` عند إكمال المهمة سواء من الـ Checkbox أو لوحة كانبان.
+- **تصدير المهام إلى CSV / Excel متوافق مع اللغة العربية**:
+  - إضافة زر تصدير مباشر في الشريط العلوي (`_buildTopHeader`) للشاشات المكتبية والموبايل.
+  - تشفير بمحدد UTF-8 BOM (`\uFEFF`) لضمان فتح الملفات في Excel بدون تشوه الحروف العربية، مع معالجة الفواصل وحقول علامات التنصيص (RFC 4180).
+  - نافذة منبثقة تفاعلية للمعاينة السريعة ونسخ البيانات للحافظة فوراً بنقرة واحدة.
+- **شاشة المشاركة العامة (`PublicShareScreen`) وتوجيه الروابط**:
+  - إنشاء صفحة متجاوبة أنيقة `PublicShareScreen` مخصصة للزوار بدون تسجيل دخول لقراءة المهمة أو المشروع أو المجال عبر الرمز العام `token`، متصلة بخدمة `ShareReadService.fetchPublicEntityByToken`.
+  - عرض تفاصيل الكيان وحالته وأولويته وتاريخ استحقاقه وعناصره الفرعية (Subtasks / Tasks) بأسلوب قراءة فقط متناسق مع هوية TaskyW.
+  - دعم مسارات التنقل العامة (`/share/:token`) في `main.dart`.
+- **التحقق والاختبار الشامل**:
+  - `flutter analyze`: بدون أي أخطاء أو تحذيرات (`No issues found!`).
+  - `flutter test`: نجاح كافة الاختبارات الـ 109 بنجاح تام (109/109 passed).
+
+### [2026-09-08] - مزامنة الوسوم مع السحابة (Tags Cloud Sync) + نشر ترحيل المشاركة
+- **ترحيل سحابي جديد** [20260908000200_add_tags_tables.sql](file:///d:/programming/Tasky3.0/supabase/migrations/20260908000200_add_tags_tables.sql):
+  - جدول `tags` (id, user_id, name, color_hex, order_index, sync_status, timestamps) ومثيلته `task_tags` (id, user_id, task_id, tag_id + unique(task_id, tag_id)) مع FKs متتالية على `tasks`/`tags`.
+  - الفهارس `idx_tags_deleted` و `idx_task_tags_task` و `idx_task_tags_tag`، وتفعيل RLS وسياسات select/insert/update/delete لمالك الصف فقط على الجدولين.
+- **مزامنة محلية v3**: ترقية قاعدة SQLite إلى الإصدار v3 مع `_ensureTaskTagColumns` (ALTER آمن + تعبئة الهوية المستقرة `task_id|tag_id` للروابط القديمة) في مساري الويب والـ Desktop.
+- **جدول `task_tags` محلياً**: إضافة أعمدة `id` و `sync_status` و `updated_at` و `deleted_at` لدعم دورة المزامنة.
+- **`TagRepositoryImpl`**: كتابة الروابط بهوية مستقرة وحالة `pending_insert`، وفك ربط هادئ (`pending_delete`) مع استعادة تلقائية عند إعادة الإسناد، وترشيح الروابط المحذوفة في القراءات.
+- **`SyncService._tables`**: إضافة `tags` و `task_tags` (بقوائم الأعمدة الصحيحة) لرفع وتنزيل الروابط تلقائياً.
+- **نشر على Supabase (مشروع yjcpevqahefzcpbvajcq فقط)**:
+  - ترحيل المشاركة [20260907000200_setup_entity_shares.sql](file:///d:/programming/Tasky3.0/supabase/migrations/20260907000200_setup_entity_shares.sql) مؤكد تطبيقه (جدول `entity_shares` + RPC `get_shared_entity` + سياسات RLS).
+  - تطبيق `20260908000100` (أعمدة التكرار - آمنة لإعادة التنفيذ) و `20260908000200` عبر `supabase db push --db-url`.
+  - التحقق: الجداول السبع حاضرة، RLS مفعّل، 4 سياسات لكل جدول، وسجل الترحيلات يحتوي الأربعة.
+- **الاختبارات**: إضافة اختبارات لمزامنة الروابط في [test/tags_test.dart](file:///d:/programming/Tasky3.0/test/tags_test.dart) (+2) واجتياز كامل السويت + `flutter analyze` نظيف.
+
 ### [2026-09-08] - حل تداخل الشريط العلوي على الموبايل (Responsive Header & Full Expansion Search)
 - **معالجة فيض واختفاء وتداخل عناصر الهيدر في الشاشات الصغيرة (< 600px)**:
   - **التصميم المتجاوب التكيفي للشاشات الصغيرة**:
@@ -316,6 +352,51 @@
 - **الاختبارات والتحقق**:
   - `flutter analyze`: **0 أخطاء و 0 تحذيرات (`No issues found!`)**.
   - `flutter test`: **نجاح 58 من 58 اختباراً آلياً بنسبة 100%**.
+
+### [2026-09-08] - نظام الوسوم والتصنيفات (Tags & Labels) - Backend
+- **جدولا الوسوم (`tags`) والربط (`task_tags`)** في [database_tables.dart](file:///d:/programming/Tasky3.0/lib/core/database/database_tables.dart):
+  - `tags`: `id (PK)`, `name`, `color_hex`, `order_index`, `sync_status`, `created_at`, `updated_at`, `deleted_at` مع فهرس `idx_tags_deleted`.
+  - `task_tags`: مفتاح مركّب `(task_id, tag_id)` مع FK حذف متتالٍ وفهارس `idx_task_tags_task` و `idx_task_tags_tag`.
+- **ترقية قاعدة SQLite إلى v2** في [app_database.dart](file:///d:/programming/Tasky3.0/lib/core/database/app_database.dart):
+  - تفعيل `onUpgrade` في مساري الويب والـ Desktop لإعادة تطبيق جمل `IF NOT EXISTS` على قواعد v1 القائمة (إضافة الجداول الجديدة دون تكرار).
+- **طبقة النماذج والبيانات**:
+  - [TagModel](file:///d:/programming/Tasky3.0/lib/core/models/tag_model.dart): `toMap/fromMap/copyWith` + المساواة/الهاش.
+  - [ITagRepository](file:///d:/programming/Tasky3.0/lib/core/repositories/tag_repository.dart) و [TagRepositoryImpl](file:///d:/programming/Tasky3.0/lib/core/repositories/tag_repository_impl.dart): إسناد/فك الوسم عن المهمة، جلب وسوم المهمة، وجلب معرفات المهام للوسم.
+- **[TagsController](file:///d:/programming/Tasky3.0/lib/features/tags/presentation/controllers/tags_controller.dart)**:
+  - `createTag/updateTag/deleteTag/loadTags/selectTag` + التخصيص والإسناد (`assignTagToTask` / `removeTagFromTask`).
+  - **فلترة المهام حسب الوسم النشط** (`filterTasksByActiveTag`) ومسح الفلترة (`clearTagFilter`).
+- **الاختبارات**: إضافة [test/tags_test.dart](file:///d:/programming/Tasky3.0/test/tags_test.dart) (+9 اختبارات) واجتياز كامل السويت.
+
+### [2026-09-08] - محرك المهام المتكررة (Recurring Tasks Engine)
+- **أعمدة جديدة في `tasks`**: `is_recurring`, `recurrence_pattern`, `recurrence_interval`, `recurrence_end_date`.
+- **ترقية قاعدة SQLite v2**: `_ensureTaskColumns` في [app_database.dart](file:///d:/programming/Tasky3.0/lib/core/database/app_database.dart) تضيف الأعمدة المفقودة عبر `PRAGMA table_info` + `ALTER TABLE` (آمنة للتكرار).
+- **[TaskModel](file:///d:/programming/Tasky3.0/lib/features/tasks/data/models/task_model.dart)**: حقول التكرار في `toMap/fromMap/copyWith`.
+- **[RecurrenceService](file:///d:/programming/Tasky3.0/lib/core/services/recurrence_service.dart)**:
+  - `calculateNextDueDate(baseDate, pattern, interval)` يدعم `daily / weekly / monthly / custom_interval` مع معالجة نهاية الشهر (31 → 28/30).
+  - `generateNextRecurrence(completedTask, taskRepo, subtaskRepo)`: ينشئ نسخة `todo` جديدة بنفس الخصائص ويعيد إنشاء مهامها الفرعية غير المكتملة، ويتوقف عند تجاوز `recurrenceEndDate`.
+- **[TasksController](file:///d:/programming/Tasky3.0/lib/features/tasks/presentation/controllers/tasks_controller.dart)**: ربط التكرار في `updateStatus` عند إكمال مهمة متكررة.
+- **الاختبارات**: إضافة [test/recurrence_test.dart](file:///d:/programming/Tasky3.0/test/recurrence_test.dart) (+11) و [test/database_upgrade_test.dart](file:///d:/programming/Tasky3.0/test/database_upgrade_test.dart) (مسار الترقية v1→v2 +1).
+
+### [2026-09-08] - خدمة تصدير CSV (Export Service)
+- **[ExportService](file:///d:/programming/Tasky3.0/lib/core/services/export_service.dart)**:
+  - `exportTasksToCsv({required tasks, projectNames, areaNames})` يبدأ بـ UTF-8 BOM لفتح صحيح في Excel مع الحفاظ الكامل على العربية.
+  - هروب الفواصل والاقتباسات والسطور الجديدة داخل الخلايا (RFC 4180).
+  - دوال مساعدة للعرض الجدولي: `filterByStatus`, `filterByPriority`, `sortByDueDate`, `sortByPriority`.
+- **الاختبارات**: إضافة [test/export_service_test.dart](file:///d:/programming/Tasky3.0/test/export_service_test.dart) (+9).
+
+### [2026-09-08] - منطق المشاركة والتعاون (Sharing & Collaborators Backend)
+- **[EntityShareModel](file:///d:/programming/Tasky3.0/lib/core/models/entity_share_model.dart)**: نموذج مطابق لجدول السحابة `entity_shares` مع `toMap/fromMap` والصلاحيات (`viewer/editor/admin`) ودوال `canEdit/canDelete/isPublicLink`.
+- **[ShareReadService](file:///d:/programming/Tasky3.0/lib/core/services/share_read_service.dart)**: قراءة الكيانات العامة عبر RPC `get_shared_entity` (بدون حساب):
+  - `fetchPublicEntityByToken`: يجلب المهمة + مهامها الفرعية، أو المشروع + مهامه، أو المجال + مشاريعه (قراءة فقط).
+  - `fetchPublicTaskWithSubtasks` وبنية `SharedEntityResult` مع عقد `SupabaseServiceLike` قابل للحقن للاختبار.
+- **[SharingController](file:///d:/programming/Tasky3.0/lib/features/sharing/presentation/controllers/sharing_controller.dart)**: يشرف على الرابط العام والدعوات والصلاحيات (`loadShares/generatePublicLink/revokePublicLink/inviteCollaborator/updatePermission/removeShare`).
+- **إسناد المهام (`assigned_to`)**: عمود جديد في `tasks` و [TaskModel](file:///d:/programming/Tasky3.0/lib/features/tasks/data/models/task_model.dart) + ترحيل سحابي [20260908000100_add_task_recurrence_columns.sql](file:///d:/programming/Tasky3.0/supabase/migrations/20260908000100_add_task_recurrence_columns.sql) لمواكبة `SyncService`.
+- **مزامنة الأعمدة الجديدة**: تحديث قائمة أعمدة `tasks` في [sync_service.dart](file:///d:/programming/Tasky3.0/lib/core/services/sync_service.dart) لتشمل حقول التكرار و`assigned_to`.
+- **الاختبارات**: إضافة [test/share_read_service_test.dart](file:///d:/programming/Tasky3.0/test/share_read_service_test.dart) (+11).
+
+### [2026-09-08] - التحقق النهائي من المهام الخلفية الأربع
+- `flutter analyze`: **0 أخطاء و 0 تحذيرات (`No issues found!`)**.
+- `flutter test`: **نجاح 107 من 107 اختباراً آلياً بنسبة 100%**.
 
 
 

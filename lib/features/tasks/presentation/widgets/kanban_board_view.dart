@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/models/tag_model.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/status_badge.dart';
 import '../../data/models/task_model.dart';
@@ -12,6 +13,7 @@ class KanbanBoardView extends StatelessWidget {
   final Function(String status)? onAddTaskInColumn;
   final Map<String, int> subtaskCounts; // taskId -> totalSubtasks
   final Map<String, int> completedSubtaskCounts; // taskId -> completedSubtasks
+  final Map<String, List<TagModel>> taskTags;
 
   const KanbanBoardView({
     super.key,
@@ -21,6 +23,7 @@ class KanbanBoardView extends StatelessWidget {
     this.onAddTaskInColumn,
     this.subtaskCounts = const {},
     this.completedSubtaskCounts = const {},
+    this.taskTags = const {},
   });
 
   static const List<String> columns = [
@@ -56,6 +59,7 @@ class KanbanBoardView extends StatelessWidget {
                     tasks: columnTasks,
                     subtaskCounts: subtaskCounts,
                     completedSubtaskCounts: completedSubtaskCounts,
+                    taskTags: taskTags,
                     onTaskDropped: (task) => onTaskStatusChanged(task, status),
                     onTaskTap: onTaskTap,
                     onAddTask: () => onAddTaskInColumn?.call(status),
@@ -75,6 +79,7 @@ class _KanbanColumn extends StatelessWidget {
   final List<TaskModel> tasks;
   final Map<String, int> subtaskCounts;
   final Map<String, int> completedSubtaskCounts;
+  final Map<String, List<TagModel>> taskTags;
   final Function(TaskModel task) onTaskDropped;
   final Function(TaskModel task)? onTaskTap;
   final VoidCallback? onAddTask;
@@ -84,6 +89,7 @@ class _KanbanColumn extends StatelessWidget {
     required this.tasks,
     required this.subtaskCounts,
     required this.completedSubtaskCounts,
+    required this.taskTags,
     required this.onTaskDropped,
     this.onTaskTap,
     this.onAddTask,
@@ -204,6 +210,7 @@ class _KanbanColumn extends StatelessWidget {
                                   task: task,
                                   totalSubtasksCount: totalSubs,
                                   completedSubtasksCount: doneSubs,
+                                  tags: taskTags[task.id] ?? const [],
                                 ),
                               ),
                             ),
@@ -213,12 +220,14 @@ class _KanbanColumn extends StatelessWidget {
                                 task: task,
                                 totalSubtasksCount: totalSubs,
                                 completedSubtasksCount: doneSubs,
+                                tags: taskTags[task.id] ?? const [],
                               ),
                             ),
                             child: TaskCard(
                               task: task,
                               totalSubtasksCount: totalSubs,
                               completedSubtasksCount: doneSubs,
+                              tags: taskTags[task.id] ?? const [],
                               onTap: () => onTaskTap?.call(task),
                               onToggleCompleted: (val) {
                                 final newStatus = (val == true) ? 'completed' : 'todo';

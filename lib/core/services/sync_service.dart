@@ -77,11 +77,21 @@ class SyncService {
     _SyncTable(DatabaseTables.taskTable, [
       'id', 'area_id', 'project_id', 'title', 'description', 'status',
       'priority', 'color_hex', 'due_date', 'reminder_time', 'share_token',
+      'is_recurring', 'recurrence_pattern', 'recurrence_interval',
+      'recurrence_end_date', 'assigned_to',
       'order_index',
       'sync_status', 'created_at', 'updated_at', 'deleted_at',
     ]),
     _SyncTable(DatabaseTables.subtaskTable, [
       'id', 'task_id', 'title', 'is_completed', 'order_index',
+      'sync_status', 'created_at', 'updated_at', 'deleted_at',
+    ]),
+    _SyncTable(DatabaseTables.tagTable, [
+      'id', 'name', 'color_hex', 'order_index',
+      'sync_status', 'created_at', 'updated_at', 'deleted_at',
+    ]),
+    _SyncTable(DatabaseTables.taskTagTable, [
+      'id', 'task_id', 'tag_id',
       'sync_status', 'created_at', 'updated_at', 'deleted_at',
     ]),
   ];
