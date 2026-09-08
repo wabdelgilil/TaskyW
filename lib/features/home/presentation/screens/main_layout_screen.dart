@@ -92,6 +92,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
   String? _selectedAreaId;
   String? _selectedProjectId;
   String? _selectedTagId;
+  String? _selectedSharedTitle;
 
   // طريقة العرض في مساحة العمل
   String _viewMode = 'list'; // 'list' أو 'kanban'
@@ -123,7 +124,15 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
     } else if (_selectedProjectId != null) {
       baseTasks = widget.tasks.where((t) => t.projectId == _selectedProjectId).toList();
     } else if (_selectedAreaId != null) {
-      baseTasks = widget.tasks.where((t) => t.areaId == _selectedAreaId).toList();
+      // المهام التابعة للمجال مباشرة أو التابعة لمشاريع هذا المجال (Hierarchical Area View)
+      final areaProjectIds = widget.projects
+          .where((p) => p.areaId == _selectedAreaId)
+          .map((p) => p.id)
+          .toSet();
+      baseTasks = widget.tasks.where((t) {
+        return t.areaId == _selectedAreaId ||
+            (t.projectId != null && areaProjectIds.contains(t.projectId));
+      }).toList();
     } else {
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
@@ -178,18 +187,14 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
       return '🏷️ وسم: ${tag.name}';
     }
     if (_selectedProjectId != null) {
-      final p = widget.projects.firstWhere(
-        (p) => p.id == _selectedProjectId,
-        orElse: () => ProjectModel(id: '', areaId: '', name: 'مشروع', createdAt: DateTime.now(), updatedAt: DateTime.now()),
-      );
-      return '${p.iconEmoji} ${p.name}';
+      final p = widget.projects.where((p) => p.id == _selectedProjectId).firstOrNull;
+      if (p != null) return '${p.iconEmoji} ${p.name}';
+      return _selectedSharedTitle ?? '💼 مشروع مشترك';
     }
     if (_selectedAreaId != null) {
-      final a = widget.areas.firstWhere(
-        (a) => a.id == _selectedAreaId,
-        orElse: () => AreaModel(id: '', name: 'مجال', createdAt: DateTime.now(), updatedAt: DateTime.now()),
-      );
-      return '${a.iconEmoji} ${a.name}';
+      final a = widget.areas.where((a) => a.id == _selectedAreaId).firstOrNull;
+      if (a != null) return '${a.iconEmoji} ${a.name}';
+      return _selectedSharedTitle ?? '📁 مجال مشترك';
     }
 
     switch (_activeFilter) {
@@ -836,38 +841,35 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
       onSelectSharedEntity: (entity) {
         final entityType = entity['_entity_type'];
         final id = entity['id'];
+        final entityTitle = entity['name'] ?? entity['title'] ?? 'عنصر مشترك';
+
         if (entityType == 'project') {
           final foundProj = widget.projects.where((p) => p.id == id).firstOrNull;
-          if (foundProj != null) {
-            setState(() {
-              _selectedProjectId = foundProj.id;
-              _selectedAreaId = foundProj.areaId;
-              _selectedTagId = null;
-            });
-          } else {
-            // إنشاء كائن مشروع مؤقت للعرض إن لم يكن في القائمة المحلية بعد
-            final tempProj = ProjectModel(
-              id: id,
-              areaId: entity['area_id'] ?? '',
-              name: entity['name'] ?? 'مشروع مشترك',
-              description: entity['description'],
-              iconEmoji: entity['icon_emoji'] ?? '💼',
-              colorHex: entity['color_hex'] ?? '#0284C7',
-              createdAt: DateTime.now(),
-              updatedAt: DateTime.now(),
-            );
-            setState(() {
-              _selectedProjectId = tempProj.id;
-              _selectedAreaId = null;
-              _selectedTagId = null;
-            });
-          }
+          setState(() {
+            _selectedProjectId = id;
+            _selectedAreaId = foundProj?.areaId ?? (entity['area_id'] as String?);
+            _selectedTagId = null;
+            _selectedSharedTitle = '💼 $entityTitle';
+            _isSearchActive = false;
+            _searchController.clear();
+          });
         } else if (entityType == 'area') {
           setState(() {
             _selectedAreaId = id;
             _selectedProjectId = null;
             _selectedTagId = null;
+            _selectedSharedTitle = '📁 $entityTitle';
+            _isSearchActive = false;
+            _searchController.clear();
           });
+        } else if (entityType == 'task') {
+          // في حال كانت المشاركة لمهمة مفردة
+          final foundTask = widget.tasks.where((t) => t.id == id).firstOrNull;
+          if (foundTask != null) {
+            setState(() {
+              _openedTask = foundTask;
+            });
+          }
         }
       },
     );

@@ -71,22 +71,34 @@ class PermissionGuardService {
 
   /// صلاحية المستخدم لكيان: owner/editor/admin/viewer/none.
   ///
-  /// الكيان غير الموجود في الخريطة يُعامل كملكية للمستخدم الحالي (owner)
-  /// لأن الكيانات غير المشتركة تخص صاحبها محلياً.
+  /// الكيان غير الموجود في الخريطة يُفحص إن كان له كيان أب (parentEntityId)
+  /// ليرث صلاحيته، وإلا يُعامل كملكية للمستخدم الحالي (owner).
   String getPermission({
     required String entityId,
+    String? parentEntityId,
     String? currentUserId,
   }) {
     final permission = _permissionsByEntity[entityId];
     if (permission != null) return permission;
+
+    if (parentEntityId != null) {
+      final parentPerm = _permissionsByEntity[parentEntityId];
+      if (parentPerm != null) return parentPerm;
+    }
+
     return GuardPermission.owner;
   }
 
   bool canEdit({
     required String entityId,
+    String? parentEntityId,
     String? currentUserId,
   }) {
-    final p = getPermission(entityId: entityId, currentUserId: currentUserId);
+    final p = getPermission(
+      entityId: entityId,
+      parentEntityId: parentEntityId,
+      currentUserId: currentUserId,
+    );
     return p == GuardPermission.owner ||
         p == GuardPermission.editor ||
         p == GuardPermission.admin;
@@ -94,17 +106,27 @@ class PermissionGuardService {
 
   bool canDelete({
     required String entityId,
+    String? parentEntityId,
     String? currentUserId,
   }) {
-    final p = getPermission(entityId: entityId, currentUserId: currentUserId);
+    final p = getPermission(
+      entityId: entityId,
+      parentEntityId: parentEntityId,
+      currentUserId: currentUserId,
+    );
     return p == GuardPermission.owner || p == GuardPermission.admin;
   }
 
   bool isOwner({
     required String entityId,
+    String? parentEntityId,
     String? currentUserId,
   }) {
-    return getPermission(entityId: entityId, currentUserId: currentUserId) ==
+    return getPermission(
+          entityId: entityId,
+          parentEntityId: parentEntityId,
+          currentUserId: currentUserId,
+        ) ==
         GuardPermission.owner;
   }
 }

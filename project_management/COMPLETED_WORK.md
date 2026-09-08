@@ -508,6 +508,25 @@
 - `flutter analyze`: **0 أخطاء و 0 تحذيرات (`No issues found!`)**.
 - `flutter test`: **نجاح 129 من 129 اختباراً آلياً بنسبة 100%**.
 
+### [2026-09-08] - الميراث الهرمي للمشاركة (Hierarchical Share Inheritance) - RLS
+> توسيع سياسات التعاون بحيث تورّث الصلاحيات تلقائياً في شجرة الكيان: المجال → مشاريعه → مهامها → مهامها الفرعية.
+
+- **ترحيل سحابي** [20260908000700_hierarchical_share_inheritance.sql](file:///d:/programming/Tasky3.0/supabase/migrations/20260908000700_hierarchical_share_inheritance.sql) (مشروع Tasky فقط، طُبّق عبر `supabase db push --db-url`):
+  - `projects_select_collaborator`: مشروع يُرى إذا كانت مشاركته مباشرة أو مشاركة المجال التابع له.
+  - `tasks_select_collaborator`: مهمة تُرى إذا كانت مشاركتها مباشرة، أو مشاركة مشروعها، أو مشاركة مجلها (بـ `area_id` مباشرة أو عبر `projects.area_id`).
+  - `tasks_update_collaborator`: وراثة صلاحية التعديل (editor/admin) من المشروع/المجال للأعلى للمهمة.
+  - `subtasks_select_collaborator`: المهام الفرعية تورث الوصول من المهمة (مباشرة/مشروع/مجال).
+  - مطابقة بريد غير حساسة للحالة `lower(...)` في كل السياسات.
+- **التحقق**:
+  - هيكلي: 13 سياسة تعاون حاضرة على الكيانات (تضم السياسات الأربع المعاد بناؤها).
+  - منطقي بحساب السياسات (بأعباء wael1/quell): مشاركة مشروع مباشرة → يرى المشروع ومهامه (1 مشروع/6 مهام)، وإضافة مشاركة المجال افتراضياً → يرى 5 مشاريع/15 مهمة/مهام فرعية موروثة.
+- ملاحظة: عند مشاركة مجال يظهر المشروع/المهمة تلقائياً للمتعاون بمجرد المزامنة التالية (RLS + سحب السحابة).
+
+### [2026-09-08] - ربط Auto-Link بريد غير حساس للحالة + ربط خلفي
+- **ترحيل** [20260908000600_collab_autolink_lower_backfill.sql](file:///d:/programming/Tasky3.0/supabase/migrations/20260908000600_collab_autolink_lower_backfill.sql) (مشروع Tasky فقط):
+  - دالتا `auto_link_collaborators` و `auto_link_collaborator_current` أصبحتا تطابقان البريد بـ `lower()` (غير حساسة لحالة الأحرف).
+  - ربط خلفي لمرة واحدة: أي دعوة `pending` بريدها موجود كحساب → `collaborator_id` + `status='active'` (عُيّن لحساب wael1 على مشروع Elbalad فعلياً).
+
 
 
 

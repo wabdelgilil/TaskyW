@@ -137,11 +137,14 @@ class CollaborationController extends ChangeNotifier {
     }
   }
 
-  /// فحص فوري قبل التعديل.
-  bool canEdit(String entityId) => _guard.canEdit(entityId: entityId);
+  /// فحص فوري قبل التعديل مع دعم الوراثة من الكيان الأب (مجال أو مشروع).
+  bool canEdit(String entityId, {String? parentEntityId}) =>
+      _guard.canEdit(entityId: entityId, parentEntityId: parentEntityId);
 
-  /// فحص فوري قبل الحذف.
-  bool canDelete(String entityId) => _guard.canDelete(entityId: entityId);
+  /// فحص فوري قبل الحذف مع دعم الوراثة من الكيان الأب (مجال أو مشروع).
+  bool canDelete(String entityId, {String? parentEntityId}) =>
+      _guard.canDelete(entityId: entityId, parentEntityId: parentEntityId);
 
-  bool isOwner(String entityId) => _guard.isOwner(entityId: entityId);
+  bool isOwner(String entityId, {String? parentEntityId}) =>
+      _guard.isOwner(entityId: entityId, parentEntityId: parentEntityId);
 }
