@@ -8,6 +8,7 @@ import '../../../../core/widgets/progress_bar_widget.dart';
 import '../../../tasks/data/models/task_model.dart';
 import '../../../tasks/presentation/widgets/kanban_board_view.dart';
 import '../../../tasks/presentation/widgets/task_list_view.dart';
+import '../../../tasks/presentation/widgets/tasks_table_view.dart';
 import '../../data/models/project_model.dart';
 
 /// صفحة تفاصيل وإدارة المشروع المتكاملة
@@ -15,11 +16,13 @@ class ProjectDetailScreen extends StatefulWidget {
   final ProjectModel project;
   final List<TaskModel> projectTasks;
   final Map<String, List<TagModel>> taskTags;
+  final String viewMode;
   final Function(ProjectModel updatedProject) onUpdateProject;
   final Function(String projectId) onDeleteProject;
   final Function(TaskModel task)? onTaskTap;
   final Function(TaskModel task, bool isCompleted)? onToggleTaskCompleted;
   final Function(TaskModel task, String newStatus)? onTaskStatusChanged;
+  final Function(TaskModel task, String newPriority)? onTaskPriorityChanged;
   final VoidCallback? onAddNewTask;
 
   const ProjectDetailScreen({
@@ -27,11 +30,13 @@ class ProjectDetailScreen extends StatefulWidget {
     required this.project,
     required this.projectTasks,
     this.taskTags = const {},
+    this.viewMode = 'list',
     required this.onUpdateProject,
     required this.onDeleteProject,
     this.onTaskTap,
     this.onToggleTaskCompleted,
     this.onTaskStatusChanged,
+    this.onTaskPriorityChanged,
     this.onAddNewTask,
   });
 
@@ -40,7 +45,6 @@ class ProjectDetailScreen extends StatefulWidget {
 }
 
 class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
-  String _activeView = 'list'; // 'list' أو 'kanban'
 
   int get _completedTasksCount => widget.projectTasks.where((t) => t.status == 'completed').length;
   int get _urgentTasksCount => widget.projectTasks.where((t) => t.priority == 'urgent' && t.status != 'completed').length;
@@ -352,21 +356,12 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
             ),
           ),
 
-          // شريط أدوات المهام (تبديل العرض + زر إضافة مهمة)
+          // شريط أدوات المهام (زر إضافة مهمة)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                // أزرار التبديل بين القائمة والكانبان
-                SegmentedButton<String>(
-                  segments: const [
-                    ButtonSegment(value: 'list', icon: Icon(Icons.view_list_rounded, size: 18), label: Text('قائمة')),
-                    ButtonSegment(value: 'kanban', icon: Icon(Icons.view_kanban_rounded, size: 18), label: Text('كانبان')),
-                  ],
-                  selected: {_activeView},
-                  onSelectionChanged: (set) => setState(() => _activeView = set.first),
-                ),
-                const Spacer(),
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: projectColor,
@@ -380,24 +375,35 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
             ),
           ),
 
-          // محتوى المهام (List أو Kanban)
+          // محتوى المهام (List أو Kanban أو Table حسب اختيار الهيدر)
           Expanded(
-            child: _activeView == 'list'
-                ? TaskListView(
-                    tasks: widget.projectTasks,
-                    taskTags: widget.taskTags,
-                    emptyMessage: 'لا توجد مهام مضافة لهذا المشروع حتى الآن',
-                    onTaskTap: widget.onTaskTap,
-                    onToggleCompleted: widget.onToggleTaskCompleted,
-                    onAddTask: widget.onAddNewTask,
-                  )
-                : KanbanBoardView(
+            child: widget.viewMode == 'kanban'
+                ? KanbanBoardView(
                     tasks: widget.projectTasks,
                     taskTags: widget.taskTags,
                     onTaskTap: widget.onTaskTap,
                     onTaskStatusChanged: (task, status) => widget.onTaskStatusChanged?.call(task, status),
                     onAddTaskInColumn: (_) => widget.onAddNewTask?.call(),
-                  ),
+                  )
+                : widget.viewMode == 'table'
+                    ? TasksTableView(
+                        tasks: widget.projectTasks,
+                        projects: [widget.project],
+                        taskTags: widget.taskTags,
+                        onTaskTap: widget.onTaskTap,
+                        onToggleCompleted: widget.onToggleTaskCompleted,
+                        onTaskStatusChanged: (task, status) => widget.onTaskStatusChanged?.call(task, status),
+                        onTaskPriorityChanged: (task, priority) => widget.onTaskPriorityChanged?.call(task, priority),
+                        onAddTask: widget.onAddNewTask,
+                      )
+                    : TaskListView(
+                        tasks: widget.projectTasks,
+                        taskTags: widget.taskTags,
+                        emptyMessage: 'لا توجد مهام مضافة لهذا المشروع حتى الآن',
+                        onTaskTap: widget.onTaskTap,
+                        onToggleCompleted: widget.onToggleTaskCompleted,
+                        onAddTask: widget.onAddNewTask,
+                      ),
           ),
         ],
       ),

@@ -15,6 +15,7 @@ import '../../../tasks/data/models/task_model.dart';
 import '../../../tasks/presentation/widgets/kanban_board_view.dart';
 import '../../../tasks/presentation/widgets/task_detail_drawer.dart';
 import '../../../tasks/presentation/widgets/task_list_view.dart';
+import '../../../tasks/presentation/widgets/tasks_table_view.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../auth/presentation/screens/auth_screen.dart';
 import '../../../../core/widgets/sync_status_button.dart';
@@ -35,6 +36,7 @@ class MainLayoutScreen extends StatefulWidget {
   final Function(TaskModel task)? onSaveTask;
   final Function(String taskId)? onDeleteTask;
   final Function(TaskModel task, String newStatus)? onTaskStatusChanged;
+  final Function(TaskModel task, String newPriority)? onTaskPriorityChanged;
   final Function(TaskModel task, bool isCompleted)? onToggleTaskCompleted;
   final Function(String taskId, String title)? onAddSubtask;
   final Function(SubtaskModel subtask, bool isCompleted)? onToggleSubtask;
@@ -64,6 +66,7 @@ class MainLayoutScreen extends StatefulWidget {
     this.onSaveTask,
     this.onDeleteTask,
     this.onTaskStatusChanged,
+    this.onTaskPriorityChanged,
     this.onToggleTaskCompleted,
     this.onAddSubtask,
     this.onToggleSubtask,
@@ -1037,14 +1040,30 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
               onPressed: () => setState(() => _isMobileSearchOpen = true),
             ),
 
-            // زر التبديل السريع بين القائمة والكانبان (أيقونة مدمجة)
+            // زر التبديل السريع بين القائمة والكانبان والجدول (أيقونة مدمجة)
             IconButton(
               icon: Icon(
-                _viewMode == 'kanban' ? Icons.view_list_rounded : Icons.view_kanban_rounded,
+                _viewMode == 'list'
+                    ? Icons.view_kanban_rounded
+                    : _viewMode == 'kanban'
+                        ? Icons.table_chart_rounded
+                        : Icons.view_list_rounded,
                 size: 20,
               ),
-              tooltip: _viewMode == 'kanban' ? 'عرض القوائم' : 'عرض الكانبان',
-              onPressed: () => setState(() => _viewMode = _viewMode == 'kanban' ? 'list' : 'kanban'),
+              tooltip: _viewMode == 'list'
+                  ? 'عرض الكانبان'
+                  : _viewMode == 'kanban'
+                      ? 'عرض الجدول'
+                      : 'عرض القوائم',
+              onPressed: () => setState(() {
+                if (_viewMode == 'list') {
+                  _viewMode = 'kanban';
+                } else if (_viewMode == 'kanban') {
+                  _viewMode = 'table';
+                } else {
+                  _viewMode = 'list';
+                }
+              }),
             ),
 
             const SizedBox(width: 2),
@@ -1153,21 +1172,41 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
 
           const SizedBox(width: 8),
 
-          // أزرار التبديل السريع للعرض (List / Kanban)
+          // أزرار التبديل السريع للعرض (List / Kanban / Table)
           if (isMedium)
             SegmentedButton<String>(
               segments: const [
                 ButtonSegment(value: 'list', icon: Icon(Icons.view_list_rounded, size: 16)),
                 ButtonSegment(value: 'kanban', icon: Icon(Icons.view_kanban_rounded, size: 16)),
+                ButtonSegment(value: 'table', icon: Icon(Icons.table_chart_rounded, size: 16)),
               ],
               selected: {_viewMode},
               onSelectionChanged: (set) => setState(() => _viewMode = set.first),
             )
           else
             IconButton(
-              icon: Icon(_viewMode == 'kanban' ? Icons.view_list_rounded : Icons.view_kanban_rounded, size: 20),
-              tooltip: _viewMode == 'kanban' ? 'عرض القوائم' : 'عرض الكانبان',
-              onPressed: () => setState(() => _viewMode = _viewMode == 'kanban' ? 'list' : 'kanban'),
+              icon: Icon(
+                _viewMode == 'list'
+                    ? Icons.view_kanban_rounded
+                    : _viewMode == 'kanban'
+                        ? Icons.table_chart_rounded
+                        : Icons.view_list_rounded,
+                size: 20,
+              ),
+              tooltip: _viewMode == 'list'
+                  ? 'عرض الكانبان'
+                  : _viewMode == 'kanban'
+                      ? 'عرض الجدول'
+                      : 'عرض القوائم',
+              onPressed: () => setState(() {
+                if (_viewMode == 'list') {
+                  _viewMode = 'kanban';
+                } else if (_viewMode == 'kanban') {
+                  _viewMode = 'table';
+                } else {
+                  _viewMode = 'list';
+                }
+              }),
             ),
 
           const SizedBox(width: 6),
@@ -1298,6 +1337,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
         project: project,
         projectTasks: _contextTasks,
         taskTags: widget.taskTags,
+        viewMode: _viewMode,
         onUpdateProject: (up) => widget.onSaveProject?.call(up),
         onDeleteProject: (id) {
           widget.onDeleteProject?.call(id);
@@ -1308,6 +1348,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
           widget.onToggleTaskCompleted?.call(t, isDone);
         },
         onTaskStatusChanged: widget.onTaskStatusChanged,
+        onTaskPriorityChanged: widget.onTaskPriorityChanged,
         onAddNewTask: () => _showAddTaskDialog(),
       );
     }
@@ -1322,6 +1363,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
         areaProjects: areaProjects,
         areaTasks: _contextTasks,
         taskTags: widget.taskTags,
+        viewMode: _viewMode,
         onUpdateArea: (up) => widget.onSaveArea?.call(up),
         onDeleteArea: (id) {
           widget.onDeleteArea?.call(id);
@@ -1330,6 +1372,8 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
         onProjectTap: (p) => setState(() => _selectedProjectId = p.id),
         onTaskTap: (t) => setState(() => _openedTask = t),
         onToggleTaskCompleted: widget.onToggleTaskCompleted,
+        onTaskStatusChanged: widget.onTaskStatusChanged,
+        onTaskPriorityChanged: widget.onTaskPriorityChanged,
         onAddNewProject: () => _showAddProjectDialog(area.id),
         onAddNewTask: () => _showAddTaskDialog(),
       );
@@ -1354,6 +1398,22 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
         onTaskTap: (t) => setState(() => _openedTask = t),
         onTaskStatusChanged: (task, status) => widget.onTaskStatusChanged?.call(task, status),
         onAddTaskInColumn: (status) => _showAddTaskDialog(defaultStatus: status),
+      );
+    }
+
+    if (_viewMode == 'table') {
+      return TasksTableView(
+        tasks: _contextTasks,
+        areas: widget.areas,
+        projects: widget.projects,
+        taskTags: widget.taskTags,
+        subtaskCounts: subtaskCounts,
+        completedSubtaskCounts: completedSubtaskCounts,
+        onTaskTap: (t) => setState(() => _openedTask = t),
+        onToggleCompleted: widget.onToggleTaskCompleted,
+        onTaskStatusChanged: (task, status) => widget.onTaskStatusChanged?.call(task, status),
+        onTaskPriorityChanged: (task, priority) => widget.onTaskPriorityChanged?.call(task, priority),
+        onAddTask: () => _showAddTaskDialog(),
       );
     }
 

@@ -208,6 +208,16 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
     _scheduleAutoSync();
   }
 
+  Future<void> _handleTaskPriorityChanged(TaskModel task, String newPriority) async {
+    final updated = task.copyWith(
+      priority: newPriority,
+      updatedAt: DateTime.now().toUtc(),
+    );
+    await _taskRepo.updateTask(updated);
+    await _loadAllData();
+    _scheduleAutoSync();
+  }
+
   Future<void> _handleToggleTaskCompleted(TaskModel task, bool isCompleted) async {
     final newStatus = isCompleted ? 'completed' : 'todo';
     await _taskRepo.updateTaskStatus(task.id, newStatus);
@@ -336,6 +346,7 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
       onSaveTask: _handleSaveTask,
       onDeleteTask: _handleDeleteTask,
       onTaskStatusChanged: _handleTaskStatusChanged,
+      onTaskPriorityChanged: _handleTaskPriorityChanged,
       onToggleTaskCompleted: _handleToggleTaskCompleted,
       onAddSubtask: _handleAddSubtask,
       onToggleSubtask: _handleToggleSubtask,

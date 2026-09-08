@@ -7,7 +7,9 @@ import '../../../../core/widgets/emoji_picker_dialog.dart';
 import '../../../../core/widgets/progress_bar_widget.dart';
 import '../../../projects/data/models/project_model.dart';
 import '../../../tasks/data/models/task_model.dart';
+import '../../../tasks/presentation/widgets/kanban_board_view.dart';
 import '../../../tasks/presentation/widgets/task_list_view.dart';
+import '../../../tasks/presentation/widgets/tasks_table_view.dart';
 import '../../data/models/area_model.dart';
 
 /// صفحة تفاصيل وإدارة المجال المتكاملة
@@ -16,11 +18,14 @@ class AreaDetailScreen extends StatelessWidget {
   final List<ProjectModel> areaProjects;
   final List<TaskModel> areaTasks;
   final Map<String, List<TagModel>> taskTags;
+  final String viewMode;
   final Function(AreaModel updatedArea) onUpdateArea;
   final Function(String areaId) onDeleteArea;
   final Function(ProjectModel project)? onProjectTap;
   final Function(TaskModel task)? onTaskTap;
   final Function(TaskModel task, bool isCompleted)? onToggleTaskCompleted;
+  final Function(TaskModel task, String newStatus)? onTaskStatusChanged;
+  final Function(TaskModel task, String newPriority)? onTaskPriorityChanged;
   final VoidCallback? onAddNewProject;
   final VoidCallback? onAddNewTask;
 
@@ -30,11 +35,14 @@ class AreaDetailScreen extends StatelessWidget {
     required this.areaProjects,
     required this.areaTasks,
     this.taskTags = const {},
+    this.viewMode = 'list',
     required this.onUpdateArea,
     required this.onDeleteArea,
     this.onProjectTap,
     this.onTaskTap,
     this.onToggleTaskCompleted,
+    this.onTaskStatusChanged,
+    this.onTaskPriorityChanged,
     this.onAddNewProject,
     this.onAddNewTask,
   });
@@ -408,6 +416,25 @@ class AreaDetailScreen extends StatelessWidget {
                 border: Border.all(color: AppColors.border(context)),
               ),
               child: const Text('لا توجد مهام عامة خارج المشاريع لهذا المجال', style: TextStyle(color: Colors.grey, fontSize: 13)),
+            )
+          else if (viewMode == 'kanban')
+            KanbanBoardView(
+              tasks: standaloneTasks,
+              taskTags: taskTags,
+              onTaskTap: onTaskTap,
+              onTaskStatusChanged: (task, status) => onTaskStatusChanged?.call(task, status),
+              onAddTaskInColumn: (_) => onAddNewTask?.call(),
+            )
+          else if (viewMode == 'table')
+            TasksTableView(
+              tasks: standaloneTasks,
+              areas: [area],
+              taskTags: taskTags,
+              onTaskTap: onTaskTap,
+              onToggleCompleted: onToggleTaskCompleted,
+              onTaskStatusChanged: (task, status) => onTaskStatusChanged?.call(task, status),
+              onTaskPriorityChanged: (task, priority) => onTaskPriorityChanged?.call(task, priority),
+              onAddTask: onAddNewTask,
             )
           else
             TaskListView(

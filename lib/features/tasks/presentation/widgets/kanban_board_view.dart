@@ -6,7 +6,7 @@ import '../../data/models/task_model.dart';
 import 'task_card.dart';
 
 /// لوحة كانبان تفاعلية بـ 5 أعمدة مع دعم السحب والإفلات الكامل
-class KanbanBoardView extends StatelessWidget {
+class KanbanBoardView extends StatefulWidget {
   final List<TaskModel> tasks;
   final Function(TaskModel task, String newStatus) onTaskStatusChanged;
   final Function(TaskModel task)? onTaskTap;
@@ -35,6 +35,19 @@ class KanbanBoardView extends StatelessWidget {
   ];
 
   @override
+  State<KanbanBoardView> createState() => _KanbanBoardViewState();
+}
+
+class _KanbanBoardViewState extends State<KanbanBoardView> {
+  final ScrollController _horizontalScrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _horizontalScrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -42,30 +55,36 @@ class KanbanBoardView extends StatelessWidget {
             ? constraints.maxHeight - 24
             : 600.0;
 
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: SizedBox(
-            height: availableHeight,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: columns.map((status) {
-                final columnTasks = tasks.where((t) => t.status == status).toList();
-                return Container(
-                  width: 310,
-                  margin: const EdgeInsets.only(left: 14),
-                  child: _KanbanColumn(
-                    status: status,
-                    tasks: columnTasks,
-                    subtaskCounts: subtaskCounts,
-                    completedSubtaskCounts: completedSubtaskCounts,
-                    taskTags: taskTags,
-                    onTaskDropped: (task) => onTaskStatusChanged(task, status),
-                    onTaskTap: onTaskTap,
-                    onAddTask: () => onAddTaskInColumn?.call(status),
-                  ),
-                );
-              }).toList(),
+        return Scrollbar(
+          controller: _horizontalScrollController,
+          thumbVisibility: true,
+          trackVisibility: true,
+          child: SingleChildScrollView(
+            controller: _horizontalScrollController,
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 18),
+            child: SizedBox(
+              height: availableHeight,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: KanbanBoardView.columns.map((status) {
+                  final columnTasks = widget.tasks.where((t) => t.status == status).toList();
+                  return Container(
+                    width: 310,
+                    margin: const EdgeInsets.only(left: 14),
+                    child: _KanbanColumn(
+                      status: status,
+                      tasks: columnTasks,
+                      subtaskCounts: widget.subtaskCounts,
+                      completedSubtaskCounts: widget.completedSubtaskCounts,
+                      taskTags: widget.taskTags,
+                      onTaskDropped: (task) => widget.onTaskStatusChanged(task, status),
+                      onTaskTap: widget.onTaskTap,
+                      onAddTask: () => widget.onAddTaskInColumn?.call(status),
+                    ),
+                  );
+                }).toList(),
+              ),
             ),
           ),
         );
