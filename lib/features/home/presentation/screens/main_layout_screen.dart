@@ -833,7 +833,45 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
       onAddNewArea: _showAddAreaDialog,
       onAddNewProject: _showAddProjectDialog,
       onAddTag: _showCreateTagDialog,
+      onSelectSharedEntity: (entity) {
+        final entityType = entity['_entity_type'];
+        final id = entity['id'];
+        if (entityType == 'project') {
+          final foundProj = widget.projects.where((p) => p.id == id).firstOrNull;
+          if (foundProj != null) {
+            setState(() {
+              _selectedProjectId = foundProj.id;
+              _selectedAreaId = foundProj.areaId;
+              _selectedTagId = null;
+            });
+          } else {
+            // إنشاء كائن مشروع مؤقت للعرض إن لم يكن في القائمة المحلية بعد
+            final tempProj = ProjectModel(
+              id: id,
+              areaId: entity['area_id'] ?? '',
+              name: entity['name'] ?? 'مشروع مشترك',
+              description: entity['description'],
+              iconEmoji: entity['icon_emoji'] ?? '💼',
+              colorHex: entity['color_hex'] ?? '#0284C7',
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            );
+            setState(() {
+              _selectedProjectId = tempProj.id;
+              _selectedAreaId = null;
+              _selectedTagId = null;
+            });
+          }
+        } else if (entityType == 'area') {
+          setState(() {
+            _selectedAreaId = id;
+            _selectedProjectId = null;
+            _selectedTagId = null;
+          });
+        }
+      },
     );
+
 
     return Scaffold(
       drawer: isDesktop ? null : Drawer(child: treeSidebar),

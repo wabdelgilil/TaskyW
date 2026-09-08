@@ -8,6 +8,9 @@ import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../auth/presentation/screens/auth_screen.dart';
 import '../../../../core/widgets/tasky_logo.dart';
 import '../../../../core/services/sync_controller.dart';
+import '../../../collaboration/presentation/controllers/collaboration_controller.dart';
+
+
 
 /// الشجرة الهرمية التفاعلية للقائمة الجانبية (Hierarchical Tree Sidebar)
 class HierarchicalTreeSidebar extends StatefulWidget {
@@ -32,6 +35,7 @@ class HierarchicalTreeSidebar extends StatefulWidget {
   final VoidCallback? onAddNewArea;
   final Function(String areaId)? onAddNewProject;
   final VoidCallback? onAddTag;
+  final Function(Map<String, dynamic> entity)? onSelectSharedEntity;
 
   const HierarchicalTreeSidebar({
     super.key,
@@ -56,7 +60,9 @@ class HierarchicalTreeSidebar extends StatefulWidget {
     this.onAddNewArea,
     this.onAddNewProject,
     this.onAddTag,
+    this.onSelectSharedEntity,
   });
+
 
   @override
   State<HierarchicalTreeSidebar> createState() => _HierarchicalTreeSidebarState();
@@ -65,15 +71,26 @@ class HierarchicalTreeSidebar extends StatefulWidget {
 class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
   // تتبع المجالات المفتوحة في الشجرة (Expanded Areas)
   final Set<String> _expandedAreaIds = {};
+  late final CollaborationController _collabController;
 
   @override
   void initState() {
     super.initState();
+    _collabController = CollaborationController();
+    _collabController.loadSharedWithMe();
+
     // فتح جميع المجالات افتراضياً لسهولة الرؤية
     for (final a in widget.areas) {
       _expandedAreaIds.add(a.id);
     }
   }
+
+  @override
+  void dispose() {
+    _collabController.dispose();
+    super.dispose();
+  }
+
 
   void _toggleExpand(String areaId) {
     setState(() {
@@ -455,9 +472,134 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
                       ),
                     );
                   }),
+
+                const SizedBox(height: 16),
+
+                // 4. قسم الكيانات والمشاريع المشتركة معي (Shared with Me)
+                AnimatedBuilder(
+                  animation: _collabController,
+                  builder: (context, _) {
+                    final sharedItems = _collabController.sharedWithMe;
+                    if (sharedItems.isEmpty && !_collabController.isLoading) {
+                      return const SizedBox.shrink();
+                    }
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _buildSectionHeader('مشارك معي (Shared)'),
+                            if (_collabController.isLoading)
+                              const SizedBox(
+                                width: 12,
+                                height: 12,
+                                child: CircularProgressIndicator(strokeWidth: 1.5),
+                              )
+                            else
+                              IconButton(
+                                icon: const Icon(Icons.refresh, size: 15),
+                                tooltip: 'تحديث الكيانات المشتركة',
+                                splashRadius: 14,
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                onPressed: () => _collabController.loadSharedWithMe(),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        ...sharedItems.map((item) {
+                          final title = item['name'] ?? item['title'] ?? 'عنصر مشترك';
+                          final entityType = item['_entity_type'] ?? 'project';
+                          final perm = item['_permission_level'] ?? 'viewer';
+                          final iconEmoji = item['icon_emoji'] as String?;
+
+                          IconData defaultIcon;
+                          switch (entityType) {
+                            case 'area':
+                              defaultIcon = Icons.folder_shared_outlined;
+                              break;
+                            case 'project':
+                              defaultIcon = Icons.work_outline_rounded;
+                              break;
+                            case 'task':
+                            default:
+                              defaultIcon = Icons.task_alt_rounded;
+                              break;
+                          }
+
+                          return InkWell(
+                            onTap: () {
+                              widget.onSelectSharedEntity?.call(item);
+                            },
+                            borderRadius: BorderRadius.circular(6),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                              margin: const EdgeInsets.symmetric(vertical: 1.5),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(6),
+                                color: Colors.transparent,
+                              ),
+                              child: Row(
+                                children: [
+                                  if (iconEmoji != null && iconEmoji.isNotEmpty)
+                                    Text(iconEmoji, style: const TextStyle(fontSize: 14))
+                                  else
+                                    Icon(defaultIcon, size: 16, color: Theme.of(context).colorScheme.primary),
+                                  const SizedBox(width: 8),
+
+                                  Expanded(
+                                    child: Text(
+                                      title,
+                                      style: TextStyle(
+                                        fontSize: 12.5,
+                                        color: AppColors.textPrimary(context),
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  // شارة الصلاحية
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                                    decoration: BoxDecoration(
+                                      color: perm == 'admin'
+                                          ? Colors.red.withOpacity(0.12)
+                                          : perm == 'editor'
+                                              ? Colors.blue.withOpacity(0.12)
+                                              : Colors.grey.withOpacity(0.15),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      perm == 'admin'
+                                          ? 'مسؤول'
+                                          : perm == 'editor'
+                                              ? 'محرر'
+                                              : 'مشاهدة',
+                                      style: TextStyle(
+                                        fontSize: 9.5,
+                                        fontWeight: FontWeight.bold,
+                                        color: perm == 'admin'
+                                            ? Colors.redAccent
+                                            : perm == 'editor'
+                                                ? Colors.blue
+                                                : AppColors.textSecondary(context),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }),
+                      ],
+                    );
+                  },
+                ),
               ],
             ),
           ),
+
 
           const Divider(height: 1),
 

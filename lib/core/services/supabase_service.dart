@@ -1,4 +1,4 @@
-﻿import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// كلاس مركزي لإدارة وتهيئة خدمة Supabase لمشروع Tasky
@@ -25,15 +25,19 @@ class SupabaseService {
     }
   }
 
+  static bool get isInitialized => _isInitialized;
+
   /// العميل المباشر للتعامل مع سوبابيز
+  static SupabaseClient? get clientOrNull => _isInitialized ? Supabase.instance.client : null;
   static SupabaseClient get client => Supabase.instance.client;
 
   /// فحص هل المستخدم مسجل دخوله حالياً في سوبابيز
-  static bool get isAuthenticated => client.auth.currentUser != null;
+  static bool get isAuthenticated => _isInitialized && client.auth.currentUser != null;
 
   /// الحصول على معرّف المستخدم الحالي (أو null إذا كان غير مسجل)
-  static String? get currentUserId => client.auth.currentUser?.id;
+  static String? get currentUserId => _isInitialized ? client.auth.currentUser?.id : null;
 
   /// البريد الإلكتروني للمستخدم الحالي
-  static String? get currentUserEmail => client.auth.currentUser?.email;
+  static String? get currentUserEmail => _isInitialized ? client.auth.currentUser?.email : null;
 }
+
