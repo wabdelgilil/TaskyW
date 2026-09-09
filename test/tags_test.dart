@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:tasky/core/database/app_database.dart';
-import 'package:tasky/core/models/tag_model.dart';
-import 'package:tasky/core/repositories/tag_repository_impl.dart';
+import 'package:tasky/features/tags/data/models/tag_model.dart';
+import 'package:tasky/features/tags/data/repositories/tag_repository_impl.dart';
 import 'package:tasky/features/tags/presentation/controllers/tags_controller.dart';
 import 'package:tasky/features/tasks/data/models/task_model.dart';
 import 'package:tasky/features/tasks/data/repositories/task_repository_impl.dart';

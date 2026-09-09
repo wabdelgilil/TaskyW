@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/models/tag_model.dart';
+import 'package:tasky/features/tags/data/models/tag_model.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/priority_badge.dart';
 import '../../../../core/widgets/status_badge.dart';

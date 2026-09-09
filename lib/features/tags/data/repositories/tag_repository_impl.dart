@@ -1,9 +1,9 @@
 import 'package:sqflite/sqflite.dart';
 
-import '../database/app_database.dart';
-import '../database/database_tables.dart';
-import '../models/tag_model.dart';
-import 'tag_repository.dart';
+import 'package:tasky/core/database/app_database.dart';
+import 'package:tasky/core/database/database_tables.dart';
+import 'package:tasky/features/tags/data/models/tag_model.dart';
+import 'package:tasky/features/tags/domain/repositories/i_tag_repository.dart';
 
 class TagRepositoryImpl implements ITagRepository {
   final AppDatabase _appDatabase = AppDatabase.instance;

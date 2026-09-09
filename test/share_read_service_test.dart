@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tasky/core/models/entity_share_model.dart';
+import 'package:tasky/features/collaboration/data/models/entity_share_model.dart';
 import 'package:tasky/core/services/share_read_service.dart';
 
 /// عقد تجريبي يملأ طريقة واحدة بسلوك محدد.
@@ -44,10 +44,10 @@ void main() {
         id: 'share-1',
         entityType: 'task',
         entityId: 'task-1',
-        email: 'collab@example.com',
-        role: 'editor',
-        shareToken: 'tok-1',
-        isPublic: false,
+        collaboratorEmail: 'collab@example.com',
+        permissionLevel: 'editor',
+        status: 'active',
+        syncStatus: 'synced',
         createdAt: DateTime.utc(2026, 9, 8),
         updatedAt: DateTime.utc(2026, 9, 8, 10),
       );
@@ -56,8 +56,9 @@ void main() {
       expect(restored.id, 'share-1');
       expect(restored.entityType, 'task');
       expect(restored.role, 'editor');
-      expect(restored.isPublic, isFalse);
-      expect(restored.shareToken, 'tok-1');
+      expect(restored.permissionLevel, 'editor');
+      expect(restored.collaboratorEmail, 'collab@example.com');
+      expect(restored.isActive, isTrue);
     });
 
     test('fromMap يدعم مفتاح permission كاسم الدور', () {
@@ -66,6 +67,7 @@ void main() {
         'entity_type': 'project',
         'entity_id': 'p1',
         'permission': 'admin',
+        'status': 'active',
         'created_at': '2026-09-08T00:00:00.000Z',
       });
       expect(share.role, 'admin');
@@ -78,21 +80,24 @@ void main() {
         id: 'a',
         entityType: 'task',
         entityId: 't',
-        role: 'viewer',
+        status: 'active',
+        permissionLevel: 'viewer',
         createdAt: DateTime.utc(2026),
       );
       final editor = EntityShareModel(
         id: 'b',
         entityType: 'task',
         entityId: 't',
-        role: 'editor',
+        status: 'active',
+        permissionLevel: 'editor',
         createdAt: DateTime.utc(2026),
       );
       final admin = EntityShareModel(
         id: 'c',
         entityType: 'task',
         entityId: 't',
-        role: 'admin',
+        status: 'active',
+        permissionLevel: 'admin',
         createdAt: DateTime.utc(2026),
       );
       expect(viewer.canEdit, isFalse);
@@ -101,24 +106,18 @@ void main() {
       expect(admin.canDelete, isTrue);
     });
 
-    test('isPublicLink صحيح فقط عند public + shareToken', () {
-      final publicLink = EntityShareModel(
-        id: 'a',
+    test('غير النشط (pending/revoked) لا يملك صلاحية التعديل أو الحذف', () {
+      final pendingAdmin = EntityShareModel(
+        id: 'p-adm',
         entityType: 'task',
         entityId: 't',
-        isPublic: true,
-        shareToken: 'tok',
+        status: 'pending',
+        permissionLevel: 'admin',
         createdAt: DateTime.utc(2026),
       );
-      final publicNoToken = EntityShareModel(
-        id: 'b',
-        entityType: 'task',
-        entityId: 't',
-        isPublic: true,
-        createdAt: DateTime.utc(2026),
-      );
-      expect(publicLink.isPublicLink, isTrue);
-      expect(publicNoToken.isPublicLink, isFalse);
+      expect(pendingAdmin.isActive, isFalse);
+      expect(pendingAdmin.canEdit, isFalse);
+      expect(pendingAdmin.canDelete, isFalse);
     });
   });
 

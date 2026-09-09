@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../../core/models/tag_model.dart';
+import 'package:tasky/features/tags/data/models/tag_model.dart';
 import '../../../../core/services/export_service.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/color_picker_dialog.dart';
-import '../../../../core/widgets/emoji_picker_dialog.dart';
 import '../../../areas/data/models/area_model.dart';
 import '../../../areas/presentation/screens/area_detail_screen.dart';
 import '../../../areas/presentation/widgets/hierarchical_tree_sidebar.dart';
@@ -23,6 +21,11 @@ import '../../../notes/presentation/screens/notes_screen.dart';
 import '../../../finance/presentation/screens/financial_log_screen.dart';
 import '../../../archive/presentation/screens/archive_screen.dart';
 import '../../../trash/presentation/screens/trash_screen.dart';
+import '../widgets/dialogs/add_task_dialog.dart';
+import '../widgets/dialogs/add_area_dialog.dart';
+import '../widgets/dialogs/add_project_dialog.dart';
+import '../widgets/dialogs/create_tag_dialog.dart';
+import '../widgets/dialogs/export_tasks_dialog.dart';
 
 /// الشاشة الهيكلية الرئيسية للتطبيق (Master Responsive Layout Screen)
 /// تجمع بين الشجرة الهرمية الجانبية، شريط البحث المقيّد بالسياق، مساحة العمل، درج التفاصيل، والشريط السفلي
@@ -280,425 +283,41 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
 
   // نافذة إضافة مهمة سريعة
   void _showAddTaskDialog({String? defaultStatus}) {
-    if (widget.areas.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('يجب إنشاء مجال أولاً قبل إضافة المهام.'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      _showAddAreaDialog();
-      return;
-    }
-
-    final titleCtrl = TextEditingController();
-    final descCtrl = TextEditingController();
-    String status = defaultStatus ?? 'todo';
-    String priority = 'medium';
-    String? colorHex;
-    String areaId = _selectedAreaId ?? widget.areas.first.id;
-    String? projectId = _selectedProjectId;
-    DateTime? dueDate = (_activeFilter == 'today') ? DateTime.now() : null;
-
-    showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setDialogState) {
-          final areaProjects = widget.projects.where((p) => p.areaId == areaId).toList();
-
-          return AlertDialog(
-            title: const Text('إضافة مهمة جديدة', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            content: SizedBox(
-              width: 420,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TextField(
-                    controller: titleCtrl,
-                    autofocus: true,
-                    decoration: const InputDecoration(labelText: 'عنوان المهمة *', hintText: 'ما الذي ترغب في إنجازه؟'),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: descCtrl,
-                    maxLines: 2,
-                    decoration: const InputDecoration(labelText: 'ملاحظات أو وصف (اختياري)'),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: status,
-                          decoration: const InputDecoration(labelText: 'الحالة'),
-                          items: const [
-                            DropdownMenuItem(value: 'todo', child: Text('قيد الانتظار')),
-                            DropdownMenuItem(value: 'in_progress', child: Text('جاري التنفيذ')),
-                            DropdownMenuItem(value: 'waiting', child: Text('معلّقة')),
-                            DropdownMenuItem(value: 'review', child: Text('مراجعة')),
-                            DropdownMenuItem(value: 'completed', child: Text('مكتملة')),
-                          ],
-                          onChanged: (val) {
-                            if (val != null) setDialogState(() => status = val);
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: priority,
-                          decoration: const InputDecoration(labelText: 'الأولوية'),
-                          items: const [
-                            DropdownMenuItem(value: 'low', child: Text('منخفضة')),
-                            DropdownMenuItem(value: 'medium', child: Text('متوسطة')),
-                            DropdownMenuItem(value: 'high', child: Text('عالية')),
-                            DropdownMenuItem(value: 'urgent', child: Text('عاجل جداً')),
-                          ],
-                          onChanged: (val) {
-                            if (val != null) setDialogState(() => priority = val);
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: areaId,
-                          decoration: const InputDecoration(labelText: 'المجال'),
-                          items: widget.areas.map((a) {
-                            return DropdownMenuItem(value: a.id, child: Text('${a.iconEmoji} ${a.name}'));
-                          }).toList(),
-                          onChanged: (val) {
-                            if (val != null) {
-                              setDialogState(() {
-                                areaId = val;
-                                projectId = null;
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: DropdownButtonFormField<String?>(
-                          value: projectId,
-                          decoration: const InputDecoration(labelText: 'المشروع'),
-                          items: [
-                            const DropdownMenuItem(value: null, child: Text('بدون مشروع')),
-                            ...areaProjects.map((p) => DropdownMenuItem(value: p.id, child: Text('${p.iconEmoji} ${p.name}'))),
-                          ],
-                          onChanged: (val) => setDialogState(() => projectId = val),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      // زر تعيين الديدلاين
-                      TextButton.icon(
-                        icon: const Icon(Icons.calendar_today, size: 16),
-                        label: Text(dueDate != null ? '${dueDate!.day}/${dueDate!.month}/${dueDate!.year}' : 'تاريخ التسليم'),
-                        onPressed: () async {
-                          final picked = await showDatePicker(
-                            context: context,
-                            initialDate: dueDate ?? DateTime.now(),
-                            firstDate: DateTime(2020),
-                            lastDate: DateTime(2035),
-                          );
-                          if (picked != null) setDialogState(() => dueDate = picked);
-                        },
-                      ),
-                      const Spacer(),
-                      // زر اختيار لون المهمة
-                      IconButton(
-                        icon: Icon(Icons.palette_outlined, color: colorHex != null ? AppColors.fromHex(colorHex) : Colors.grey),
-                        tooltip: 'لون مخصص للمهمة',
-                        onPressed: () async {
-                          final selected = await ColorPickerDialog.show(context, initialColorHex: colorHex ?? '#3B82F6');
-                          if (selected != null) setDialogState(() => colorHex = selected);
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('إلغاء')),
-              ElevatedButton(
-                onPressed: () {
-                  final text = titleCtrl.text.trim();
-                  if (text.isNotEmpty) {
-                    final newTask = TaskModel(
-                      id: 'task-${DateTime.now().millisecondsSinceEpoch}',
-                      areaId: areaId,
-                      projectId: projectId,
-                      title: text,
-                      description: descCtrl.text.trim().isEmpty ? null : descCtrl.text.trim(),
-                      status: status,
-                      priority: priority,
-                      colorHex: colorHex,
-                      dueDate: dueDate,
-                      createdAt: DateTime.now().toUtc(),
-                      updatedAt: DateTime.now().toUtc(),
-                    );
-                    widget.onSaveTask?.call(newTask);
-                    Navigator.of(ctx).pop();
-                  }
-                },
-                child: const Text('إضافة المهمة'),
-              ),
-            ],
-          );
-        },
-      ),
+    AddTaskDialog.show(
+      context,
+      areas: widget.areas,
+      projects: widget.projects,
+      defaultStatus: defaultStatus,
+      initialAreaId: _selectedAreaId,
+      initialProjectId: _selectedProjectId,
+      isTodayFilter: _activeFilter == 'today',
+      onSaveTask: (newTask) => widget.onSaveTask?.call(newTask),
+      onNeedArea: _showAddAreaDialog,
     );
   }
 
   // نافذة إضافة مجال جديد
   void _showAddAreaDialog() {
-    final nameCtrl = TextEditingController();
-    String emoji = '💼';
-    String colorHex = '#3B82F6';
-
-    showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setDialogState) {
-          final aColor = AppColors.fromHex(colorHex);
-          return AlertDialog(
-            title: const Text('إضافة مجال مسؤولية جديد', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            content: SizedBox(
-              width: 360,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    children: [
-                      InkWell(
-                        onTap: () async {
-                          final selected = await EmojiPickerDialog.show(context, initialEmoji: emoji);
-                          if (selected != null) setDialogState(() => emoji = selected);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(color: aColor.withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
-                          child: Text(emoji, style: const TextStyle(fontSize: 24)),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      InkWell(
-                        onTap: () async {
-                          final selected = await ColorPickerDialog.show(context, initialColorHex: colorHex);
-                          if (selected != null) setDialogState(() => colorHex = selected);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey.withOpacity(0.3))),
-                          child: Row(
-                            children: [
-                              Container(width: 16, height: 16, decoration: BoxDecoration(color: aColor, shape: BoxShape.circle)),
-                              const SizedBox(width: 6),
-                              const Text('اللون', style: TextStyle(fontSize: 12)),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'اسم المجال')),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('إلغاء')),
-              ElevatedButton(
-                onPressed: () {
-                  if (nameCtrl.text.trim().isNotEmpty) {
-                    final newArea = AreaModel(
-                      id: 'area-${DateTime.now().millisecondsSinceEpoch}',
-                      name: nameCtrl.text.trim(),
-                      iconEmoji: emoji,
-                      colorHex: colorHex,
-                      createdAt: DateTime.now().toUtc(),
-                      updatedAt: DateTime.now().toUtc(),
-                    );
-                    widget.onSaveArea?.call(newArea);
-                    Navigator.of(ctx).pop();
-                  }
-                },
-                child: const Text('إنشاء المجال'),
-              ),
-            ],
-          );
-        },
-      ),
+    AddAreaDialog.show(
+      context,
+      onSaveArea: (newArea) => widget.onSaveArea?.call(newArea),
     );
   }
 
   // نافذة إضافة مشروع جديد
   void _showAddProjectDialog(String areaId) {
-    final nameCtrl = TextEditingController();
-    final descCtrl = TextEditingController();
-    String emoji = '📋';
-    String colorHex = '#10B981';
-
-    showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setDialogState) {
-          final pColor = AppColors.fromHex(colorHex);
-          return AlertDialog(
-            title: const Text('إضافة مشروع جديد', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            content: SizedBox(
-              width: 380,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    children: [
-                      InkWell(
-                        onTap: () async {
-                          final selected = await EmojiPickerDialog.show(context, initialEmoji: emoji);
-                          if (selected != null) setDialogState(() => emoji = selected);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(color: pColor.withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
-                          child: Text(emoji, style: const TextStyle(fontSize: 24)),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      InkWell(
-                        onTap: () async {
-                          final selected = await ColorPickerDialog.show(context, initialColorHex: colorHex);
-                          if (selected != null) setDialogState(() => colorHex = selected);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey.withOpacity(0.3))),
-                          child: Row(
-                            children: [
-                              Container(width: 16, height: 16, decoration: BoxDecoration(color: pColor, shape: BoxShape.circle)),
-                              const SizedBox(width: 6),
-                              const Text('اللون', style: TextStyle(fontSize: 12)),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'اسم المشروع')),
-                  const SizedBox(height: 10),
-                  TextField(controller: descCtrl, maxLines: 2, decoration: const InputDecoration(labelText: 'وصف المشروع (اختياري)')),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('إلغاء')),
-              ElevatedButton(
-                onPressed: () {
-                  if (nameCtrl.text.trim().isNotEmpty) {
-                    final newProj = ProjectModel(
-                      id: 'project-${DateTime.now().millisecondsSinceEpoch}',
-                      areaId: areaId,
-                      name: nameCtrl.text.trim(),
-                      description: descCtrl.text.trim().isEmpty ? null : descCtrl.text.trim(),
-                      iconEmoji: emoji,
-                      colorHex: colorHex,
-                      createdAt: DateTime.now().toUtc(),
-                      updatedAt: DateTime.now().toUtc(),
-                    );
-                    widget.onSaveProject?.call(newProj);
-                    Navigator.of(ctx).pop();
-                  }
-                },
-                child: const Text('إنشاء المشروع'),
-              ),
-            ],
-          );
-        },
-      ),
+    AddProjectDialog.show(
+      context,
+      areaId: areaId,
+      onSaveProject: (newProj) => widget.onSaveProject?.call(newProj),
     );
   }
 
   // نافذة سريعة لإنشاء وسم جديد
   void _showCreateTagDialog() {
-    final nameCtrl = TextEditingController();
-    String selectedHex = '#3B82F6';
-
-    showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setDialogState) {
-          final palette = [
-            '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444', '#EC4899', '#06B6D4', '#64748B',
-          ];
-
-          return AlertDialog(
-            title: const Text('إنشاء وسم جديد', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            content: SizedBox(
-              width: 340,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TextField(
-                    controller: nameCtrl,
-                    autofocus: true,
-                    decoration: const InputDecoration(labelText: 'اسم الوسم', hintText: 'مثلاً: عاجل، قطع_غيار...'),
-                  ),
-                  const SizedBox(height: 14),
-                  const Text('اختر لون الوسم:', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: palette.map((hex) {
-                      final isPicked = selectedHex == hex;
-                      final c = AppColors.fromHex(hex);
-                      return GestureDetector(
-                        onTap: () => setDialogState(() => selectedHex = hex),
-                        child: Container(
-                          width: 28,
-                          height: 28,
-                          decoration: BoxDecoration(
-                            color: c,
-                            shape: BoxShape.circle,
-                            border: isPicked ? Border.all(color: Colors.white, width: 2.5) : null,
-                            boxShadow: isPicked
-                                ? [BoxShadow(color: c.withOpacity(0.6), blurRadius: 4, spreadRadius: 1)]
-                                : null,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('إلغاء')),
-              ElevatedButton(
-                onPressed: () {
-                  final name = nameCtrl.text.trim();
-                  if (name.isNotEmpty) {
-                    widget.onCreateTag?.call(name, selectedHex);
-                    Navigator.pop(ctx);
-                  }
-                },
-                child: const Text('إنشاء'),
-              ),
-            ],
-          );
-        },
-      ),
+    CreateTagDialog.show(
+      context,
+      onCreateTag: (name, hex) => widget.onCreateTag?.call(name, hex),
     );
   }
 
@@ -726,27 +345,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
         content: Text('تم تصدير ${tasksToExport.length} مهمة ونسخ CSV إلى الحافظة بنجاح!'),
         action: SnackBarAction(
           label: 'معاينة',
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (ctx) => AlertDialog(
-                title: const Text('بيانات CSV المُصدّرة'),
-                content: SizedBox(
-                  width: 500,
-                  height: 300,
-                  child: SingleChildScrollView(
-                    child: SelectableText(csv, style: const TextStyle(fontFamily: 'monospace', fontSize: 11)),
-                  ),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    child: const Text('إغلاق'),
-                  ),
-                ],
-              ),
-            );
-          },
+          onPressed: () => ExportTasksDialog.show(context, csvContent: csv),
         ),
       ),
     );

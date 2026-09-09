@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
-import '../../../../core/models/tag_model.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_theme.dart';
-import '../../data/models/area_model.dart';
-import '../../../projects/data/models/project_model.dart';
-import '../../../auth/presentation/controllers/auth_controller.dart';
-import '../../../auth/presentation/screens/auth_screen.dart';
-import '../../../../core/widgets/tasky_logo.dart';
-import '../../../../core/services/sync_controller.dart';
-import '../../../collaboration/presentation/controllers/collaboration_controller.dart';
 
-
+import 'package:tasky/features/tags/data/models/tag_model.dart';
+import 'package:tasky/core/theme/app_colors.dart';
+import 'package:tasky/core/widgets/tasky_logo.dart';
+import 'package:tasky/features/areas/data/models/area_model.dart';
+import 'package:tasky/features/areas/presentation/widgets/sidebar_tree/sidebar_areas_tree.dart';
+import 'package:tasky/features/areas/presentation/widgets/sidebar_tree/sidebar_shared_section.dart';
+import 'package:tasky/features/areas/presentation/widgets/sidebar_tree/sidebar_smart_filters.dart';
+import 'package:tasky/features/areas/presentation/widgets/sidebar_tree/sidebar_tags_section.dart';
+import 'package:tasky/features/areas/presentation/widgets/sidebar_tree/sidebar_user_footer.dart';
+import 'package:tasky/features/projects/data/models/project_model.dart';
 
 /// الشجرة الهرمية التفاعلية للقائمة الجانبية (Hierarchical Tree Sidebar)
-class HierarchicalTreeSidebar extends StatefulWidget {
+class HierarchicalTreeSidebar extends StatelessWidget {
   final List<AreaModel> areas;
   final List<ProjectModel> projects;
   final List<TagModel> tags;
@@ -85,45 +84,6 @@ class HierarchicalTreeSidebar extends StatefulWidget {
     this.onSelectTrash,
   });
 
-
-  @override
-  State<HierarchicalTreeSidebar> createState() => _HierarchicalTreeSidebarState();
-}
-
-class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
-  // تتبع المجالات المفتوحة في الشجرة (Expanded Areas)
-  final Set<String> _expandedAreaIds = {};
-  late final CollaborationController _collabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _collabController = CollaborationController();
-    _collabController.loadSharedWithMe();
-
-    // فتح جميع المجالات افتراضياً لسهولة الرؤية
-    for (final a in widget.areas) {
-      _expandedAreaIds.add(a.id);
-    }
-  }
-
-  @override
-  void dispose() {
-    _collabController.dispose();
-    super.dispose();
-  }
-
-
-  void _toggleExpand(String areaId) {
-    setState(() {
-      if (_expandedAreaIds.contains(areaId)) {
-        _expandedAreaIds.remove(areaId);
-      } else {
-        _expandedAreaIds.add(areaId);
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -179,806 +139,102 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               children: [
                 // 1. قسم الفلاتر الذكية (Smart Filters)
-                _buildSectionHeader('الفلاتر السريعة'),
-                _buildSmartFilterTile(
-                  icon: Icons.wb_sunny_rounded,
-                  iconColor: isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706), // Amber 400 vs 600
-                  title: 'اليوم',
-                  count: widget.todayCount,
-                  isSelected: widget.selectedFilter == 'today',
-                  onTap: () => widget.onSelectFilter('today'),
-                ),
-                _buildSmartFilterTile(
-                  icon: Icons.calendar_month_rounded,
-                  iconColor: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7), // Sky 400 vs 600 (عالي التباين)
-                  title: 'القادمة',
-                  count: widget.upcomingCount,
-                  isSelected: widget.selectedFilter == 'upcoming',
-                  onTap: () => widget.onSelectFilter('upcoming'),
-                ),
-                _buildSmartFilterTile(
-                  icon: Icons.pause_circle_filled_rounded,
-                  iconColor: AppColors.adaptiveStatusColor('waiting', isDark),
-                  title: 'معلّقة (Waiting)',
-                  count: widget.waitingCount,
-                  isSelected: widget.selectedFilter == 'waiting',
-                  onTap: () => widget.onSelectFilter('waiting'),
-                ),
-                _buildSmartFilterTile(
-                  icon: Icons.local_fire_department_rounded,
-                  iconColor: AppColors.adaptivePriorityColor('urgent', isDark),
-                  title: 'عاجل (Urgent)',
-                  count: widget.urgentCount,
-                  isSelected: widget.selectedFilter == 'urgent',
-                  onTap: () => widget.onSelectFilter('urgent'),
-                ),
-                _buildSmartFilterTile(
-                  icon: Icons.all_inbox_rounded,
-                  iconColor: isDark ? const Color(0xFF34D399) : const Color(0xFF0D9488), // Teal/Emerald 400 vs 600
-                  title: 'جميع المهام',
-                  count: null,
-                  isSelected: widget.selectedFilter == 'all',
-                  onTap: () => widget.onSelectFilter('all'),
+                SidebarSmartFilters(
+                  selectedFilter: selectedFilter,
+                  todayCount: todayCount,
+                  upcomingCount: upcomingCount,
+                  waitingCount: waitingCount,
+                  urgentCount: urgentCount,
+                  onSelectFilter: onSelectFilter,
                 ),
 
                 const SizedBox(height: 16),
 
                 // 2. قسم شجرة المجالات والمشاريع (Areas & Projects Tree)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildSectionHeader('المجالات والمشاريع'),
-                    IconButton(
-                      icon: const Icon(Icons.add, size: 16),
-                      tooltip: 'إضافة مجال جديد',
-                      splashRadius: 14,
-                      onPressed: widget.onAddNewArea,
-                    ),
-                  ],
+                SidebarAreasTree(
+                  areas: areas,
+                  projects: projects,
+                  selectedAreaId: selectedAreaId,
+                  selectedProjectId: selectedProjectId,
+                  areaTaskCounts: areaTaskCounts,
+                  projectTaskCounts: projectTaskCounts,
+                  onAddNewArea: onAddNewArea,
+                  onAddNewProject: onAddNewProject,
+                  onSelectArea: onSelectArea,
+                  onSelectProject: onSelectProject,
                 ),
-                const SizedBox(height: 4),
-
-                // تكرار المجالات
-                ...widget.areas.map((area) {
-                  final isExpanded = _expandedAreaIds.contains(area.id);
-                  final areaProjects = widget.projects.where((p) => p.areaId == area.id).toList();
-                  final rawAreaColor = AppColors.fromHex(area.colorHex);
-                  final areaColor = AppColors.adaptiveCustomColor(rawAreaColor, isDark);
-                  final isAreaSelected = widget.selectedAreaId == area.id && widget.selectedProjectId == null;
-                  final taskCount = widget.areaTaskCounts[area.id] ?? 0;
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // صف المجال (Area Item)
-                      InkWell(
-                        onTap: () => widget.onSelectArea(area),
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
-                          decoration: BoxDecoration(
-                            color: isAreaSelected
-                                ? areaColor.withOpacity(0.18)
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                              // سهم الفتح والطي
-                              InkWell(
-                                onTap: () => _toggleExpand(area.id),
-                                borderRadius: BorderRadius.circular(4),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(2),
-                                  child: Icon(
-                                    isExpanded ? Icons.keyboard_arrow_down_rounded : Icons.keyboard_arrow_left_rounded,
-                                    size: 18,
-                                    color: AppColors.textSecondary(context),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(area.iconEmoji, style: const TextStyle(fontSize: 16)),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  area.name,
-                                  style: TextStyle(
-                                    fontSize: 13.5,
-                                    fontWeight: isAreaSelected ? FontWeight.bold : FontWeight.w500,
-                                    color: isAreaSelected
-                                        ? areaColor
-                                        : AppColors.textPrimary(context),
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              if (taskCount > 0)
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: isDark ? Colors.black38 : Colors.black.withOpacity(0.06),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Text(
-                                    '$taskCount',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.textSecondary(context),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      // مشاريع المجال المنسدلة (Sub-Tree Projects)
-                      if (isExpanded) ...[
-                        Padding(
-                          padding: const EdgeInsets.only(right: 22, top: 2, bottom: 4),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              ...areaProjects.map((proj) {
-                                final isProjSelected = widget.selectedProjectId == proj.id;
-                                final rawProjColor = AppColors.fromHex(proj.colorHex);
-                                final projColor = AppColors.adaptiveCustomColor(rawProjColor, isDark);
-                                final pTaskCount = widget.projectTaskCounts[proj.id] ?? 0;
-
-                                return InkWell(
-                                  onTap: () => widget.onSelectProject(proj),
-                                  borderRadius: BorderRadius.circular(6),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                                    margin: const EdgeInsets.symmetric(vertical: 1),
-                                    decoration: BoxDecoration(
-                                      color: isProjSelected
-                                          ? projColor.withOpacity(0.18)
-                                          : Colors.transparent,
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Text(proj.iconEmoji, style: const TextStyle(fontSize: 13)),
-                                        const SizedBox(width: 6),
-                                        Expanded(
-                                          child: Text(
-                                            proj.name,
-                                            style: TextStyle(
-                                              fontSize: 12.5,
-                                              fontWeight: isProjSelected ? FontWeight.bold : FontWeight.normal,
-                                              color: isProjSelected
-                                                  ? projColor
-                                                  : AppColors.textSecondary(context),
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                        if (pTaskCount > 0)
-                                          Text(
-                                            '$pTaskCount',
-                                            style: TextStyle(
-                                              fontSize: 10.5,
-                                              color: AppColors.textMuted(context),
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              }),
-
-                              // زر إضافة مشروع سريع تحت هذا المجال
-                              InkWell(
-                                onTap: () => widget.onAddNewProject?.call(area.id),
-                                borderRadius: BorderRadius.circular(6),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.add, size: 14, color: AppColors.textMuted(context)),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        'مشروع جديد...',
-                                        style: TextStyle(
-                                          fontSize: 11.5,
-                                          color: AppColors.textMuted(context),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ],
-                  );
-                }),
 
                 const SizedBox(height: 16),
 
                 // 3. قسم الوسوم والتصنيفات (Tags & Labels)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildSectionHeader('الوسوم والتصنيفات'),
-                    if (widget.onAddTag != null)
-                      IconButton(
-                        icon: const Icon(Icons.add, size: 16),
-                        tooltip: 'إنشاء وسم جديد',
-                        splashRadius: 14,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        onPressed: widget.onAddTag,
-                      ),
-                  ],
+                SidebarTagsSection(
+                  tags: tags,
+                  selectedTagId: selectedTagId,
+                  tagTaskCounts: tagTaskCounts,
+                  onSelectTag: onSelectTag,
+                  onAddTag: onAddTag,
                 ),
-                if (widget.tags.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    child: Text(
-                      'لا توجد وسوم مضافة',
-                      style: TextStyle(fontSize: 11.5, color: AppColors.textMuted(context)),
-                    ),
-                  )
-                else
-                  ...widget.tags.map((tag) {
-                    final isSelected = widget.selectedTagId == tag.id;
-                    final rawTagColor = AppColors.fromHex(tag.colorHex);
-                    final tagColor = AppColors.adaptiveCustomColor(rawTagColor, isDark);
-                    final count = widget.tagTaskCounts[tag.id] ?? 0;
-
-                    return InkWell(
-                      onTap: () {
-                        if (isSelected) {
-                          widget.onSelectTag?.call(null);
-                        } else {
-                          widget.onSelectTag?.call(tag.id);
-                        }
-                      },
-                      borderRadius: BorderRadius.circular(6),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                        margin: const EdgeInsets.symmetric(vertical: 1.5),
-                        decoration: BoxDecoration(
-                          color: isSelected ? tagColor.withOpacity(0.18) : Colors.transparent,
-                          borderRadius: BorderRadius.circular(6),
-                          border: isSelected
-                              ? Border.all(color: tagColor.withOpacity(0.5), width: 1)
-                              : null,
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color: tagColor,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                tag.name,
-                                style: TextStyle(
-                                  fontSize: 12.5,
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                  color: isSelected ? tagColor : AppColors.textPrimary(context),
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            if (count > 0)
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                                decoration: BoxDecoration(
-                                  color: isDark ? Colors.black38 : Colors.black.withOpacity(0.06),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Text(
-                                  '$count',
-                                  style: TextStyle(
-                                    fontSize: 10.5,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.textSecondary(context),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }),
 
                 const SizedBox(height: 16),
 
                 // 4. قسم الملاحظات العامة (Resources & Knowledge Vault)
-                _buildSectionHeader('الملاحظات والمعرفة (Vault)'),
-                _buildSmartFilterTile(
+                const SidebarSectionHeader('الملاحظات والمعرفة (Vault)'),
+                SidebarFilterTile(
                   icon: Icons.auto_stories_outlined,
                   iconColor: isDark ? const Color(0xFFFBBF24) : const Color(0xFFB45309),
                   title: 'الملاحظات ومستودع المعرفة',
                   count: null,
-                  isSelected: widget.notesSelected,
-                  onTap: () => widget.onSelectNotes?.call(),
+                  isSelected: notesSelected,
+                  onTap: () => onSelectNotes?.call(),
                 ),
 
                 const SizedBox(height: 16),
 
                 // 5. قسم السجل المالي والتسويات (Financial Logs & Settlements)
-                _buildSectionHeader('الماليات والتسويات'),
-                _buildSmartFilterTile(
+                const SidebarSectionHeader('الماليات والتسويات'),
+                SidebarFilterTile(
                   icon: Icons.account_balance_wallet_outlined,
                   iconColor: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
                   title: 'السجل المالي والتسويات',
-                  count: widget.pendingInvoicesCount > 0 ? widget.pendingInvoicesCount : null,
-                  isSelected: widget.financeSelected,
-                  onTap: () => widget.onSelectFinance?.call(),
+                  count: pendingInvoicesCount > 0 ? pendingInvoicesCount : null,
+                  isSelected: financeSelected,
+                  onTap: () => onSelectFinance?.call(),
                 ),
 
                 const SizedBox(height: 16),
 
-                // 5. قسم الكيانات والمشاريع المشتركة معي (Shared with Me)
-                AnimatedBuilder(
-                  animation: _collabController,
-                  builder: (context, _) {
-                    final sharedItems = _collabController.sharedWithMe;
-                    if (sharedItems.isEmpty && !_collabController.isLoading) {
-                      return const SizedBox.shrink();
-                    }
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            _buildSectionHeader('مشارك معي (Shared)'),
-                            if (_collabController.isLoading)
-                              const SizedBox(
-                                width: 12,
-                                height: 12,
-                                child: CircularProgressIndicator(strokeWidth: 1.5),
-                              )
-                            else
-                              IconButton(
-                                icon: const Icon(Icons.refresh, size: 15),
-                                tooltip: 'تحديث الكيانات المشتركة',
-                                splashRadius: 14,
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                                onPressed: () => _collabController.loadSharedWithMe(),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        ...sharedItems.map((item) {
-                          final title = item['name'] ?? item['title'] ?? 'عنصر مشترك';
-                          final entityType = item['_entity_type'] ?? 'project';
-                          final perm = item['_permission_level'] ?? 'viewer';
-                          final iconEmoji = item['icon_emoji'] as String?;
-
-                          IconData defaultIcon;
-                          switch (entityType) {
-                            case 'area':
-                              defaultIcon = Icons.folder_shared_outlined;
-                              break;
-                            case 'project':
-                              defaultIcon = Icons.work_outline_rounded;
-                              break;
-                            case 'task':
-                            default:
-                              defaultIcon = Icons.task_alt_rounded;
-                              break;
-                          }
-
-                          return InkWell(
-                            onTap: () {
-                              widget.onSelectSharedEntity?.call(item);
-                            },
-                            borderRadius: BorderRadius.circular(6),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                              margin: const EdgeInsets.symmetric(vertical: 1.5),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(6),
-                                color: Colors.transparent,
-                              ),
-                              child: Row(
-                                children: [
-                                  if (iconEmoji != null && iconEmoji.isNotEmpty)
-                                    Text(iconEmoji, style: const TextStyle(fontSize: 14))
-                                  else
-                                    Icon(defaultIcon, size: 16, color: Theme.of(context).colorScheme.primary),
-                                  const SizedBox(width: 8),
-
-                                  Expanded(
-                                    child: Text(
-                                      title,
-                                      style: TextStyle(
-                                        fontSize: 12.5,
-                                        color: AppColors.textPrimary(context),
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  // شارة الصلاحية
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-                                    decoration: BoxDecoration(
-                                      color: perm == 'admin'
-                                          ? Colors.red.withOpacity(0.12)
-                                          : perm == 'editor'
-                                              ? Colors.blue.withOpacity(0.12)
-                                              : Colors.grey.withOpacity(0.15),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      perm == 'admin'
-                                          ? 'مسؤول'
-                                          : perm == 'editor'
-                                              ? 'محرر'
-                                              : 'مشاهدة',
-                                      style: TextStyle(
-                                        fontSize: 9.5,
-                                        fontWeight: FontWeight.bold,
-                                        color: perm == 'admin'
-                                            ? Colors.redAccent
-                                            : perm == 'editor'
-                                                ? Colors.blue
-                                                : AppColors.textSecondary(context),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }),
-                      ],
-                    );
-                  },
-                ),
+                // 6. قسم الكيانات والمشاريع المشتركة معي (Shared with Me)
+                SidebarSharedSection(onSelectSharedEntity: onSelectSharedEntity),
 
                 const SizedBox(height: 16),
 
-                // 6. قسم الأرشيف وسلة المهملات (Archive & Trash Bin)
-                _buildSectionHeader('الأرشيف والمهملات'),
-                _buildSmartFilterTile(
+                // 7. قسم الأرشيف وسلة المهملات (Archive & Trash Bin)
+                const SidebarSectionHeader('الأرشيف والمهملات'),
+                SidebarFilterTile(
                   icon: Icons.archive_outlined,
                   iconColor: isDark ? const Color(0xFF818CF8) : const Color(0xFF6366F1),
                   title: 'الأرشيف العام',
-                  count: widget.archivedCount > 0 ? widget.archivedCount : null,
-                  isSelected: widget.archiveSelected,
-                  onTap: () => widget.onSelectArchive?.call(),
+                  count: archivedCount > 0 ? archivedCount : null,
+                  isSelected: archiveSelected,
+                  onTap: () => onSelectArchive?.call(),
                 ),
-                _buildSmartFilterTile(
+                SidebarFilterTile(
                   icon: Icons.delete_outline_rounded,
                   iconColor: Colors.redAccent,
                   title: 'سلة المهملات',
-                  count: widget.trashCount > 0 ? widget.trashCount : null,
-                  isSelected: widget.trashSelected,
-                  onTap: () => widget.onSelectTrash?.call(),
+                  count: trashCount > 0 ? trashCount : null,
+                  isSelected: trashSelected,
+                  onTap: () => onSelectTrash?.call(),
                 ),
               ],
             ),
           ),
-
 
           const Divider(height: 1),
 
-          // 3. الجزء السفلي: مبدل الثيم وبطاقة الحساب
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: isDark ? Colors.black12 : Colors.grey.withOpacity(0.05),
-            ),
-            child: Column(
-              children: [
-                // بطاقة المستخدم والمصادقة
-                ListenableBuilder(
-                  listenable: AuthController.instance,
-                  builder: (context, _) {
-                    final auth = AuthController.instance;
-                    if (auth.isAuthenticated) {
-                      return InkWell(
-                        onTap: () {
-                          showModalBottomSheet(
-                            context: context,
-                            builder: (ctx) => Padding(
-                              padding: const EdgeInsets.all(20),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  ListTile(
-                                    leading: CircleAvatar(
-                                      backgroundColor: Theme.of(context).colorScheme.primary,
-                                      child: Text(
-                                        (auth.displayName?.isNotEmpty == true ? auth.displayName![0] : 'U').toUpperCase(),
-                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                    title: Text(auth.displayName ?? 'مستخدم Tasky', style: const TextStyle(fontWeight: FontWeight.bold)),
-                                    subtitle: Text(auth.userEmail ?? ''),
-                                  ),
-                                  const Divider(),
-                                  ListTile(
-                                    leading: const Icon(Icons.cloud_done_outlined, color: Colors.green),
-                                    title: const Text('متصل بسحابة Supabase'),
-                                    subtitle: const Text('المزامنة السحابية نشطة'),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  ElevatedButton.icon(
-                                    style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-                                    onPressed: () {
-                                      Navigator.of(ctx).pop();
-                                      auth.signOut();
-                                    },
-                                    icon: const Icon(Icons.logout, size: 18),
-                                    label: const Text('تسجيل الخروج'),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                        borderRadius: BorderRadius.circular(8),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-                          child: Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 14,
-                                backgroundColor: Theme.of(context).colorScheme.primary,
-                                child: Text(
-                                  (auth.displayName?.isNotEmpty == true ? auth.displayName![0] : 'U').toUpperCase(),
-                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      auth.displayName ?? 'المستخدم',
-                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    ListenableBuilder(
-                                      listenable: SyncController.instance,
-                                      builder: (context, _) {
-                                        final sync = SyncController.instance;
-                                        return Row(
-                                          children: [
-                                            Container(
-                                              width: 6,
-                                              height: 6,
-                                              decoration: BoxDecoration(
-                                                color: sync.isSyncing
-                                                    ? Colors.blueAccent
-                                                    : sync.hasPending
-                                                        ? Colors.amber
-                                                        : Colors.green,
-                                                shape: BoxShape.circle,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              sync.isSyncing
-                                                  ? 'جاري المزامنة...'
-                                                  : sync.hasPending
-                                                      ? '${sync.pendingCount} معلق'
-                                                      : 'متزامن',
-                                              style: TextStyle(
-                                                fontSize: 10,
-                                                color: AppColors.textSecondary(context),
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const Icon(Icons.more_vert, size: 16),
-                            ],
-                          ),
-                        ),
-                      );
-                    }
-
-                    return InkWell(
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const AuthScreen()),
-                        );
-                      },
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                        margin: const EdgeInsets.only(bottom: 6),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.cloud_outlined, size: 18, color: Theme.of(context).colorScheme.primary),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'تسجيل الدخول للسحابة',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                              ),
-                            ),
-                            const Icon(Icons.arrow_forward_ios, size: 12),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-
-                const SizedBox(height: 4),
-
-                // زر مبدل الثيم الثلاثي (نهاري / ليلي هادئ / سواد تام OLED)
-                ListenableBuilder(
-                  listenable: ThemeController.instance,
-                  builder: (context, _) {
-                    final themeCtrl = ThemeController.instance;
-                    IconData themeIcon;
-                    Color themeColor;
-
-                    switch (themeCtrl.currentStyle) {
-                      case AppThemeStyle.light:
-                        themeIcon = Icons.light_mode_rounded;
-                        themeColor = Colors.amber;
-                        break;
-                      case AppThemeStyle.oled:
-                        themeIcon = Icons.brightness_2_rounded; // قمر سواد تام
-                        themeColor = AppColors.brandLight;
-                        break;
-                      case AppThemeStyle.dark:
-                        themeIcon = Icons.dark_mode_rounded;
-                        themeColor = Colors.blueAccent;
-                        break;
-                    }
-
-                    return InkWell(
-                      onTap: () => themeCtrl.cycleTheme(),
-                      borderRadius: BorderRadius.circular(8),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-                        child: Row(
-                          children: [
-                            Icon(themeIcon, size: 18, color: themeColor),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                themeCtrl.styleDisplayName,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.textSecondary(context),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: themeColor.withOpacity(0.12),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                'تبديل',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: themeColor,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
+          // الجزء السفلي: مبدل الثيم وبطاقة الحساب
+          const SidebarUserFooter(),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
-          color: Colors.grey,
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSmartFilterTile({
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required int? count,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-        margin: const EdgeInsets.symmetric(vertical: 1.5),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? Theme.of(context).colorScheme.primary.withOpacity(0.18)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: 17, color: isSelected ? Theme.of(context).colorScheme.primary : iconColor),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  color: isSelected
-                      ? Theme.of(context).colorScheme.primary
-                      : AppColors.textPrimary(context),
-                ),
-              ),
-            ),
-            if (count != null && count > 0)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
-                      : (isDark ? Colors.black38 : Colors.black.withOpacity(0.06)),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  '$count',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: isSelected
-                        ? Theme.of(context).colorScheme.primary
-                        : AppColors.textSecondary(context),
-                  ),
-                ),
-              ),
-          ],
-        ),
       ),
     );
   }

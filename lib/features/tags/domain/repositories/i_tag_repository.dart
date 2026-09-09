@@ -1,4 +1,4 @@
-import '../models/tag_model.dart';
+import 'package:tasky/features/tags/data/models/tag_model.dart';
 
 abstract class ITagRepository {
   Future<List<TagModel>> getAllTags();

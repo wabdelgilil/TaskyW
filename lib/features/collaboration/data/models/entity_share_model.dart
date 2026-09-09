@@ -42,6 +42,8 @@ class EntityShareModel {
   final String? ownerId;
   final String? collaboratorId;
   final String? collaboratorEmail;
+  final String? shareToken;
+  final bool isPublic;
   final String permissionLevel; // 'viewer' | 'editor' | 'admin'
   final String status; // 'pending' | 'active' | 'revoked'
   final String syncStatus;
@@ -56,6 +58,8 @@ class EntityShareModel {
     this.ownerId,
     this.collaboratorId,
     this.collaboratorEmail,
+    this.shareToken,
+    this.isPublic = false,
     this.permissionLevel = 'viewer',
     this.status = 'pending',
     this.syncStatus = 'synced',
@@ -74,6 +78,12 @@ class EntityShareModel {
   bool get canDelete =>
       isActive && permissionLevel == CollaborationPermission.admin.value;
 
+  /// اسم الدور المتوافق مع التسميات البديلة (viewer / editor / admin).
+  String get role => permissionLevel;
+
+  /// هل هذه مشاركة عامة برابط قراءة فقط؟
+  bool get isPublicLink => isPublic && shareToken != null;
+
   factory EntityShareModel.fromMap(Map<String, dynamic> map) =>
       EntityShareModel(
         id: map['id'] as String,
@@ -81,8 +91,10 @@ class EntityShareModel {
         entityId: map['entity_id'] as String,
         ownerId: map['owner_id'] as String?,
         collaboratorId: map['collaborator_id'] as String?,
-        collaboratorEmail: map['collaborator_email'] as String?,
-        permissionLevel: map['permission_level'] as String? ?? 'viewer',
+        collaboratorEmail: (map['collaborator_email'] ?? map['email']) as String?,
+        shareToken: map['share_token'] as String?,
+        isPublic: (map['is_public'] as bool?) ?? false,
+        permissionLevel: (map['permission_level'] ?? map['permission'] ?? map['role']) as String? ?? 'viewer',
         status: map['status'] as String? ?? 'pending',
         syncStatus: map['sync_status'] as String? ?? 'synced',
         createdAt: DateTime.parse(map['created_at'] as String),
@@ -116,6 +128,8 @@ class EntityShareModel {
     String? ownerId,
     String? collaboratorId,
     String? collaboratorEmail,
+    String? shareToken,
+    bool? isPublic,
     String? permissionLevel,
     String? status,
     String? syncStatus,
@@ -129,6 +143,8 @@ class EntityShareModel {
     ownerId: ownerId ?? this.ownerId,
     collaboratorId: collaboratorId ?? this.collaboratorId,
     collaboratorEmail: collaboratorEmail ?? this.collaboratorEmail,
+    shareToken: shareToken ?? this.shareToken,
+    isPublic: isPublic ?? this.isPublic,
     permissionLevel: permissionLevel ?? this.permissionLevel,
     status: status ?? this.status,
     syncStatus: syncStatus ?? this.syncStatus,
@@ -147,6 +163,8 @@ class EntityShareModel {
           ownerId == other.ownerId &&
           collaboratorId == other.collaboratorId &&
           collaboratorEmail == other.collaboratorEmail &&
+          shareToken == other.shareToken &&
+          isPublic == other.isPublic &&
           permissionLevel == other.permissionLevel &&
           status == other.status &&
           createdAt == other.createdAt &&
@@ -161,6 +179,8 @@ class EntityShareModel {
     ownerId,
     collaboratorId,
     collaboratorEmail,
+    shareToken,
+    isPublic,
     permissionLevel,
     status,
     createdAt,

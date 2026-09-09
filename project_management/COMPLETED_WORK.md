@@ -2,6 +2,50 @@
 
 ## سجل الإنجازات والمهام المكتملة
 
+### [2026-09-09] - إعادة الهيكلة ومواءمة المعمارية: المرحلة الأولى وتفكيك نوافذ الحوار
+- **المرحلة 1: توحيد نموذج المشاركة والقضاء على الازدواجية (Deduplication & Cleanup)**:
+  - توحيد كلاس `EntityShareModel` بالاعتماد الحصري على نموذج `lib/features/collaboration/data/models/entity_share_model.dart` ودعمه لمفاتيح الصلاحية المتعددة (`permission_level`, `permission`, `role`) وخصائص التوافقية مع الروابط العامة.
+  - حذف الملف المكرر القديم `lib/core/models/entity_share_model.dart`.
+  - مواءمة `toEntityShare` و `SharingController` وتحديث اختبارات `test/share_read_service_test.dart` بنجاح تام.
+- **المرحلة 2: تفكيك الواجهات العملاقة — استخراج نوافذ الحوار (Dialogs Decomposition)**:
+  - استخراج 5 نوافذ حوار من شاشة `MainLayoutScreen` إلى مجلد مخصص مستقل `lib/features/home/presentation/widgets/dialogs/`:
+    1. `AddTaskDialog`: إضافة المهام وتفاصيلها الكاملة.
+    2. `AddAreaDialog`: إضافة المجالات مع منتقي الإيموجي واللون.
+    3. `AddProjectDialog`: إضافة المشاريع مع الإيموجي والألوان والوصف.
+    4. `CreateTagDialog`: إنشاء الوسوم السريعة مع باليتة الألوان.
+    5. `ExportTasksDialog`: حوار معاينة ونسخ CSV للمهام.
+  - تقليص حجم `MainLayoutScreen` بمقدار **406 أسطر** وتحويل الحوارات لويدجتس قابلة لإعادة الاستخدام والاختبار المستقل.
+- **المرحلة 2.2: تفكيك درج تفاصيل المهمة `TaskDetailDrawer` (Drawer Decomposition)**:
+  - تفكيك ويدجت `TaskDetailDrawer` (التي كانت تحتوي على 1,005 أسطر) إلى مكونات فرعية معزولة داخل `lib/features/tasks/presentation/widgets/task_drawer/`:
+    1. `TaskSubtasksSection`: إدارة الخطوات الفرعية، شريط الإنجاز، مربعات التأشير والحذف.
+    2. `TaskPropertiesSection`: بطاقة الخصائص (الحالة، الأولوية، المجال، المشروع، الديدلاين، وقت التنبيه، والتكرار الدوري).
+    3. `TaskTagsSection`: عرض رقائق الوسوم المخصصة وحوار إسناد وإنشاء الوسوم.
+  - إعادة تجميع `TaskDetailDrawer` بشكل نظيف وخفيف مع الحفاظ على الربط ثنائي الاتجاه والتحديثات اللحظية.
+- **المرحلة 2.3: تفكيك القائمة الجانبية الشجرية `HierarchicalTreeSidebar` (Sidebar Decomposition)**:
+  - تفكيك ويدجت `HierarchicalTreeSidebar` (التي كانت تحتوي على 986 سطراً) إلى 5 مكونات مستقلة تحت `lib/features/areas/presentation/widgets/sidebar_tree/`:
+    1. `SidebarSmartFiltersSection` و `SidebarFilterTile`: الفلاتر السريعة اليومية وإدارة الحالات النشطة.
+    2. `SidebarAreasProjectsTree`: الشجرة الهرمية للمجالات والمشاريع المنسدلة منها وأزرار الإضافة السريعة.
+    3. `SidebarTagsSection`: شريحة الوسوم والتصنيفات مع شارات العدادات التكيفية.
+    4. `SidebarSharedSection`: إدارة وعرض المشاريع والمهام المشتركة معي وتحديثها عبر `CollaborationController`.
+    5. `SidebarUserFooter`: بطاقة حساب المستخدم، مؤشر المزامنة السحابية مع Supabase، ومبدل الثيم الثلاثي.
+  - تقليص حجم الملف الأصلي من 986 سطراً إلى **241 سطراً** كحاوية تنظيمية نظيفة تجمع المكونات الخمسة.
+- **المرحلة 3: ربط المتحكمات والتنظيم المركزي للحالة (State Management Alignment)**:
+  - ربط الشاشة الأم [`TaskyHomeScreen`](file:///d:/programming/Tasky3.0/lib/features/home/presentation/screens/tasky_home_screen.dart) بالمتحكمات المركزية بدلاً من المستودعات المباشرة:
+    - `TasksController`: إدارة المهام، الفلاتر، التعديلات وحفظها وتغيير الحالات.
+    - `AreasController`: إدارة وتحميل وإنشاء وحذف وتعديل المجالات.
+    - `ProjectsController`: إدارة وتحميل وتعديل وحذف المشاريع وربطها بالمجالات.
+    - `TagsController`: إدارة وتحميل وإسناد وفك وحذف الوسوم.
+  - دعم حقن المتحكمات عبر الـ constructor لسهولة كتابة اختبارات الـ Widget والعزل التام.
+- **المرحلة 4: إعادة تنظيم هيكلية المجلدات والتغليف النهائي (Folder Structure Alignment)**:
+  - نقل ملفات الوسوم بالكامل من `lib/core/` إلى مجلد الميزة المخصص لها `lib/features/tags/`:
+    * [`tag_model.dart`](file:///d:/programming/Tasky3.0/lib/features/tags/data/models/tag_model.dart)
+    * [`i_tag_repository.dart`](file:///d:/programming/Tasky3.0/lib/features/tags/domain/repositories/i_tag_repository.dart)
+    * [`tag_repository_impl.dart`](file:///d:/programming/Tasky3.0/lib/features/tags/data/repositories/tag_repository_impl.dart)
+  - تحديث كافة مسارات الاستيراد (`package:tasky/features/tags/...`) في شاشات العرض وقوائم المهام والكانبان واختبارات الـ unit tests.
+- **التحقق وضمان الجودة الصارمة (Zero Regressions)**:
+  * فحص `flutter analyze`: نظيف تماماً **`No issues found!`** (0 أخطاء و 0 تحذيرات).
+  * فحص `flutter test`: نجاح **238/238 اختباراً بنسبة 100%**.
+
 ### [2026-09-09] - نظام الأرشيف وسلة المهملات الموحد (Global Archive & Trash System)
 - **دورة حياة الموارد ودعم منهجية PARA**:
   - تمييز كامل بين **المهمة المكتملة** (Completed)، و**الأرشفة** (Archived - حفظ للمستقبل دون تشويش المساحات اليومية)، و**سلة المهملات** (Trash - الحذف الناعم المؤقت Soft Delete) في جميع الكيانات: المهام، المشاريع، الملاحظات.

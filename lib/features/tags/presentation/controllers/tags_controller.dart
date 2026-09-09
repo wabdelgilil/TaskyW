@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../../core/models/tag_model.dart';
-import '../../../../core/repositories/tag_repository.dart';
-import '../../../../core/repositories/tag_repository_impl.dart';
+import 'package:tasky/features/tags/data/models/tag_model.dart';
+import 'package:tasky/features/tags/data/repositories/tag_repository_impl.dart';
+import 'package:tasky/features/tags/domain/repositories/i_tag_repository.dart';
 import '../../../tasks/data/models/task_model.dart';
 
 /// إدارة حالة الوسوم: إنشاؤها، تعديلها، حذفها، وإسنادها للمهام.

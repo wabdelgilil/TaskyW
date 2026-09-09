@@ -195,17 +195,23 @@
 
 ### 8. مواءمة المعمارية وإعادة الهيكلة الشاملة (Architecture Alignment & Refactoring)
 *(التفاصيل ومصفوفة توزيع الأدوار بين الوكيل الرئيسي والفرعي متوفرة في: [12_REFACTORING_AND_ARCHITECTURE_PLAN.md](file:///d:/programming/Tasky3.0/project_management/12_REFACTORING_AND_ARCHITECTURE_PLAN.md))*
-- [ ] **المرحلة 1: تنظيف وحسم الازدواجيات والكود الميت (Deduplication & Dead Code)**:
-  - توحيد نموذج المشاركة `EntityShareModel` في `features/collaboration` وحذف النموذج المكرر في `core/models`.
-  - إزالة `SharingController` وربط `ShareReadService` بالنموذج الموحد.
+- [x] **المرحلة 1: تنظيف وحسم الازدواجيات والكود الميت (Deduplication & Dead Code)**:
+  - توحيد نموذج المشاركة `EntityShareModel` في `features/collaboration` وحذف النموذج المكرر `core/models/entity_share_model.dart`.
+  - إضافة الحقول والدوال الداعمة للنموذج الموحد (`role` / `shareToken` / `isPublic` / `isPublicLink`) مع قراءة مرنة في `fromMap` لمفاتيح `permission_level` / `permission` / `role` و`share_token` / `is_public`.
+  - ربط `ShareReadService` واختباره (`share_read_service_test.dart`) بالنموذج الموحد، وحذف الكود الميت `SharingController`.
+  - التحقق: `flutter analyze` نظيف (No issues found!) وجميع الاختبارات ناجحة (238/238).
 - [ ] **المرحلة 2: تفكيك الواجهات العملاقة (Decomposing God Widgets)**:
-  - تفكيك `MainLayoutScreen` (1,526 سطر) واستخراج حوارات الإضافة ومكونات الرأس ومساحة العمل لمجلد `widgets/dialogs/`.
-  - تفكيك `TaskDetailDrawer` (1,005 أسطر) إلى أقسام مستقلة (المهام الفرعية، التكرار، التواريخ والتذكيرات، الوسوم).
-  - تفكيك `HierarchicalTreeSidebar` (953 سطراً) إلى أقسام شجرة فرعية نظيفة.
-- [ ] **المرحلة 3: ربط المتحكمات والتخلص من الـ Callback Drilling (State Management Alignment)**:
-  - تفعيل `TasksController`, `AreasController`, `ProjectsController`, `TagsController` داخل `TaskyHomeScreen`.
-  - تبسيط معاملات `MainLayoutScreen` وحذف أكثر من 20 دالة Callback متسلسلة.
-- [ ] **المرحلة 4: إعادة تنظيم هيكلية المجلدات والتغليف النهائي (Folder Structure Alignment)**:
-  - نقل ملفات الوسوم (`TagModel`, `TagRepository`) إلى مجلد `lib/features/tags/`.
-  - نقل `HierarchicalTreeSidebar` إلى مسار الملاحة المشترك في `lib/features/home/presentation/widgets/`.
-  - الحفاظ التام والمستمر على 219/219 اختباراً ناجحاً ونظافة `flutter analyze`.
+  - [x] استخراج حوارات الإضافة والتصدير من `MainLayoutScreen` إلى مجلد مستقل `widgets/dialogs/` (تقليص 406 أسطر).
+  - [x] تفكيك `TaskDetailDrawer` (1,005 أسطر) إلى أقسام مستقلة وموديلر (`task_subtasks_section`, `task_properties_section`, `task_tags_section`).
+  - [x] تفكيك `HierarchicalTreeSidebar` (986 سطراً) إلى ويدجتس مستقلة تحت `sidebar_tree/` وتقليص الملف لـ 241 سطراً.
+  - [ ] استخراج شريط الرأس `MainHeader` وموزع مساحة العمل `MainWorkspaceSwitcher`.
+- [x] **المرحلة 3: ربط المتحكمات والتخلص من الـ Callback Drilling (State Management Alignment)**:
+  - تفعيل `TasksController`, `AreasController`, `ProjectsController`, `TagsController` داخل `TaskyHomeScreen` وربط المستمعين بها.
+  - إيقاف الاعتماد على استدعاءات Repositories الخام مباشرة في واجهة المستخدم الأم، ومركزية العمليات عبر المتحكمات.
+- [x] **المرحلة 4: إعادة تنظيم هيكلية المجلدات والتغليف النهائي (Folder Structure Alignment)**:
+  - نقل ملفات الوسوم بالكامل:
+    * `lib/features/tags/data/models/tag_model.dart`
+    * `lib/features/tags/domain/repositories/i_tag_repository.dart`
+    * `lib/features/tags/data/repositories/tag_repository_impl.dart`
+  - تنظيف مجلد `lib/core/` من النماذج والمستودعات القديمة، وتحديث كافة مسارات الاستيراد (Imports) في المشروع والاختبارات.
+  - الحفاظ التام والمستمر على **238/238 اختباراً ناجحاً بنسبة 100%** ونظافة `flutter analyze`.

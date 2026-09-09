@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/models/tag_model.dart';
+import 'package:tasky/features/tags/data/models/tag_model.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/color_picker_dialog.dart';
 import '../../../../core/widgets/confirm_delete_dialog.dart';

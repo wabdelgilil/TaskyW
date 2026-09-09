@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
-
-import '../../../../core/models/entity_share_model.dart';
+import 'package:tasky/features/collaboration/data/models/entity_share_model.dart';
 import '../../../../core/services/sharing_service.dart';
 
 /// إدارة المشاركة والتعاون للكيانات (مجالات / مشاريع / مهام).
@@ -153,12 +152,10 @@ class SharingController extends ChangeNotifier {
     id: share.id,
     entityType: share.entityType.value,
     entityId: share.entityId,
-    userId: share.userId,
-    email: share.email,
-    displayName: share.displayName,
-    role: share.permission.value,
-    shareToken: share.shareToken,
-    isPublic: share.isPublic,
+    collaboratorId: share.userId,
+    collaboratorEmail: share.email,
+    permissionLevel: share.permission.value,
+    status: 'active',
     createdAt: share.createdAt,
     updatedAt: share.updatedAt,
   );
