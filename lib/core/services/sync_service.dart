@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../database/app_database.dart';
 import '../database/database_tables.dart';
+import 'attachment_service.dart';
 import 'supabase_service.dart';
 
 /// نتيجة عملية المزامنة.
@@ -94,6 +97,23 @@ class SyncService {
       'id', 'task_id', 'tag_id',
       'sync_status', 'created_at', 'updated_at', 'deleted_at',
     ]),
+    _SyncTable(DatabaseTables.attachmentTable, [
+      // ملاحظة: `file_path` محلي فقط ولا يُرسل إلى السحابة.
+      'id', 'task_id', 'file_name', 'file_size', 'mime_type', 'file_url',
+      'sync_status', 'created_at', 'updated_at', 'deleted_at',
+    ]),
+    _SyncTable(DatabaseTables.noteTable, [
+      'id', 'title', 'content', 'color_hex',
+      'is_pinned', 'is_archived', 'area_id',
+      'sync_status', 'created_at', 'updated_at', 'deleted_at',
+    ]),
+    _SyncTable(DatabaseTables.financialRecordTable, [
+      // ملاحظة: `receipt_path` محلي فقط ولا يُرسل للسحابة.
+      'id', 'type', 'amount', 'currency', 'title', 'category', 'status',
+      'from_account', 'to_account', 'settlement_type', 'settlement_status',
+      'area_id', 'transaction_date', 'notes',
+      'sync_status', 'created_at', 'updated_at', 'deleted_at',
+    ]),
   ];
 
   /// هل توجد صفوف لم تُزامَن بعد؟
@@ -153,9 +173,39 @@ class SyncService {
         try {
           if (syncStatus == 'pending_delete') {
             await client.from(t.table).delete().eq('id', id);
+            // المرفقات: حذف كائن التخزين المرتبط أيضاً
+            if (t.table == DatabaseTables.attachmentTable) {
+              final objectPath = row['file_url'] as String?;
+              if (objectPath != null && objectPath.isNotEmpty) {
+                try {
+                  await client.storage
+                      .from(AttachmentService.bucketName)
+                      .remove([objectPath]);
+                } catch (e) {
+                  debugPrint('[SyncService] storage delete ${t.table}/$id failed: $e');
+                }
+              }
+            }
             deletes++;
           } else {
             final payload = toCloudPayload(row, userId);
+            // المرفقات: حذف المسار المحلي الخاص ورفع الملف إلى التخزين أولاً
+            if (t.table == DatabaseTables.attachmentTable) {
+              payload.remove('file_path');
+              if (syncStatus == 'pending_insert' && row['file_url'] == null) {
+                final localPath = row['file_path'] as String?;
+                if (localPath != null && localPath.isNotEmpty) {
+                  final file = File(localPath);
+                  if (await file.exists()) {
+                    final objectPath = '$userId/$id/${row['file_name']}';
+                    await client.storage
+                        .from(AttachmentService.bucketName)
+                        .upload(objectPath, file);
+                    payload['file_url'] = objectPath;
+                  }
+                }
+              }
+            }
             if (syncStatus == 'pending_insert') {
               await client.from(t.table).upsert(payload, onConflict: 'id');
               inserts++;
@@ -220,6 +270,14 @@ class SyncService {
 
           if (shouldOverlayCloud(localRow: local, cloudRow: cloudRow)) {
             final localPayload = toLocalRow(cloudRow, t.columns);
+            // المرفقات: الاحتفاظ بمسار الملف المحلي إذا وُجد (السحابة لا تحمله)
+            if (t.table == DatabaseTables.attachmentTable) {
+              localPayload.remove('file_path');
+              final localFilePath = local?['file_path'] as String?;
+              if (localFilePath != null && localFilePath.isNotEmpty) {
+                localPayload['file_path'] = localFilePath;
+              }
+            }
             if (local == null) {
               toInsert.add(localPayload);
             } else {
@@ -309,7 +367,7 @@ class SyncService {
       for (final col in validColumns) {
         if (cloudRow.containsKey(col)) {
           var val = cloudRow[col];
-          if (col == 'is_completed' && val is bool) {
+          if ((col == 'is_completed' || col == 'is_pinned' || col == 'is_archived') && val is bool) {
             val = val ? 1 : 0;
           }
           row[col] = val;
@@ -318,8 +376,18 @@ class SyncService {
     } else {
       row.addAll(cloudRow);
       row.remove('user_id');
-      if (row.containsKey('is_completed') && row['is_completed'] is bool) {
-        row['is_completed'] = (row['is_completed'] as bool) ? 1 : 0;
+      if ((row.containsKey('is_completed') && row['is_completed'] is bool) ||
+          (row.containsKey('is_pinned') && row['is_pinned'] is bool) ||
+          (row.containsKey('is_archived') && row['is_archived'] is bool)) {
+        if (row['is_completed'] is bool) {
+          row['is_completed'] = (row['is_completed'] as bool) ? 1 : 0;
+        }
+        if (row['is_pinned'] is bool) {
+          row['is_pinned'] = (row['is_pinned'] as bool) ? 1 : 0;
+        }
+        if (row['is_archived'] is bool) {
+          row['is_archived'] = (row['is_archived'] as bool) ? 1 : 0;
+        }
       }
     }
     row['sync_status'] = 'synced';

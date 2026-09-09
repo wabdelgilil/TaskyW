@@ -6,6 +6,7 @@ class DatabaseTables {
   static const String tagTable = 'tags';
   static const String taskTagTable = 'task_tags';
   static const String entityShareTable = 'entity_shares';
+  static const String attachmentTable = 'attachments';
 
   static const String createAreaTable = '''
     CREATE TABLE IF NOT EXISTS areas (
@@ -172,6 +173,99 @@ class DatabaseTables {
     CREATE INDEX IF NOT EXISTS idx_entity_shares_entity ON entity_shares (entity_type, entity_id);
   ''';
 
+  static const String createAttachmentTable = '''
+    CREATE TABLE IF NOT EXISTS attachments (
+      id TEXT PRIMARY KEY,
+      task_id TEXT NOT NULL,
+      file_name TEXT NOT NULL,
+      file_path TEXT,
+      file_size INTEGER NOT NULL DEFAULT 0,
+      mime_type TEXT,
+      file_url TEXT,
+      sync_status TEXT NOT NULL DEFAULT 'pending_insert',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      deleted_at TEXT,
+      FOREIGN KEY (task_id) REFERENCES tasks (id) ON DELETE CASCADE
+    );
+  ''';
+
+  static const String createAttachmentTaskIndex = '''
+    CREATE INDEX IF NOT EXISTS idx_attachments_task ON attachments (task_id, deleted_at);
+  ''';
+
+  static const String noteTable = 'notes';
+
+  static const String createNoteTable = '''
+    CREATE TABLE IF NOT EXISTS notes (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      content TEXT,
+      color_hex TEXT,
+      is_pinned INTEGER NOT NULL DEFAULT 0,
+      is_archived INTEGER NOT NULL DEFAULT 0,
+      area_id TEXT,
+      sync_status TEXT NOT NULL DEFAULT 'pending_insert',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      deleted_at TEXT
+    );
+  ''';
+
+  static const String createNotePinnedIndex = '''
+    CREATE INDEX IF NOT EXISTS idx_notes_pinned ON notes (is_pinned, updated_at);
+  ''';
+
+  static const String createNoteAreaIndex = '''
+    CREATE INDEX IF NOT EXISTS idx_notes_area ON notes (area_id);
+  ''';
+
+  static const String createNoteDeletedIndex = '''
+    CREATE INDEX IF NOT EXISTS idx_notes_deleted ON notes (deleted_at);
+  ''';
+
+  static const String financialRecordTable = 'financial_records';
+
+  static const String createFinancialRecordTable = '''
+    CREATE TABLE IF NOT EXISTS financial_records (
+      id TEXT PRIMARY KEY,
+      type TEXT NOT NULL,
+      amount REAL NOT NULL,
+      currency TEXT NOT NULL DEFAULT 'EGP',
+      title TEXT NOT NULL,
+      category TEXT,
+      status TEXT NOT NULL DEFAULT 'completed',
+      from_account TEXT,
+      to_account TEXT,
+      settlement_type TEXT NOT NULL DEFAULT 'none',
+      settlement_status TEXT NOT NULL DEFAULT 'none',
+      receipt_path TEXT,
+      area_id TEXT,
+      transaction_date TEXT NOT NULL,
+      notes TEXT,
+      sync_status TEXT NOT NULL DEFAULT 'pending_insert',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      deleted_at TEXT
+    );
+  ''';
+
+  static const String createFinancialStatusIndex = '''
+    CREATE INDEX IF NOT EXISTS idx_financial_status ON financial_records (status);
+  ''';
+
+  static const String createFinancialSettlementIndex = '''
+    CREATE INDEX IF NOT EXISTS idx_financial_settlement ON financial_records (settlement_type, settlement_status);
+  ''';
+
+  static const String createFinancialDateIndex = '''
+    CREATE INDEX IF NOT EXISTS idx_financial_date ON financial_records (transaction_date);
+  ''';
+
+  static const String createFinancialDeletedIndex = '''
+    CREATE INDEX IF NOT EXISTS idx_financial_deleted ON financial_records (deleted_at);
+  ''';
+
   static List<String> get allCreateStatements => [
     createAreaTable,
     createProjectTable,
@@ -191,5 +285,16 @@ class DatabaseTables {
     createTaskTagsTaskIndex,
     createTaskTagsTagIndex,
     createEntityShareIndex,
+    createAttachmentTable,
+    createAttachmentTaskIndex,
+    createNoteTable,
+    createNotePinnedIndex,
+    createNoteAreaIndex,
+    createNoteDeletedIndex,
+    createFinancialRecordTable,
+    createFinancialStatusIndex,
+    createFinancialSettlementIndex,
+    createFinancialDateIndex,
+    createFinancialDeletedIndex,
   ];
 }

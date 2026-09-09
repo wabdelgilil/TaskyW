@@ -29,6 +29,12 @@ class ProjectModel {
     this.deletedAt,
   });
 
+  /// هل المشروع مؤرشف (مخفى من مساحات العمل اليومية)؟
+  bool get isArchived => status == 'archived';
+
+  /// هل المشروع في سلة المهملات (محذوف ناعماً)؟
+  bool get isDeleted => deletedAt != null;
+
   Map<String, dynamic> toMap() => {
     'id': id,
     'area_id': areaId,

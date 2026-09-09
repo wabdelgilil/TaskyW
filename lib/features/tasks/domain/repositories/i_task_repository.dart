@@ -15,4 +15,13 @@ abstract class ITaskRepository {
   Future<void> softDeleteTask(String id);
 
   Future<List<TaskModel>> searchTasks(String query, {String? areaId, String? projectId});
+
+  // ─── الأرشفة وسلة المهملات (Archive & Trash System) ───────────────────
+  Future<List<TaskModel>> getArchivedTasks({String? areaId, String? projectId});
+  Future<List<TaskModel>> getTrashTasks();
+  Future<void> archiveTask(String id);
+  Future<void> unarchiveTask(String id, {String targetStatus = 'todo'});
+  Future<void> restoreTaskFromTrash(String id);
+  Future<void> permanentlyDeleteTask(String id);
+  Future<void> emptyTrash();
 }

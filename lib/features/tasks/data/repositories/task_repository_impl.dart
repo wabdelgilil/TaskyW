@@ -22,6 +22,11 @@ class TaskRepositoryImpl implements ITaskRepository {
     final conditions = <String>['deleted_at IS NULL'];
     final args = <Object?>[];
 
+    // استبعاد المهام المؤرشفة افتراضياً من القوائم العادية،
+    // ما لم يُطلب صراحة `status = 'archived'` لاسترجاع المؤرشفات.
+    if (status != 'archived') {
+      conditions.add("status != 'archived'");
+    }
     if (areaId != null) {
       conditions.add('area_id = ?');
       args.add(areaId);
@@ -143,5 +148,100 @@ class TaskRepositoryImpl implements ITaskRepository {
       orderBy: 'order_index ASC',
     );
     return rows.map(TaskModel.fromMap).toList();
+  }
+
+  // ─── الأرشفة وسلة المهملات (Archive & Trash System) ───────────────────
+
+  @override
+  Future<List<TaskModel>> getArchivedTasks({
+    String? areaId,
+    String? projectId,
+  }) async {
+    final db = await _db;
+    final conditions = <String>["status = 'archived'", 'deleted_at IS NULL'];
+    final args = <Object?>[];
+
+    if (areaId != null) {
+      conditions.add('area_id = ?');
+      args.add(areaId);
+    }
+    if (projectId != null) {
+      conditions.add('project_id = ?');
+      args.add(projectId);
+    }
+
+    final rows = await db.query(
+      DatabaseTables.taskTable,
+      where: conditions.join(' AND '),
+      whereArgs: args,
+      orderBy: 'updated_at DESC',
+    );
+    return rows.map(TaskModel.fromMap).toList();
+  }
+
+  @override
+  Future<List<TaskModel>> getTrashTasks() async {
+    final db = await _db;
+    final rows = await db.query(
+      DatabaseTables.taskTable,
+      where: 'deleted_at IS NOT NULL',
+      orderBy: 'deleted_at DESC',
+    );
+    return rows.map(TaskModel.fromMap).toList();
+  }
+
+  @override
+  Future<void> archiveTask(String id) async {
+    final db = await _db;
+    final now = DateTime.now().toUtc().toIso8601String();
+    await db.update(
+      DatabaseTables.taskTable,
+      {'status': 'archived', 'updated_at': now, 'sync_status': 'pending_update'},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  @override
+  Future<void> unarchiveTask(String id, {String targetStatus = 'todo'}) async {
+    final db = await _db;
+    final now = DateTime.now().toUtc().toIso8601String();
+    await db.update(
+      DatabaseTables.taskTable,
+      {'status': targetStatus, 'updated_at': now, 'sync_status': 'pending_update'},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  @override
+  Future<void> restoreTaskFromTrash(String id) async {
+    final db = await _db;
+    final now = DateTime.now().toUtc().toIso8601String();
+    await db.update(
+      DatabaseTables.taskTable,
+      {'deleted_at': null, 'updated_at': now, 'sync_status': 'pending_update'},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  @override
+  Future<void> permanentlyDeleteTask(String id) async {
+    final db = await _db;
+    await db.delete(
+      DatabaseTables.taskTable,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  @override
+  Future<void> emptyTrash() async {
+    final db = await _db;
+    await db.delete(
+      DatabaseTables.taskTable,
+      where: 'deleted_at IS NOT NULL',
+    );
   }
 }

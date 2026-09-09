@@ -266,6 +266,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                           entityType: 'project',
                           entityId: widget.project.id,
                           entityTitle: widget.project.name,
+                          parentEntityIds: [widget.project.areaId],
                         );
                       },
                     ),

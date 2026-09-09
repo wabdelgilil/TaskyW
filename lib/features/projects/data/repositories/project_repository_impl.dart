@@ -15,7 +15,7 @@ class ProjectRepositoryImpl implements IProjectRepository {
     final db = await _db;
     final rows = await db.query(
       DatabaseTables.projectTable,
-      where: 'deleted_at IS NULL',
+      where: "deleted_at IS NULL AND status != 'archived'",
       orderBy: 'order_index ASC',
     );
     return rows.map(ProjectModel.fromMap).toList();
@@ -26,7 +26,7 @@ class ProjectRepositoryImpl implements IProjectRepository {
     final db = await _db;
     final rows = await db.query(
       DatabaseTables.projectTable,
-      where: 'area_id = ? AND deleted_at IS NULL',
+      where: "area_id = ? AND deleted_at IS NULL AND status != 'archived'",
       whereArgs: [areaId],
       orderBy: 'order_index ASC',
     );
@@ -79,6 +79,85 @@ class ProjectRepositoryImpl implements IProjectRepository {
       },
       where: 'id = ?',
       whereArgs: [id],
+    );
+  }
+
+  // ─── الأرشفة وسلة المهملات (Archive & Trash System) ───────────────────
+
+  @override
+  Future<List<ProjectModel>> getArchivedProjects() async {
+    final db = await _db;
+    final rows = await db.query(
+      DatabaseTables.projectTable,
+      where: "status = 'archived' AND deleted_at IS NULL",
+      orderBy: 'updated_at DESC',
+    );
+    return rows.map(ProjectModel.fromMap).toList();
+  }
+
+  @override
+  Future<List<ProjectModel>> getTrashProjects() async {
+    final db = await _db;
+    final rows = await db.query(
+      DatabaseTables.projectTable,
+      where: 'deleted_at IS NOT NULL',
+      orderBy: 'deleted_at DESC',
+    );
+    return rows.map(ProjectModel.fromMap).toList();
+  }
+
+  @override
+  Future<void> archiveProject(String id) async {
+    final db = await _db;
+    final now = DateTime.now().toUtc().toIso8601String();
+    await db.update(
+      DatabaseTables.projectTable,
+      {'status': 'archived', 'updated_at': now, 'sync_status': 'pending_update'},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  @override
+  Future<void> unarchiveProject(String id) async {
+    final db = await _db;
+    final now = DateTime.now().toUtc().toIso8601String();
+    await db.update(
+      DatabaseTables.projectTable,
+      {'status': 'active', 'updated_at': now, 'sync_status': 'pending_update'},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  @override
+  Future<void> restoreProjectFromTrash(String id) async {
+    final db = await _db;
+    final now = DateTime.now().toUtc().toIso8601String();
+    await db.update(
+      DatabaseTables.projectTable,
+      {'deleted_at': null, 'updated_at': now, 'sync_status': 'pending_update'},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  @override
+  Future<void> permanentlyDeleteProject(String id) async {
+    final db = await _db;
+    await db.delete(
+      DatabaseTables.projectTable,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  @override
+  Future<void> emptyProjectTrash() async {
+    final db = await _db;
+    await db.delete(
+      DatabaseTables.projectTable,
+      where: 'deleted_at IS NOT NULL',
     );
   }
 }

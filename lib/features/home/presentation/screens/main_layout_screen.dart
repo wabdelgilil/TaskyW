@@ -19,6 +19,10 @@ import '../../../tasks/presentation/widgets/tasks_table_view.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../auth/presentation/screens/auth_screen.dart';
 import '../../../../core/widgets/sync_status_button.dart';
+import '../../../notes/presentation/screens/notes_screen.dart';
+import '../../../finance/presentation/screens/financial_log_screen.dart';
+import '../../../archive/presentation/screens/archive_screen.dart';
+import '../../../trash/presentation/screens/trash_screen.dart';
 
 /// الشاشة الهيكلية الرئيسية للتطبيق (Master Responsive Layout Screen)
 /// تجمع بين الشجرة الهرمية الجانبية، شريط البحث المقيّد بالسياق، مساحة العمل، درج التفاصيل، والشريط السفلي
@@ -93,6 +97,10 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
   String? _selectedProjectId;
   String? _selectedTagId;
   String? _selectedSharedTitle;
+  bool _showNotes = false;
+  bool _showFinance = false;
+  bool _showArchive = false;
+  bool _showTrash = false;
 
   // طريقة العرض في مساحة العمل
   String _viewMode = 'list'; // 'list' أو 'kanban'
@@ -179,6 +187,18 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
 
   // عنوان السياق الحالي
   String get _currentContextTitle {
+    if (_showNotes) {
+      return '📚 الملاحظات ومستودع المعرفة (Knowledge Vault)';
+    }
+    if (_showFinance) {
+      return '💰 السجل المالي والتسويات';
+    }
+    if (_showArchive) {
+      return '🗄️ الأرشيف العام (Global Archive)';
+    }
+    if (_showTrash) {
+      return '🗑️ سلة المهملات (Trash Bin)';
+    }
     if (_selectedTagId != null) {
       final tag = widget.tags.firstWhere(
         (t) => t.id == _selectedTagId,
@@ -789,6 +809,10 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
       selectedAreaId: _selectedAreaId,
       selectedProjectId: _selectedProjectId,
       selectedTagId: _selectedTagId,
+      notesSelected: _showNotes,
+      financeSelected: _showFinance,
+      archiveSelected: _showArchive,
+      trashSelected: _showTrash,
       areaTaskCounts: areaTaskCounts,
       projectTaskCounts: projectTaskCounts,
       tagTaskCounts: tagTaskCounts,
@@ -802,6 +826,10 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
           _selectedAreaId = null;
           _selectedProjectId = null;
           _selectedTagId = null;
+          _showNotes = false;
+          _showFinance = false;
+          _showArchive = false;
+          _showTrash = false;
           _isSearchActive = false;
           _searchController.clear();
         });
@@ -811,6 +839,10 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
           _selectedAreaId = area.id;
           _selectedProjectId = null;
           _selectedTagId = null;
+          _showNotes = false;
+          _showFinance = false;
+          _showArchive = false;
+          _showTrash = false;
           _isSearchActive = false;
           _searchController.clear();
         });
@@ -820,6 +852,10 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
           _selectedProjectId = project.id;
           _selectedAreaId = project.areaId;
           _selectedTagId = null;
+          _showNotes = false;
+          _showFinance = false;
+          _showArchive = false;
+          _showTrash = false;
           _isSearchActive = false;
           _searchController.clear();
         });
@@ -831,6 +867,10 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
             _selectedAreaId = null;
             _selectedProjectId = null;
           }
+          _showNotes = false;
+          _showFinance = false;
+          _showArchive = false;
+          _showTrash = false;
           _isSearchActive = false;
           _searchController.clear();
         });
@@ -838,6 +878,58 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
       onAddNewArea: _showAddAreaDialog,
       onAddNewProject: _showAddProjectDialog,
       onAddTag: _showCreateTagDialog,
+      onSelectNotes: () {
+        setState(() {
+          _showNotes = true;
+          _showFinance = false;
+          _showArchive = false;
+          _showTrash = false;
+          _selectedAreaId = null;
+          _selectedProjectId = null;
+          _selectedTagId = null;
+          _isSearchActive = false;
+          _searchController.clear();
+        });
+      },
+      onSelectFinance: () {
+        setState(() {
+          _showFinance = true;
+          _showNotes = false;
+          _showArchive = false;
+          _showTrash = false;
+          _selectedAreaId = null;
+          _selectedProjectId = null;
+          _selectedTagId = null;
+          _isSearchActive = false;
+          _searchController.clear();
+        });
+      },
+      onSelectArchive: () {
+        setState(() {
+          _showArchive = true;
+          _showTrash = false;
+          _showNotes = false;
+          _showFinance = false;
+          _selectedAreaId = null;
+          _selectedProjectId = null;
+          _selectedTagId = null;
+          _isSearchActive = false;
+          _searchController.clear();
+        });
+      },
+      onSelectTrash: () {
+        setState(() {
+          _showTrash = true;
+          _showArchive = false;
+          _showNotes = false;
+          _showFinance = false;
+          _selectedAreaId = null;
+          _selectedProjectId = null;
+          _selectedTagId = null;
+          _isSearchActive = false;
+          _searchController.clear();
+        });
+      },
       onSelectSharedEntity: (entity) {
         final entityType = entity['_entity_type'];
         final id = entity['id'];
@@ -876,24 +968,27 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
 
 
     return Scaffold(
-      drawer: isDesktop ? null : Drawer(child: treeSidebar),
-      floatingActionButton: isDesktop
+      drawer: isDesktop ? null : Drawer(child: SafeArea(child: treeSidebar)),
+      floatingActionButton: isDesktop || _showNotes || _showFinance || _showArchive || _showTrash
           ? null
           : FloatingActionButton(
               onPressed: () => _showAddTaskDialog(),
               tooltip: 'مهمة جديدة',
               child: const Icon(Icons.add, size: 26),
             ),
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // 1. العمود الأيسر: الشجرة الهرمية على الشاشات الكبيرة
-          if (isDesktop) treeSidebar,
+      body: SafeArea(
+        top: !isDesktop, // تطبيق الحماية على الموبايل من شريط الحالة (الساعة والبطارية)
+        bottom: false,  // NavigationBar يتولى الحماية السفلية
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // 1. العمود الأيسر: الشجرة الهرمية على الشاشات الكبيرة
+            if (isDesktop) treeSidebar,
 
-          // 2. مساحة العمل المركزية
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+            // 2. مساحة العمل المركزية
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // رأس الصفحة وشريط البحث
                 LayoutBuilder(
@@ -934,6 +1029,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
             ),
         ],
       ),
+    ),
 
       // الشريط السفلي الموحد لجميع المنصات
       bottomNavigationBar: NavigationBar(
@@ -1370,6 +1466,26 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
 
   // المحتوى المعروض في مساحة العمل المركزية
   Widget _buildMainWorkspaceContent() {
+    // 0. شاشة الملاحظات العامة (Resources & Knowledge Vault)
+    if (_showNotes) {
+      return const NotesScreen();
+    }
+
+    // 0.1 شاشة السجل المالي والتسويات (Financial Logs & Settlements)
+    if (_showFinance) {
+      return const FinancialLogScreen();
+    }
+
+    // 0.2 شاشة الأرشيف العام (Global Archive)
+    if (_showArchive) {
+      return const ArchiveScreen();
+    }
+
+    // 0.3 شاشة سلة المهملات (Trash Bin)
+    if (_showTrash) {
+      return const TrashScreen();
+    }
+
     // 1. إذا كان المستخدم فاتحاً صفحة مشروع مخصصة
     if (_selectedProjectId != null && !_isSearchActive) {
       final project = widget.projects.firstWhere((p) => p.id == _selectedProjectId);

@@ -32,9 +32,14 @@ class CollaborationController extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   /// جلب مشاركات كيان من السحابة (مع كاش محلي عند انقطاع الشبكة).
+  ///
+  /// [parentEntityIds] قائمة معرّفات الأجداد (مشروع/مجال) تُحمَّل مشاركاتها
+  /// في الحارس الداخلي دون عرضها في قائمة الأعضاء، لتمكين فحوصات الإدارة
+  /// والوراثة الدقيقة (مهمة ← مشروع ← مجال).
   Future<void> loadEntityShares({
     required String entityType,
     required String entityId,
+    List<String> parentEntityIds = const [],
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -48,7 +53,20 @@ class CollaborationController extends ChangeNotifier {
         id: await _service.currentUserId,
         email: await _service.currentUserEmail,
       );
-      _guard.loadShares(_shares);
+      // جلب مشاركات الأجداد لتغذية وراثة الحارس فقط
+      final allShares = <EntityShareModel>[..._shares];
+      for (final parentId in parentEntityIds) {
+        final parentType = entityType == 'task' ? 'project' : 'area';
+        try {
+          allShares.addAll(await _service.getEntityShares(
+            entityType: parentType,
+            entityId: parentId,
+          ));
+        } catch (e) {
+          debugPrint('[CollaborationController] load parent shares ($parentId): $e');
+        }
+      }
+      _guard.loadShares(allShares);
     } catch (e) {
       _errorMessage = 'تعذر تحميل المشاركات';
       debugPrint('[CollaborationController] loadEntityShares: $e');
@@ -147,4 +165,14 @@ class CollaborationController extends ChangeNotifier {
 
   bool isOwner(String entityId, {String? parentEntityId}) =>
       _guard.isOwner(entityId: entityId, parentEntityId: parentEntityId);
+
+  /// هل يمكن للمستخدم الحالي إدارة المشاركات: الدعوة/تعديل الصلاحية/السحب؟
+  ///
+  /// متاح للمالك الأصلي والمسؤول (Admin) فقط، مع وراثة من الأجداد
+  /// ([ancestorEntityIds] مثال: مهمة ← مشروع ← مجال).
+  bool canManage(String entityId, {List<String> ancestorEntityIds = const []}) =>
+      _guard.canManageInherited(
+        entityId: entityId,
+        ancestorEntityIds: ancestorEntityIds,
+      );
 }

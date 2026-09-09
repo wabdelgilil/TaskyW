@@ -129,4 +129,35 @@ class PermissionGuardService {
         ) ==
         GuardPermission.owner;
   }
+
+  /// صلاحية المستخدم مع توريث وراثي من قائمة أجداد مرتبة (مثال: مهمة ← مشروع ← مجال).
+  ///
+  /// الأولوية لسجل الكيان نفسه، ثم أجداده بالترتيب، ثم افتراض "مالك" إذا لم
+  /// يُعثر على أي سجل (الكيان غير مشترك يعني أنه ملك للمستخدم الحالي).
+  String getPermissionInherited({
+    required String entityId,
+    List<String> ancestorEntityIds = const [],
+  }) {
+    final direct = _permissionsByEntity[entityId];
+    if (direct != null) return direct;
+    for (final ancestorId in ancestorEntityIds) {
+      final parentPerm = _permissionsByEntity[ancestorId];
+      if (parentPerm != null) return parentPerm;
+    }
+    return GuardPermission.owner;
+  }
+
+  /// هل يستطيع المستخدم إدارة المشاركات (دعوة / تعديل صلاحية / سحب)؟
+  ///
+  /// متاح للمالك الأصلي والمسؤول (Admin) فقط، مع دعم التوريث من الأجداد.
+  bool canManageInherited({
+    required String entityId,
+    List<String> ancestorEntityIds = const [],
+  }) {
+    final p = getPermissionInherited(
+      entityId: entityId,
+      ancestorEntityIds: ancestorEntityIds,
+    );
+    return p == GuardPermission.owner || p == GuardPermission.admin;
+  }
 }

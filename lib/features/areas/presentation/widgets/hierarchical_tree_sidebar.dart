@@ -21,6 +21,13 @@ class HierarchicalTreeSidebar extends StatefulWidget {
   final String? selectedAreaId;
   final String? selectedProjectId;
   final String? selectedTagId;
+  final bool notesSelected;
+  final bool financeSelected;
+  final bool archiveSelected;
+  final bool trashSelected;
+  final int pendingInvoicesCount;
+  final int archivedCount;
+  final int trashCount;
   final Map<String, int> areaTaskCounts;
   final Map<String, int> projectTaskCounts;
   final Map<String, int> tagTaskCounts;
@@ -36,6 +43,10 @@ class HierarchicalTreeSidebar extends StatefulWidget {
   final Function(String areaId)? onAddNewProject;
   final VoidCallback? onAddTag;
   final Function(Map<String, dynamic> entity)? onSelectSharedEntity;
+  final VoidCallback? onSelectNotes;
+  final VoidCallback? onSelectFinance;
+  final VoidCallback? onSelectArchive;
+  final VoidCallback? onSelectTrash;
 
   const HierarchicalTreeSidebar({
     super.key,
@@ -46,6 +57,13 @@ class HierarchicalTreeSidebar extends StatefulWidget {
     this.selectedAreaId,
     this.selectedProjectId,
     this.selectedTagId,
+    this.notesSelected = false,
+    this.financeSelected = false,
+    this.archiveSelected = false,
+    this.trashSelected = false,
+    this.pendingInvoicesCount = 0,
+    this.archivedCount = 0,
+    this.trashCount = 0,
     this.areaTaskCounts = const {},
     this.projectTaskCounts = const {},
     this.tagTaskCounts = const {},
@@ -61,6 +79,10 @@ class HierarchicalTreeSidebar extends StatefulWidget {
     this.onAddNewProject,
     this.onAddTag,
     this.onSelectSharedEntity,
+    this.onSelectNotes,
+    this.onSelectFinance,
+    this.onSelectArchive,
+    this.onSelectTrash,
   });
 
 
@@ -475,7 +497,33 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
 
                 const SizedBox(height: 16),
 
-                // 4. قسم الكيانات والمشاريع المشتركة معي (Shared with Me)
+                // 4. قسم الملاحظات العامة (Resources & Knowledge Vault)
+                _buildSectionHeader('الملاحظات والمعرفة (Vault)'),
+                _buildSmartFilterTile(
+                  icon: Icons.auto_stories_outlined,
+                  iconColor: isDark ? const Color(0xFFFBBF24) : const Color(0xFFB45309),
+                  title: 'الملاحظات ومستودع المعرفة',
+                  count: null,
+                  isSelected: widget.notesSelected,
+                  onTap: () => widget.onSelectNotes?.call(),
+                ),
+
+                const SizedBox(height: 16),
+
+                // 5. قسم السجل المالي والتسويات (Financial Logs & Settlements)
+                _buildSectionHeader('الماليات والتسويات'),
+                _buildSmartFilterTile(
+                  icon: Icons.account_balance_wallet_outlined,
+                  iconColor: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                  title: 'السجل المالي والتسويات',
+                  count: widget.pendingInvoicesCount > 0 ? widget.pendingInvoicesCount : null,
+                  isSelected: widget.financeSelected,
+                  onTap: () => widget.onSelectFinance?.call(),
+                ),
+
+                const SizedBox(height: 16),
+
+                // 5. قسم الكيانات والمشاريع المشتركة معي (Shared with Me)
                 AnimatedBuilder(
                   animation: _collabController,
                   builder: (context, _) {
@@ -595,6 +643,27 @@ class _HierarchicalTreeSidebarState extends State<HierarchicalTreeSidebar> {
                       ],
                     );
                   },
+                ),
+
+                const SizedBox(height: 16),
+
+                // 6. قسم الأرشيف وسلة المهملات (Archive & Trash Bin)
+                _buildSectionHeader('الأرشيف والمهملات'),
+                _buildSmartFilterTile(
+                  icon: Icons.archive_outlined,
+                  iconColor: isDark ? const Color(0xFF818CF8) : const Color(0xFF6366F1),
+                  title: 'الأرشيف العام',
+                  count: widget.archivedCount > 0 ? widget.archivedCount : null,
+                  isSelected: widget.archiveSelected,
+                  onTap: () => widget.onSelectArchive?.call(),
+                ),
+                _buildSmartFilterTile(
+                  icon: Icons.delete_outline_rounded,
+                  iconColor: Colors.redAccent,
+                  title: 'سلة المهملات',
+                  count: widget.trashCount > 0 ? widget.trashCount : null,
+                  isSelected: widget.trashSelected,
+                  onTap: () => widget.onSelectTrash?.call(),
                 ),
               ],
             ),

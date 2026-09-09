@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/models/tag_model.dart';
+import '../../../../core/services/attachment_service.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../../core/theme/app_colors.dart';
 
@@ -13,6 +14,7 @@ import '../../data/models/task_model.dart';
 import '../../../areas/data/models/area_model.dart';
 import '../../../collaboration/presentation/widgets/universal_share_dialog.dart';
 import '../../../projects/data/models/project_model.dart';
+import 'task_attachments_section.dart';
 
 
 /// درج وصفحة تفاصيل وإدارة المهمة الكاملة
@@ -32,6 +34,7 @@ class TaskDetailDrawer extends StatefulWidget {
   final Function(SubtaskModel subtask, bool isCompleted) onToggleSubtask;
   final Function(String subtaskId) onDeleteSubtask;
   final VoidCallback? onClose;
+  final AttachmentService? attachmentService;
 
   const TaskDetailDrawer({
     super.key,
@@ -50,6 +53,7 @@ class TaskDetailDrawer extends StatefulWidget {
     required this.onToggleSubtask,
     required this.onDeleteSubtask,
     this.onClose,
+    this.attachmentService,
   });
 
   @override
@@ -220,6 +224,10 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
                       entityId: widget.task.id,
                       entityTitle: widget.task.title,
                       existingShareToken: widget.task.shareToken,
+                      parentEntityIds: [
+                        if (widget.task.projectId != null) widget.task.projectId!,
+                        widget.task.areaId,
+                      ],
                       onShareTokenChanged: (newToken) {
                         final updated = widget.task.copyWith(shareToken: newToken);
                         widget.onSaveTask(updated);
@@ -432,6 +440,14 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
                       child: const Text('إضافة'),
                     ),
                   ],
+                ),
+
+                const SizedBox(height: 24),
+
+                // قسم المرفقات (File Attachments)
+                TaskAttachmentsSection(
+                  taskId: widget.task.id,
+                  service: widget.attachmentService,
                 ),
               ],
             ),

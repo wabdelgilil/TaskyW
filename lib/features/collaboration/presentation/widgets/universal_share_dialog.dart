@@ -18,6 +18,12 @@ class UniversalShareDialog extends StatefulWidget {
   final String? existingShareToken;
   final ValueChanged<String?>? onShareTokenChanged;
 
+  /// معرّفات الأجداد الهرمية (مثل: مشروع ← مجال) لفحوصات الإدارة الدقيقة.
+  final List<String> parentEntityIds;
+
+  /// متحكم حقن قابل للاختبار؛ عند غيابه يُنشأ داخلياً بكوّنة الإنتاج.
+  final CollaborationController? controller;
+
   const UniversalShareDialog({
     super.key,
     required this.entityType,
@@ -25,6 +31,8 @@ class UniversalShareDialog extends StatefulWidget {
     required this.entityTitle,
     this.existingShareToken,
     this.onShareTokenChanged,
+    this.parentEntityIds = const [],
+    this.controller,
   });
 
   static Future<void> show(
@@ -34,6 +42,8 @@ class UniversalShareDialog extends StatefulWidget {
     required String entityTitle,
     String? existingShareToken,
     ValueChanged<String?>? onShareTokenChanged,
+    List<String> parentEntityIds = const [],
+    CollaborationController? controller,
   }) {
     return showDialog<void>(
       context: context,
@@ -43,6 +53,8 @@ class UniversalShareDialog extends StatefulWidget {
         entityTitle: entityTitle,
         existingShareToken: existingShareToken,
         onShareTokenChanged: onShareTokenChanged,
+        parentEntityIds: parentEntityIds,
+        controller: controller,
       ),
     );
   }
@@ -59,25 +71,31 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
   String? _shareToken;
   String _selectedPermission = 'viewer';
   bool _isInviting = false;
+  bool _ownsController = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _collabController = CollaborationController();
+    _ownsController = widget.controller == null;
+    _collabController = widget.controller ?? CollaborationController();
     _shareToken = widget.existingShareToken;
 
-    _collabController.loadEntityShares(
-      entityType: widget.entityType,
-      entityId: widget.entityId,
-    );
+    // لا نحمّل المشاركات إذا وصل контроллер اختبار جاهز مسبقاً
+    if (_ownsController) {
+      _collabController.loadEntityShares(
+        entityType: widget.entityType,
+        entityId: widget.entityId,
+        parentEntityIds: widget.parentEntityIds,
+      );
+    }
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     _emailController.dispose();
-    _collabController.dispose();
+    if (_ownsController) _collabController.dispose();
     super.dispose();
   }
 
@@ -94,7 +112,28 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
     }
   }
 
+  /// هل يمتلك المستخدم الحالي صلاحية إدارة المشاركات (مالك أو مسؤول)؟
+  bool _canManageShares() =>
+      _collabController.canManage(
+        widget.entityId,
+        ancestorEntityIds: widget.parentEntityIds,
+      );
+
+  void _showBlockedSnackBar() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('صلاحيتك على هذا العنصر لا تسمح بإدارة المشاركة. هذه الإجراءات متاحة فقط للمالك (Owner) أو المسؤول (Admin).'),
+        backgroundColor: Colors.orange,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   Future<void> _togglePublicLink(bool enable) async {
+    if (!_canManageShares()) {
+      _showBlockedSnackBar();
+      return;
+    }
     if (enable) {
       final newToken = DateTime.now().millisecondsSinceEpoch.toRadixString(36);
       setState(() => _shareToken = newToken);
@@ -106,6 +145,10 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
   }
 
   Future<void> _inviteMember() async {
+    if (!_canManageShares()) {
+      _showBlockedSnackBar();
+      return;
+    }
     final email = _emailController.text.trim();
     if (email.isEmpty || !email.contains('@')) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -250,12 +293,16 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
       builder: (context, _) {
         final shares = _collabController.shares;
         final isLoading = _collabController.isLoading;
+        final canManage = _canManageShares();
 
         return Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // لوحة القفل للمحررين والمشاهدين
+              if (!canManage) _buildLockBanner(context),
+
               // Invitation Input Box
               Container(
                 padding: const EdgeInsets.all(14),
@@ -278,9 +325,10 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
                           flex: 3,
                           child: TextField(
                             controller: _emailController,
+                            enabled: canManage,
                             keyboardType: TextInputType.emailAddress,
                             decoration: InputDecoration(
-                              hintText: 'user@example.com',
+                              hintText: canManage ? 'user@example.com' : 'الدعوة غير متاحة لصلاحيتك',
                               prefixIcon: const Icon(Icons.mail_outline, size: 18),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                               border: OutlineInputBorder(
@@ -321,16 +369,18 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
                                     child: Text('تحكم كامل 🗑️', style: TextStyle(fontSize: 12)),
                                   ),
                                 ],
-                                onChanged: (val) {
-                                  if (val != null) setState(() => _selectedPermission = val);
-                                },
+                                onChanged: canManage
+                                    ? (val) {
+                                        if (val != null) setState(() => _selectedPermission = val);
+                                      }
+                                    : null,
                               ),
                             ),
                           ),
                         ),
                         const SizedBox(width: 8),
                         ElevatedButton(
-                          onPressed: _isInviting ? null : _inviteMember,
+                          onPressed: canManage && !_isInviting ? _inviteMember : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: primaryColor,
                             foregroundColor: Colors.white,
@@ -383,7 +433,7 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
                         itemBuilder: (context, index) {
 
                           final share = shares[index];
-                          return _buildShareMemberTile(share);
+                          return _buildShareMemberTile(share, canManage: canManage);
                         },
                       ),
               ),
@@ -394,7 +444,35 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
     );
   }
 
-  Widget _buildShareMemberTile(EntityShareModel share) {
+  /// لوحة توضيحية تظهر للمحررين والمشاهدين (الإدارة حصرية للمالك والمسؤول).
+  Widget _buildLockBanner(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.orange.withOpacity(0.10),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.orange.withOpacity(0.35)),
+        ),
+        child: const Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.lock_outline_rounded, color: Colors.orange, size: 20),
+            SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                '🔒 صلاحيتك الحالية (مشاهدة أو تحرير) لا تسمح بدعوة أعضاء أو تعديل صلاحياتهم. هذه الإجراءات متاحة فقط للمالك (Owner) أو المسؤول (Admin).',
+                style: TextStyle(fontSize: 12, color: Colors.orange),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShareMemberTile(EntityShareModel share, {bool canManage = true}) {
     final primaryColor = Theme.of(context).colorScheme.primary;
 
     return Padding(
@@ -428,81 +506,113 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
               ],
             ),
           ),
-          // Permission selector dropdown
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: AppColors.border(context)),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: share.permissionLevel,
-                items: const [
-                  DropdownMenuItem(value: 'viewer', child: Text('مشاهدة فقط', style: TextStyle(fontSize: 11))),
-                  DropdownMenuItem(value: 'editor', child: Text('محرر', style: TextStyle(fontSize: 11))),
-                  DropdownMenuItem(value: 'admin', child: Text('مسؤول', style: TextStyle(fontSize: 11))),
-                ],
-                onChanged: (newPerm) async {
-                  if (newPerm != null && newPerm != share.permissionLevel) {
-                    final success = await _collabController.updatePermission(
-                      shareId: share.id,
-                      newPermissionLevel: newPerm,
-                    );
-                    if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          success
-                              ? 'تم تحديث الصلاحية إلى (${newPerm == 'admin' ? 'مسؤول' : newPerm == 'editor' ? 'محرر' : 'مشاهدة فقط'}) بنجاح'
-                              : 'تعذر تحديث الصلاحية، يرجى المحاولة لاحقاً',
+          // منتقي/عرض الصلاحية: معرّف للمدير فقط، وقراءة فقط للبقية
+          if (canManage)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: AppColors.border(context)),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: share.permissionLevel,
+                  items: const [
+                    DropdownMenuItem(value: 'viewer', child: Text('مشاهدة فقط', style: TextStyle(fontSize: 11))),
+                    DropdownMenuItem(value: 'editor', child: Text('محرر', style: TextStyle(fontSize: 11))),
+                    DropdownMenuItem(value: 'admin', child: Text('مسؤول', style: TextStyle(fontSize: 11))),
+                  ],
+                  onChanged: (newPerm) async {
+                    if (newPerm != null && newPerm != share.permissionLevel) {
+                      final success = await _collabController.updatePermission(
+                        shareId: share.id,
+                        newPermissionLevel: newPerm,
+                      );
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            success
+                                ? 'تم تحديث الصلاحية إلى (${newPerm == 'admin' ? 'مسؤول' : newPerm == 'editor' ? 'محرر' : 'مشاهدة فقط'}) بنجاح'
+                                : 'تعذر تحديث الصلاحية، يرجى المحاولة لاحقاً',
+                          ),
+                          backgroundColor: success ? Colors.green.shade700 : Colors.red.shade700,
+                          duration: const Duration(seconds: 2),
+                          behavior: SnackBarBehavior.floating,
                         ),
-                        backgroundColor: success ? Colors.green.shade700 : Colors.red.shade700,
-                        duration: const Duration(seconds: 2),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  }
-                },
+                      );
+                    }
+                  },
+                ),
+              ),
+            )
+          else
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: share.permissionLevel == 'admin'
+                    ? Colors.purple.withOpacity(0.12)
+                    : (share.permissionLevel == 'editor'
+                        ? Colors.blue.withOpacity(0.12)
+                        : Colors.grey.withOpacity(0.12)),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: share.permissionLevel == 'admin'
+                      ? Colors.purple
+                      : (share.permissionLevel == 'editor' ? Colors.blue : Colors.grey),
+                  width: 0.8,
+                ),
+              ),
+              child: Text(
+                share.permissionLevel == 'admin'
+                    ? 'مسؤول'
+                    : (share.permissionLevel == 'editor' ? 'محرر' : 'مشاهدة فقط'),
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: share.permissionLevel == 'admin'
+                      ? Colors.purple
+                      : (share.permissionLevel == 'editor' ? Colors.blue : Colors.grey),
+                ),
               ),
             ),
-          ),
           const SizedBox(width: 6),
-          // Remove button
-          IconButton(
-            icon: const Icon(Icons.delete_outline, size: 18, color: Colors.redAccent),
-            tooltip: 'سحب الصلاحية',
-            onPressed: () async {
-              final confirm = await showDialog<bool>(
-                context: context,
-                builder: (ctx) => AlertDialog(
-                  title: const Text('سحب الصلاحية', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                  content: Text('هل أنت متأكد من إلغاء مشاركة هذا العنصر مع ${share.collaboratorEmail}؟'),
-                  actions: [
-                    TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('إلغاء')),
-                    TextButton(
-                      onPressed: () => Navigator.pop(ctx, true),
-                      style: TextButton.styleFrom(foregroundColor: Colors.red),
-                      child: const Text('تأكيد السحب'),
-                    ),
-                  ],
-                ),
-              );
-
-              if (confirm == true) {
-                final ok = await _collabController.revoke(shareId: share.id);
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(ok ? 'تم سحب الصلاحية بنجاح' : 'تعذر سحب الصلاحية'),
-                    backgroundColor: ok ? Colors.green.shade700 : Colors.red.shade700,
-                    duration: const Duration(seconds: 2),
-                    behavior: SnackBarBehavior.floating,
+          // زر سحب الصلاحية: للمدير فقط
+          if (canManage)
+            IconButton(
+              icon: const Icon(Icons.delete_outline, size: 18, color: Colors.redAccent),
+              tooltip: 'سحب الصلاحية',
+              onPressed: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('سحب الصلاحية', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                    content: Text('هل أنت متأكد من إلغاء مشاركة هذا العنصر مع ${share.collaboratorEmail}؟'),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('إلغاء')),
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        style: TextButton.styleFrom(foregroundColor: Colors.red),
+                        child: const Text('تأكيد السحب'),
+                      ),
+                    ],
                   ),
                 );
-              }
-            },
-          ),
+
+                if (confirm == true) {
+                  final ok = await _collabController.revoke(shareId: share.id);
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(ok ? 'تم سحب الصلاحية بنجاح' : 'تعذر سحب الصلاحية'),
+                      backgroundColor: ok ? Colors.green.shade700 : Colors.red.shade700,
+                      duration: const Duration(seconds: 2),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+              },
+            ),
         ],
       ),
     );
@@ -512,6 +622,7 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
   Widget _buildPublicLinkTab(BuildContext context, Color primaryColor) {
     final hasLink = _shareToken != null && _shareToken!.isNotEmpty;
     final shareUrl = hasLink ? UrlHelper.buildShareUrl(_shareToken!) : '';
+    final canManage = _canManageShares();
 
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -538,10 +649,33 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
               Switch(
                 value: hasLink,
                 activeColor: primaryColor,
-                onChanged: _togglePublicLink,
+                onChanged: canManage ? _togglePublicLink : null,
               ),
             ],
           ),
+          if (!canManage) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.10),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.orange.withOpacity(0.35)),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.lock_outline_rounded, color: Colors.orange, size: 16),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'تفعيل أو إيقاف الرابط العام متاح فقط للمالك (Owner) أو المسؤول (Admin).',
+                      style: TextStyle(fontSize: 11.5, color: Colors.orange),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: 20),
           if (hasLink) ...[
             Container(

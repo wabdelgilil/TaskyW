@@ -45,6 +45,12 @@ class TaskModel {
     this.deletedAt,
   });
 
+  /// هل المهمة مؤرشفة (مخفية من مساحات العمل اليومية)؟
+  bool get isArchived => status == 'archived';
+
+  /// هل المهمة في سلة المهملات (محذوفة ناعماً)؟
+  bool get isDeleted => deletedAt != null;
+
   Map<String, dynamic> toMap() => {
     'id': id,
     'area_id': areaId,

@@ -21,6 +21,14 @@ class TasksController extends ChangeNotifier {
   List<TaskModel> _tasks = <TaskModel>[];
   bool _isLoading = false;
 
+  // قوائم الأرشفة وسلة المهملات
+  List<TaskModel> _archivedTasks = <TaskModel>[];
+  List<TaskModel> _trashTasks = <TaskModel>[];
+  bool _isLoadingArchived = false;
+  bool _isLoadingTrash = false;
+  String? _lastArchivedAreaId;
+  String? _lastArchivedProjectId;
+
   String? _lastAreaId;
   String? _lastProjectId;
   String? _lastStatus;
@@ -50,6 +58,14 @@ class TasksController extends ChangeNotifier {
   /// المهام المكتملة.
   List<TaskModel> get completedTasks =>
       _tasks.where((t) => t.status == 'completed').toList();
+
+  // ─── الأرشفة وسلة المهملات (Archive & Trash System) ───────────────────
+  List<TaskModel> get archivedTasks => List.unmodifiable(_archivedTasks);
+  List<TaskModel> get trashTasks => List.unmodifiable(_trashTasks);
+  int get archivedCount => _archivedTasks.length;
+  int get trashCount => _trashTasks.length;
+  bool get isLoadingArchived => _isLoadingArchived;
+  bool get isLoadingTrash => _isLoadingTrash;
 
   Future<void> loadTasks({
     String? areaId,
@@ -111,6 +127,103 @@ class TasksController extends ChangeNotifier {
   Future<void> deleteTask(String taskId) async {
     await _repository.softDeleteTask(taskId);
     await _reloadWithLastFilters();
+  }
+
+  // ─── الأرشفة وسلة المهملات (Archive & Trash System) ───────────────────
+
+  Future<void> loadArchivedTasks({
+    String? areaId,
+    String? projectId,
+  }) async {
+    _lastArchivedAreaId = areaId;
+    _lastArchivedProjectId = projectId;
+    _isLoadingArchived = true;
+    notifyListeners();
+    try {
+      _archivedTasks = await _repository.getArchivedTasks(
+        areaId: areaId,
+        projectId: projectId,
+      );
+    } finally {
+      _isLoadingArchived = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> loadTrashTasks() async {
+    _isLoadingTrash = true;
+    notifyListeners();
+    try {
+      _trashTasks = await _repository.getTrashTasks();
+    } finally {
+      _isLoadingTrash = false;
+      notifyListeners();
+    }
+  }
+
+  /// نقل مهمة إلى الأرشيف وإشعار المستمعين.
+  Future<bool> archiveTask(String id) async {
+    try {
+      await _repository.archiveTask(id);
+      await _reloadWithLastFilters();
+      await loadArchivedTasks(
+        areaId: _lastArchivedAreaId,
+        projectId: _lastArchivedProjectId,
+      );
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// استعادة مهمة من الأرشيف للعمل النشط.
+  Future<bool> unarchiveTask(String id, {String targetStatus = 'todo'}) async {
+    try {
+      await _repository.unarchiveTask(id, targetStatus: targetStatus);
+      await _reloadWithLastFilters();
+      await loadArchivedTasks(
+        areaId: _lastArchivedAreaId,
+        projectId: _lastArchivedProjectId,
+      );
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// استرجاع مهمة من سلة المهملات وإعادتها للقوائم النشطة.
+  Future<bool> restoreTask(String id) async {
+    try {
+      await _repository.restoreTaskFromTrash(id);
+      await _reloadWithLastFilters();
+      await loadTrashTasks();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// حذف نهائي لا رجعة فيه.
+  Future<bool> permanentlyDeleteTask(String id) async {
+    try {
+      await _repository.permanentlyDeleteTask(id);
+      await loadTrashTasks();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// تفريغ سلة المهملات بالكامل.
+  Future<bool> emptyTrash() async {
+    try {
+      await _repository.emptyTrash();
+      _trashTasks = <TaskModel>[];
+      notifyListeners();
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<void> _reloadWithLastFilters() => loadTasks(

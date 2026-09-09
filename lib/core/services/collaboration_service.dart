@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../features/collaboration/data/models/entity_share_model.dart';
 import '../../features/collaboration/data/repositories/collaboration_repository.dart';
+import 'permission_guard_service.dart';
 import 'supabase_service.dart';
 
 /// واجهة السحابة لاختبار [CollaborationService] دون الاتصال بـ Supabase.
@@ -237,6 +238,70 @@ class CollaborationService {
     return repository.getEntityShares(entityType: entityType, entityId: entityId);
   }
 
+  /// هل يمتلك المستخدم الحالي صلاحية إدارة المشاركات على هذا الكيان؟
+  ///
+  /// متاح للمالك الأصلي والمسؤول (Admin) فقط، مع وراثة هرمية من الأجداد
+  /// (مهمة ← مشروع ← مجال) عبر جلب صف الكيان من السحابة ومشاركات أجداده.
+  /// تُستخدم كحارس أمني على مستوى الخدمة قبل أي عملية دعوة/تعديل/سحب.
+  Future<bool> canManageEntity({
+    required String entityType,
+    required String entityId,
+  }) async {
+    final guard = PermissionGuardService();
+    guard.setCurrentUser(
+      id: await cloud.currentUserId,
+      email: await cloud.currentUserEmail,
+    );
+
+    final allShares = <EntityShareModel>[];
+    final ancestors = <String>[];
+
+    try {
+      final directRows = await cloud.fetchShares(
+        entityType: entityType,
+        entityId: entityId,
+      );
+      allShares.addAll(directRows.map(EntityShareModel.fromMap));
+    } catch (e) {
+      debugPrint('[CollaborationService] canManageEntity fetch direct failed: $e');
+    }
+
+    // تحديد الأجداد الهرميين حسب نوع الكيان
+    try {
+      final row = await cloud.fetchEntityRow(entityType: entityType, entityId: entityId);
+      if (entityType == 'task') {
+        final projectId = row?['project_id'] as String?;
+        final areaId = row?['area_id'] as String?;
+        if (projectId != null) ancestors.add(projectId);
+        if (areaId != null) ancestors.add(areaId);
+      } else if (entityType == 'project') {
+        final areaId = row?['area_id'] as String?;
+        if (areaId != null) ancestors.add(areaId);
+      }
+    } catch (e) {
+      debugPrint('[CollaborationService] canManageEntity fetch row failed: $e');
+    }
+
+    for (final ancestorId in ancestors) {
+      final ancestorType = entityType == 'task' ? 'project' : 'area';
+      try {
+        final rows = await cloud.fetchShares(
+          entityType: ancestorType,
+          entityId: ancestorId,
+        );
+        allShares.addAll(rows.map(EntityShareModel.fromMap));
+      } catch (e) {
+        debugPrint('[CollaborationService] canManageEntity fetch ancestor failed: $e');
+      }
+    }
+
+    guard.loadShares(allShares);
+    return guard.canManageInherited(
+      entityId: entityId,
+      ancestorEntityIds: ancestors,
+    );
+  }
+
   /// دعوة متعاون بالبريد مع صلاحية.
   Future<EntityShareModel?> inviteCollaborator({
     required String entityType,
@@ -246,6 +311,12 @@ class CollaborationService {
     String? collaboratorId,
     String? ownerId,
   }) async {
+    // حارس أمني: فقط المالك/المسؤول يمكنه الدعوة أو إعادة المشاركة.
+    if (!await canManageEntity(entityType: entityType, entityId: entityId)) {
+      debugPrint('[CollaborationService] invite blocked: user cannot manage shares');
+      return null;
+    }
+
     final normalized = email.trim().toLowerCase();
     if (normalized.isEmpty) return null;
 
@@ -302,6 +373,17 @@ class CollaborationService {
     required String shareId,
     required String newPermissionLevel,
   }) async {
+    // حارس أمني: تحديد الكيان التابع للمشاركة والتحقق من صلاحية الإدارة.
+    final share = await repository.getShareById(shareId);
+    if (share == null) return null;
+    if (!await canManageEntity(
+      entityType: share.entityType,
+      entityId: share.entityId,
+    )) {
+      debugPrint('[CollaborationService] updatePermission blocked: user cannot manage shares');
+      return null;
+    }
+
     try {
       await cloud.updateShare(shareId: shareId, changes: {
         'permission_level': newPermissionLevel,
@@ -322,6 +404,17 @@ class CollaborationService {
 
   /// سحب مشاركة (إبطال وصول المتعاون نهائياً).
   Future<bool> revokeShare({required String shareId}) async {
+    // حارس أمني: تحديد الكيان التابع للمشاركة والتحقق من صلاحية الإدارة.
+    final share = await repository.getShareById(shareId);
+    if (share == null) return false;
+    if (!await canManageEntity(
+      entityType: share.entityType,
+      entityId: share.entityId,
+    )) {
+      debugPrint('[CollaborationService] revoke blocked: user cannot manage shares');
+      return false;
+    }
+
     try {
       await cloud.updateShare(shareId: shareId, changes: {
         'status': CollaborationShareStatus.revoked.value,

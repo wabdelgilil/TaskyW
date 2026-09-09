@@ -15,7 +15,11 @@
 6. 🚀 [06_FUTURE_MODULES_ROADMAP.md](file:///d:/programming/Tasky3.0/project_management/06_FUTURE_MODULES_ROADMAP.md): تفاصيل ومواصفات العرض الجدولي (Notion/Excel-like DataGrid)، والوسوم، والتكرار الدوري، والمرفقات.
 7. ⚙️ [07_BACKEND_AND_LOGIC_AGENT_TASKS.md](file:///d:/programming/Tasky3.0/project_management/07_BACKEND_AND_LOGIC_AGENT_TASKS.md): دليل مهام وكيل المنطق وإدارة الحالة وخدمات التنبيهات (Headless Logic & State).
 8. 👥 [08_COLLABORATION_BACKEND_TASKS.md](file:///d:/programming/Tasky3.0/project_management/08_COLLABORATION_BACKEND_TASKS.md): دليل مهام وكيل المنطق لمنظومة المشاركة مع أعضاء الفريق وتحديد الصلاحيات (Viewer/Editor/Admin).
-9. ✅ [COMPLETED_WORK.md](file:///d:/programming/Tasky3.0/project_management/COMPLETED_WORK.md): السجل الرسمي لتتبع الأعمال والإنجازات المكتملة.
+9. 💰 [09_FINANCIAL_LOGS_AND_EXPENSE_TRACKING.md](file:///d:/programming/Tasky3.0/project_management/09_FINANCIAL_LOGS_AND_EXPENSE_TRACKING.md): مواصفات وتفاصيل وحدة السجل المالي وتتبع المصروفات، التحويلات، والفواتير المعلقة.
+10. 📝 [10_GENERAL_NOTES_AND_KNOWLEDGE_VAULT.md](file:///d:/programming/Tasky3.0/project_management/10_GENERAL_NOTES_AND_KNOWLEDGE_VAULT.md): مواصفات وتفاصيل وحدة الملاحظات العامة والأفكار والمستودع المعرفي.
+11. 🗄️ [11_ARCHIVE_AND_TRASH_SYSTEM.md](file:///d:/programming/Tasky3.0/project_management/11_ARCHIVE_AND_TRASH_SYSTEM.md): مواصفات نظام الأرشفة، وسلة المهملات، والحذف الناعم/النهائي للمهام.
+12. 🧹 [12_REFACTORING_AND_ARCHITECTURE_PLAN.md](file:///d:/programming/Tasky3.0/project_management/12_REFACTORING_AND_ARCHITECTURE_PLAN.md): خطة إعادة الهيكلة الشاملة، تفكيك الواجهات المتضخمة، ربط المتحكمات، وتوزيع الأدوار بين الوكيل الرئيسي والفرعي.
+13. ✅ [COMPLETED_WORK.md](file:///d:/programming/Tasky3.0/project_management/COMPLETED_WORK.md): السجل الرسمي لتتبع الأعمال والإنجازات المكتملة.
 
 ---
 
@@ -121,11 +125,11 @@
     - ✏️ **رؤية وتعديل (Editor)**: تغيير الحالات، وتعديل النصوص، وإضافة مهام دون صلاحية الحذف.
     - 🗑️ **تحكم كامل (Admin)**: رؤية وتعديل وحذف المهام والمشاريع التابعة للنطاق.
   - جدول صلاحيات ومشاركات موحد (`entity_shares`) مع إسناد المهام لأعضاء الفريق (`assigned_to`) وواجهة موحدة `UniversalShareDialog`.
-  - [ ] **تقييد صلاحية إعادة المشاركة وإدارة الصلاحيات (Admin-Only Re-sharing & Permission Delegation)**:
+  - [x] **تقييد صلاحية إعادة المشاركة وإدارة الصلاحيات (Admin-Only Re-sharing & Permission Delegation)**:
     - منع المتعاونين من مشاركة الكيان أو تعديل صلاحيات أي عضو آخر إلا إذا كانت صلاحيتهم **مسؤول (Admin)** أو **المالك الأصلي (Owner)**؛ وحظر وصول الـ Viewers والـ Editors لنافذة التعديل أو قفلها للعرض فقط.
 
 ### 3. تجربة وسلوك المهام المكتملة (Completed Tasks UX & Grouping)
-- [ ] **عزل وتمييز المهام المكتملة في أسفل القائمة (Completed Tasks Section with Distinct Styling)**:
+- [x] **عزل وتمييز المهام المكتملة في أسفل القائمة (Completed Tasks Section with Distinct Styling)**:
   - عند الضغط على الـ Checkbox وإكمال المهمة، تنتقل تلقائياً إلى قسم سفلي منفصل مخصص للمهام المكتملة (`Completed Tasks Section`).
   - تطبيق تصميم وشكل بصري مختلف ومميز للمهام المكتملة (مثال: خط مشطوب Strikethrough، شفافية خفيفة Opacity، لون باهت هادئ، وخيار طي/فتح للقسم).
 
@@ -134,9 +138,14 @@
 *(المواصفات وخارطة الطريق متوفرة في: [06_FUTURE_MODULES_ROADMAP.md](file:///d:/programming/Tasky3.0/project_management/06_FUTURE_MODULES_ROADMAP.md))*
 - [x] نظام الوسوم والتصنيفات الديناميكية الحرة (Tags & Labels) مع فلترة متعددة وواجهات كاملة (قائمة، كانبان، درج تفاصيل، شريط جانبي).
 - [x] المهام المتكررة والمجدولة دورياً (Recurring Tasks / Scheduled Routines) بدعم يومي/أسبوعي/شهري/سنوي وشارة 🔁 وتوليد تلقائي للنسخة التالية عند الإكمال.
-- [ ] إرفاق المستندات والصور والملفات (File & Document Attachments) ومزامنتها مع Supabase Storage.
+- [x] إرفاق المستندات والصور والملفات (File & Document Attachments) ومزامنتها مع Supabase Storage.
 - [ ] قسم الموارد والمعرفة (Resources & Knowledge Vault): ملاحظات عامة، جهات اتصال، مراجع، روابط سريعة.
-- [ ] تقارير ومؤشرات أداء متقدمة (Productivity Analytics & Time Tracking).
+  - [x] الملاحظات العامة (General Notes): شاشة مخصصة في الشريط الجانبي مع بحث فوري، تثبيت/إلغاء تثبيت، أرشفة، ألوان، حذف ناعم، ومزامنة كاملة مع Supabase (جدول `notes` + RLS).
+- [x] نظام أرشفة المهام والمشاريع وسلة المهملات (Global Archive & Trash System):
+  - [x] **الباك إند والمنطق**: استعلامات الأرشفة واستبعادها من المهام والمشاريع النشطة، واستعادة وسلة المهملات (`deleted_at IS NOT NULL`) مع الحذف النهائي وتفريغ السلة في `TaskRepositoryImpl`، `ProjectRepositoryImpl`، `TasksController`، و`ProjectsController`.
+  - [x] **واجهة المستخدم**: عروض مخصصة للأرشيف العام وسلة المهملات في القائمة الجانبية والشاشة المركزية مع تبويبات ثلاثية والبحث الفوري وإمكانية الاسترجاع بنقرة زر وتفريغ السلة الآمن.
+- [x] تقارير ومؤشرات أداء متقدمة (Productivity Analytics & Time Tracking).
+  - [x] **باك إند التحليلات**: محرك `ProductivityAnalytics` (نسبة الإنجاز، سلسلة زمنية أسبوعية/شهرية، التجميع حسب المنطقة/المشروع، إنتاجية أيام الأسبوع وساعات الذروة، توزيع الأولويات) + `AnalyticsController` مع 14 اختباراً. (واجهة المستخدم من مسؤولية خبير الواجهات).
 
 ### 5. طريقة العرض الجدولي التفاعلي (Interactive Table / DataGrid View - شبيه بجداول Notion/Excel)
 *(تفاصيل سيناريو الجداول متوفرة في: [06_FUTURE_MODULES_ROADMAP.md](file:///d:/programming/Tasky3.0/project_management/06_FUTURE_MODULES_ROADMAP.md))*
@@ -154,4 +163,49 @@
   - شارات وسوم ملونة (`Tag Chips`) مع مؤشر التدفق (`+N`).
   - عداد المهام الفرعية المنجزة كنسبة رقمية (`Done / Total Subtasks`).
   - تجاوب كامل مع أنظمة الألوان (النهاري، الليلي، ونمط السواد المطلق OLED Midnight).
-  - التصدير المباشر لبيانات المهام بصيغة CSV / Excel داعمة للغة العربية بترميز UTF-8 BOM.
+  - [x] التصدير المباشر لبيانات المهام بصيغة CSV / Excel داعمة للغة العربية بترميز UTF-8 BOM.
+
+### 6. وحدة السجل المالي والمصروفات وتسوية الحسابات (Financial Logs & Settlements - موديول مستقل)
+*(المواصفات التفصيلية متوفرة في: [09_FINANCIAL_LOGS_AND_EXPENSE_TRACKING.md](file:///d:/programming/Tasky3.0/project_management/09_FINANCIAL_LOGS_AND_EXPENSE_TRACKING.md))*
+- [x] **الاستقلالية المعمارية الكاملة**: موديول منفصل كلياً في شاشته وقاعدة بياناته عن موديول المهام، لعدم تعقيد واجهات أو منطق المهام.
+- [x] **بنية البيانات والـ Offline-First**:
+  - جدول `financial_records` محلياً وسحابياً مع سياسات RLS، ومعرفات UUID، وحالات المزامنة (ترقية DB v7 + ملف ترحيل Supabase).
+- [x] **الميزات التشغيلية الرئيسية (التسويات والفواتير)**:
+  - متابعة **الفواتير والمشتريات المعلقة (`Pending Invoices`)**: شارة تحذيرية وتنبيه ذكي للعمليات التي لم تُستلم فواتيرها بعد مع إمكانية إرفاق الإيصال بنقرة زر.
+  - **تسوية الحسابات التبادلية بين الشغل والشخصي**:
+    - تسجيل المصاريف المدفوعة للشغل من الجيب الخاص (مطلوب استرداده / Reimbursement).
+    - تسجيل المصاريف الشخصية المدفوعة من حساب أو عهدة الشغل (مستحق سداده للعمل).
+    - مؤشر صافي التسوية (لك عند الشغل / عليك للشغل).
+  - تسجيل التحويلات المالية بين الحسابات والوسائط (بنك، كاش، محفظة إلكترونية، عهدة).
+- [x] **واجهات وتجربة المستخدم (UI/UX)**:
+  - شاشة مركزية مستقلة للسجل المالي والتسويات (`FinancialLogScreen`) مع إحصائيات سريعة وتصفية ذكية وتصدير لـ Excel.
+  - زر إضافة سريع يدعم تحديد نوع المعاملة ومصدر الدفع ومربع "لم أستلم الفاتورة بعد".
+  - تصدير كشوف تسوية الحسابات بضغطة زر لملف Excel/CSV داعم للعربية (UTF-8 BOM) لتقديمه للمحاسبة.
+
+### 7. وحدة الملاحظات العامة ومستودع المعرفة (General Notes - موديول مستقل)
+*(المواصفات التفصيلية متوفرة في: [10_GENERAL_NOTES_AND_KNOWLEDGE_VAULT.md](file:///d:/programming/Tasky3.0/project_management/10_GENERAL_NOTES_AND_KNOWLEDGE_VAULT.md))*
+- [x] **الاستقلالية والبساطة**: موديول حر هادئ بدون مواعيد استحقاق أو ضغوط مهام، مخصص للأفكار، المسودات، جهات الاتصال، والمراجع.
+- [x] **بنية البيانات والـ Offline-First**:
+  - جدول `notes` محلياً وسحابياً (title, content, color_hex, is_pinned, is_archived, area_id, sync_status) مع RLS على Supabase.
+- [x] **الميزات والواجهات (UI/UX)**:
+  - شاشة مخصصة للملاحظات في القائمة الجانبية (`NotesScreen`) بنمط بطاقات مرنة وشبكية (Keep-like).
+  - تثبيت الملاحظات الهامة في الأعلى (`Pinned Notes`).
+  - محرر نصوص خفيف وسريع للحفظ الفوري مع باليتة ألوان متنوعة.
+  - بحث لحظي في عناوين ونصوص الملاحظات.
+
+### 8. مواءمة المعمارية وإعادة الهيكلة الشاملة (Architecture Alignment & Refactoring)
+*(التفاصيل ومصفوفة توزيع الأدوار بين الوكيل الرئيسي والفرعي متوفرة في: [12_REFACTORING_AND_ARCHITECTURE_PLAN.md](file:///d:/programming/Tasky3.0/project_management/12_REFACTORING_AND_ARCHITECTURE_PLAN.md))*
+- [ ] **المرحلة 1: تنظيف وحسم الازدواجيات والكود الميت (Deduplication & Dead Code)**:
+  - توحيد نموذج المشاركة `EntityShareModel` في `features/collaboration` وحذف النموذج المكرر في `core/models`.
+  - إزالة `SharingController` وربط `ShareReadService` بالنموذج الموحد.
+- [ ] **المرحلة 2: تفكيك الواجهات العملاقة (Decomposing God Widgets)**:
+  - تفكيك `MainLayoutScreen` (1,526 سطر) واستخراج حوارات الإضافة ومكونات الرأس ومساحة العمل لمجلد `widgets/dialogs/`.
+  - تفكيك `TaskDetailDrawer` (1,005 أسطر) إلى أقسام مستقلة (المهام الفرعية، التكرار، التواريخ والتذكيرات، الوسوم).
+  - تفكيك `HierarchicalTreeSidebar` (953 سطراً) إلى أقسام شجرة فرعية نظيفة.
+- [ ] **المرحلة 3: ربط المتحكمات والتخلص من الـ Callback Drilling (State Management Alignment)**:
+  - تفعيل `TasksController`, `AreasController`, `ProjectsController`, `TagsController` داخل `TaskyHomeScreen`.
+  - تبسيط معاملات `MainLayoutScreen` وحذف أكثر من 20 دالة Callback متسلسلة.
+- [ ] **المرحلة 4: إعادة تنظيم هيكلية المجلدات والتغليف النهائي (Folder Structure Alignment)**:
+  - نقل ملفات الوسوم (`TagModel`, `TagRepository`) إلى مجلد `lib/features/tags/`.
+  - نقل `HierarchicalTreeSidebar` إلى مسار الملاحة المشترك في `lib/features/home/presentation/widgets/`.
+  - الحفاظ التام والمستمر على 219/219 اختباراً ناجحاً ونظافة `flutter analyze`.
