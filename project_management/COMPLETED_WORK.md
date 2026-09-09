@@ -15,6 +15,10 @@
     4. `CreateTagDialog`: إنشاء الوسوم السريعة مع باليتة الألوان.
     5. `ExportTasksDialog`: حوار معاينة ونسخ CSV للمهام.
   - تقليص حجم `MainLayoutScreen` بمقدار **406 أسطر** وتحويل الحوارات لويدجتس قابلة لإعادة الاستخدام والاختبار المستقل.
+- **المرحلة 2.1.2: استخراج شريط الرأس وموزع مساحة العمل من `MainLayoutScreen`**:
+  - إنشاء [`MainTopHeader`](file:///d:/programming/Tasky3.0/lib/features/home/presentation/widgets/main_top_header.dart): لإدارة شريط البحث المقيّد بالسياق، التبديل بين الشاشات، وزر المصادقة وتصدير CSV ومحدد طرق العرض الثلاثية.
+  - إنشاء [`MainWorkspaceContent`](file:///d:/programming/Tasky3.0/lib/features/home/presentation/widgets/main_workspace_content.dart): لإدارة التبديل الذكي بين مساحات العمل (الملاحظات، المالية، الأرشيف، السلة، تفاصيل المشروع، تفاصيل المجال، القوائم، الكانبان، والجدول).
+  - تقليص ملف `MainLayoutScreen` بمقدار **520 سطراً إضافياً** لجعله مجرد منظم تخطيط متجاوب خفيف (Master Layout Scaffold).
 - **المرحلة 2.2: تفكيك درج تفاصيل المهمة `TaskDetailDrawer` (Drawer Decomposition)**:
   - تفكيك ويدجت `TaskDetailDrawer` (التي كانت تحتوي على 1,005 أسطر) إلى مكونات فرعية معزولة داخل `lib/features/tasks/presentation/widgets/task_drawer/`:
     1. `TaskSubtasksSection`: إدارة الخطوات الفرعية، شريط الإنجاز، مربعات التأشير والحذف.

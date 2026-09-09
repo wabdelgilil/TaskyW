@@ -204,7 +204,7 @@
   - [x] استخراج حوارات الإضافة والتصدير من `MainLayoutScreen` إلى مجلد مستقل `widgets/dialogs/` (تقليص 406 أسطر).
   - [x] تفكيك `TaskDetailDrawer` (1,005 أسطر) إلى أقسام مستقلة وموديلر (`task_subtasks_section`, `task_properties_section`, `task_tags_section`).
   - [x] تفكيك `HierarchicalTreeSidebar` (986 سطراً) إلى ويدجتس مستقلة تحت `sidebar_tree/` وتقليص الملف لـ 241 سطراً.
-  - [ ] استخراج شريط الرأس `MainHeader` وموزع مساحة العمل `MainWorkspaceSwitcher`.
+  - [x] استخراج شريط الرأس `MainTopHeader` وموزع مساحة العمل `MainWorkspaceContent` لتقليص `MainLayoutScreen` بمقدار 520 سطراً إضافياً.
 - [x] **المرحلة 3: ربط المتحكمات والتخلص من الـ Callback Drilling (State Management Alignment)**:
   - تفعيل `TasksController`, `AreasController`, `ProjectsController`, `TagsController` داخل `TaskyHomeScreen` وربط المستمعين بها.
   - إيقاف الاعتماد على استدعاءات Repositories الخام مباشرة في واجهة المستخدم الأم، ومركزية العمليات عبر المتحكمات.

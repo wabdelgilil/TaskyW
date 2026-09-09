@@ -1,36 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tasky/core/services/export_service.dart';
+import 'package:tasky/features/areas/data/models/area_model.dart';
+import 'package:tasky/features/areas/presentation/widgets/hierarchical_tree_sidebar.dart';
+import 'package:tasky/features/projects/data/models/project_model.dart';
 import 'package:tasky/features/tags/data/models/tag_model.dart';
-import '../../../../core/services/export_service.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../areas/data/models/area_model.dart';
-import '../../../areas/presentation/screens/area_detail_screen.dart';
-import '../../../areas/presentation/widgets/hierarchical_tree_sidebar.dart';
-import '../../../projects/data/models/project_model.dart';
-import '../../../projects/presentation/screens/project_detail_screen.dart';
-import '../../../tasks/data/models/subtask_model.dart';
-import '../../../tasks/data/models/task_model.dart';
-import '../../../tasks/presentation/widgets/kanban_board_view.dart';
-import '../../../tasks/presentation/widgets/task_detail_drawer.dart';
-import '../../../tasks/presentation/widgets/task_list_view.dart';
-import '../../../tasks/presentation/widgets/tasks_table_view.dart';
-import '../../../auth/presentation/controllers/auth_controller.dart';
-import '../../../auth/presentation/screens/auth_screen.dart';
-import '../../../../core/widgets/sync_status_button.dart';
-import '../../../notes/presentation/screens/notes_screen.dart';
-import '../../../finance/presentation/screens/financial_log_screen.dart';
-import '../../../archive/presentation/screens/archive_screen.dart';
-import '../../../trash/presentation/screens/trash_screen.dart';
-import '../widgets/dialogs/add_task_dialog.dart';
+import 'package:tasky/features/tasks/data/models/subtask_model.dart';
+import 'package:tasky/features/tasks/data/models/task_model.dart';
+import 'package:tasky/features/tasks/presentation/widgets/task_detail_drawer.dart';
 import '../widgets/dialogs/add_area_dialog.dart';
 import '../widgets/dialogs/add_project_dialog.dart';
+import '../widgets/dialogs/add_task_dialog.dart';
 import '../widgets/dialogs/create_tag_dialog.dart';
 import '../widgets/dialogs/export_tasks_dialog.dart';
+import '../widgets/main_top_header.dart';
+import '../widgets/main_workspace_content.dart';
 
 /// الشاشة الهيكلية الرئيسية للتطبيق (Master Responsive Layout Screen)
 /// تجمع بين الشجرة الهرمية الجانبية، شريط البحث المقيّد بالسياق، مساحة العمل، درج التفاصيل، والشريط السفلي
 class MainLayoutScreen extends StatefulWidget {
-  // البيانات المحملة من المستودعات / المتحكمات
   final List<AreaModel> areas;
   final List<ProjectModel> projects;
   final List<TaskModel> tasks;
@@ -38,7 +26,6 @@ class MainLayoutScreen extends StatefulWidget {
   final List<TagModel> tags;
   final Map<String, List<TagModel>> taskTags;
 
-  // دوال العمليات التفاعلية (Callbacks)
   final Future<void> Function()? onSyncRequested;
   final Function(TaskModel task)? onSaveTask;
   final Function(String taskId)? onDeleteTask;
@@ -95,7 +82,7 @@ class MainLayoutScreen extends StatefulWidget {
 
 class _MainLayoutScreenState extends State<MainLayoutScreen> {
   // حالات التنقل
-  String _activeFilter = 'today'; // 'today', 'upcoming', 'waiting', 'urgent', 'all'
+  String _activeFilter = 'today';
   String? _selectedAreaId;
   String? _selectedProjectId;
   String? _selectedTagId;
@@ -106,7 +93,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
   bool _showTrash = false;
 
   // طريقة العرض في مساحة العمل
-  String _viewMode = 'list'; // 'list' أو 'kanban'
+  String _viewMode = 'list';
 
   // المهمة المفتوحة حالياً في درج التفاصيل
   TaskModel? _openedTask;
@@ -127,7 +114,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
     super.dispose();
   }
 
-  // --- تصفية المهام حسب السياق النشط ---
+  // تصفية المهام حسب السياق النشط
   List<TaskModel> get _contextTasks {
     List<TaskModel> baseTasks;
     if (_isSearchActive) {
@@ -135,7 +122,6 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
     } else if (_selectedProjectId != null) {
       baseTasks = widget.tasks.where((t) => t.projectId == _selectedProjectId).toList();
     } else if (_selectedAreaId != null) {
-      // المهام التابعة للمجال مباشرة أو التابعة لمشاريع هذا المجال (Hierarchical Area View)
       final areaProjectIds = widget.projects
           .where((p) => p.areaId == _selectedAreaId)
           .map((p) => p.id)
@@ -190,18 +176,10 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
 
   // عنوان السياق الحالي
   String get _currentContextTitle {
-    if (_showNotes) {
-      return '📚 الملاحظات ومستودع المعرفة (Knowledge Vault)';
-    }
-    if (_showFinance) {
-      return '💰 السجل المالي والتسويات';
-    }
-    if (_showArchive) {
-      return '🗄️ الأرشيف العام (Global Archive)';
-    }
-    if (_showTrash) {
-      return '🗑️ سلة المهملات (Trash Bin)';
-    }
+    if (_showNotes) return '📚 الملاحظات ومستودع المعرفة (Knowledge Vault)';
+    if (_showFinance) return '💰 السجل المالي والتسويات';
+    if (_showArchive) return '🗄️ الأرشيف العام (Global Archive)';
+    if (_showTrash) return '🗑️ سلة المهملات (Trash Bin)';
     if (_selectedTagId != null) {
       final tag = widget.tags.firstWhere(
         (t) => t.id == _selectedTagId,
@@ -235,15 +213,10 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
     }
   }
 
-  // تلميح شريط البحث المقيّد بالسياق
   String get _searchHint {
     if (_forceGlobalSearch) return 'بحث شامل في كل المجالات والمشاريع...';
-    if (_selectedProjectId != null) {
-      return 'بحث في مشروع ($_currentContextTitle)...';
-    }
-    if (_selectedAreaId != null) {
-      return 'بحث في مجال ($_currentContextTitle)...';
-    }
+    if (_selectedProjectId != null) return 'بحث في مشروع ($_currentContextTitle)...';
+    if (_selectedAreaId != null) return 'بحث في مجال ($_currentContextTitle)...';
     return 'بحث في المهام...';
   }
 
@@ -261,17 +234,13 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
       final q = query.toLowerCase();
 
       _searchResults = widget.tasks.where((t) {
-        // فحص النطاق
         if (!_forceGlobalSearch) {
           if (_selectedProjectId != null && t.projectId != _selectedProjectId) return false;
           if (_selectedAreaId != null && t.areaId != _selectedAreaId) return false;
         }
 
-        // فحص العنوان والوصف
         final matchTitle = t.title.toLowerCase().contains(q);
         final matchDesc = t.description?.toLowerCase().contains(q) ?? false;
-
-        // فحص المهام الفرعية
         final matchSubtasks = widget.subtasks
             .where((s) => s.taskId == t.id)
             .any((s) => s.title.toLowerCase().contains(q));
@@ -281,7 +250,6 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
     });
   }
 
-  // نافذة إضافة مهمة سريعة
   void _showAddTaskDialog({String? defaultStatus}) {
     AddTaskDialog.show(
       context,
@@ -296,7 +264,6 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
     );
   }
 
-  // نافذة إضافة مجال جديد
   void _showAddAreaDialog() {
     AddAreaDialog.show(
       context,
@@ -304,7 +271,6 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
     );
   }
 
-  // نافذة إضافة مشروع جديد
   void _showAddProjectDialog(String areaId) {
     AddProjectDialog.show(
       context,
@@ -313,7 +279,6 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
     );
   }
 
-  // نافذة سريعة لإنشاء وسم جديد
   void _showCreateTagDialog() {
     CreateTagDialog.show(
       context,
@@ -321,7 +286,6 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
     );
   }
 
-  // تصدير المهام الحالية إلى ملف CSV متوافق مع Excel
   void _exportCurrentTasksToCsv() {
     final tasksToExport = _contextTasks;
     if (tasksToExport.isEmpty) {
@@ -353,7 +317,6 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final screenWidth = MediaQuery.of(context).size.width;
     final isDesktop = screenWidth >= 900;
 
@@ -554,17 +517,13 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
             _searchController.clear();
           });
         } else if (entityType == 'task') {
-          // في حال كانت المشاركة لمهمة مفردة
           final foundTask = widget.tasks.where((t) => t.id == id).firstOrNull;
           if (foundTask != null) {
-            setState(() {
-              _openedTask = foundTask;
-            });
+            setState(() => _openedTask = foundTask);
           }
         }
       },
     );
-
 
     return Scaffold(
       drawer: isDesktop ? null : Drawer(child: SafeArea(child: treeSidebar)),
@@ -576,61 +535,107 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
               child: const Icon(Icons.add, size: 26),
             ),
       body: SafeArea(
-        top: !isDesktop, // تطبيق الحماية على الموبايل من شريط الحالة (الساعة والبطارية)
-        bottom: false,  // NavigationBar يتولى الحماية السفلية
+        top: !isDesktop,
+        bottom: false,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // 1. العمود الأيسر: الشجرة الهرمية على الشاشات الكبيرة
             if (isDesktop) treeSidebar,
-
-            // 2. مساحة العمل المركزية
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // رأس الصفحة وشريط البحث
-                LayoutBuilder(
-                  builder: (context, headerConstraints) {
-                    return _buildTopHeader(isDark, headerConstraints.maxWidth);
-                  },
-                ),
-
-                // المحتوى النشط لمساحة العمل
-                Expanded(
-                  child: _buildMainWorkspaceContent(),
-                ),
-              ],
+                children: [
+                  MainTopHeader(
+                    currentContextTitle: _currentContextTitle,
+                    searchHint: _searchHint,
+                    searchController: _searchController,
+                    isSearchActive: _isSearchActive,
+                    isMobileSearchOpen: _isMobileSearchOpen,
+                    forceGlobalSearch: _forceGlobalSearch,
+                    isAreaOrProjectSelected: _selectedAreaId != null || _selectedProjectId != null,
+                    viewMode: _viewMode,
+                    onSyncRequested: widget.onSyncRequested,
+                    onSearchChanged: _onSearchChanged,
+                    onCloseMobileSearch: () {
+                      setState(() {
+                        _isMobileSearchOpen = false;
+                        _searchController.clear();
+                        _onSearchChanged('');
+                      });
+                    },
+                    onOpenMobileSearch: () => setState(() => _isMobileSearchOpen = true),
+                    onToggleGlobalSearch: () {
+                      setState(() {
+                        _forceGlobalSearch = !_forceGlobalSearch;
+                        _onSearchChanged(_searchController.text);
+                      });
+                    },
+                    onViewModeChanged: (newMode) => setState(() => _viewMode = newMode),
+                    onExportCsv: _exportCurrentTasksToCsv,
+                    onAddTask: () => _showAddTaskDialog(),
+                  ),
+                  Expanded(
+                    child: MainWorkspaceContent(
+                      showNotes: _showNotes,
+                      showFinance: _showFinance,
+                      showArchive: _showArchive,
+                      showTrash: _showTrash,
+                      selectedProjectId: _selectedProjectId,
+                      selectedAreaId: _selectedAreaId,
+                      isSearchActive: _isSearchActive,
+                      searchText: _searchController.text,
+                      viewMode: _viewMode,
+                      contextTasks: _contextTasks,
+                      projects: widget.projects,
+                      areas: widget.areas,
+                      subtasks: widget.subtasks,
+                      taskTags: widget.taskTags,
+                      onSaveProject: widget.onSaveProject,
+                      onDeleteProject: (id) {
+                        widget.onDeleteProject?.call(id);
+                        setState(() => _selectedProjectId = null);
+                      },
+                      onSaveArea: widget.onSaveArea,
+                      onDeleteArea: (id) {
+                        widget.onDeleteArea?.call(id);
+                        setState(() => _selectedAreaId = null);
+                      },
+                      onTaskTap: (t) => setState(() => _openedTask = t),
+                      onToggleTaskCompleted: widget.onToggleTaskCompleted,
+                      onTaskStatusChanged: widget.onTaskStatusChanged,
+                      onTaskPriorityChanged: widget.onTaskPriorityChanged,
+                      onAddNewProject: (areaId) => _showAddProjectDialog(areaId),
+                      onAddNewTask: (defaultStatus) => _showAddTaskDialog(defaultStatus: defaultStatus),
+                      onSelectProjectId: (id) => setState(() => _selectedProjectId = id),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-
-          // 3. العمود الأيمن: درج التفاصيل المنزلق (Desktop)
-          if (isDesktop && _openedTask != null)
-            TaskDetailDrawer(
-              task: _openedTask!,
-              subtasks: widget.subtasks.where((s) => s.taskId == _openedTask!.id).toList(),
-              areas: widget.areas,
-              projects: widget.projects,
-              availableTags: widget.tags,
-              taskTags: widget.taskTags[_openedTask!.id] ?? const [],
-              onAssignTag: (tag) => widget.onAssignTag?.call(_openedTask!, tag),
-              onRemoveTag: (tag) => widget.onRemoveTag?.call(_openedTask!, tag),
-              onCreateTag: widget.onCreateTag,
-              onClose: () => setState(() => _openedTask = null),
-              onSaveTask: (updated) {
-                widget.onSaveTask?.call(updated);
-                setState(() => _openedTask = updated);
-              },
-              onDeleteTask: widget.onDeleteTask,
-              onAddSubtask: (title) => widget.onAddSubtask?.call(_openedTask!.id, title),
-              onToggleSubtask: (subtask, isDone) => widget.onToggleSubtask?.call(subtask, isDone),
-              onDeleteSubtask: (subId) => widget.onDeleteSubtask?.call(subId),
-            ),
-        ],
+            if (isDesktop && _openedTask != null)
+              TaskDetailDrawer(
+                task: _openedTask!,
+                subtasks: widget.subtasks.where((s) => s.taskId == _openedTask!.id).toList(),
+                areas: widget.areas,
+                projects: widget.projects,
+                availableTags: widget.tags,
+                taskTags: widget.taskTags[_openedTask!.id] ?? const [],
+                onAssignTag: (tag) => widget.onAssignTag?.call(_openedTask!, tag),
+                onRemoveTag: (tag) => widget.onRemoveTag?.call(_openedTask!, tag),
+                onCreateTag: widget.onCreateTag,
+                onClose: () => setState(() => _openedTask = null),
+                onSaveTask: (updated) {
+                  widget.onSaveTask?.call(updated);
+                  setState(() => _openedTask = updated);
+                },
+                onDeleteTask: widget.onDeleteTask,
+                onAddSubtask: (title) => widget.onAddSubtask?.call(_openedTask!.id, title),
+                onToggleSubtask: (subtask, isDone) => widget.onToggleSubtask?.call(subtask, isDone),
+                onDeleteSubtask: (subId) => widget.onDeleteSubtask?.call(subId),
+              ),
+          ],
+        ),
       ),
-    ),
-
-      // الشريط السفلي الموحد لجميع المنصات
       bottomNavigationBar: NavigationBar(
         selectedIndex: _bottomNavIndex,
         onDestinationSelected: (idx) {
@@ -659,530 +664,6 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
           NavigationDestination(icon: Icon(Icons.view_kanban_outlined), selectedIcon: Icon(Icons.view_kanban), label: 'الكانبان'),
         ],
       ),
-    );
-  }
-
-  // رأس الصفحة ومحرك البحث المتجاوب مع كل الشاشات
-  Widget _buildTopHeader(bool isDark, double screenWidth) {
-    final isDesktop = screenWidth >= 900;
-    final isMobile = screenWidth < 600;
-
-    final headerDecoration = BoxDecoration(
-      color: AppColors.surface(context),
-      border: Border(
-        bottom: BorderSide(
-          color: AppColors.border(context),
-          width: 1.2,
-        ),
-      ),
-      boxShadow: isDark
-          ? null
-          : [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.03),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
-    );
-
-    // 1. وضع البحث الممتد بالكامل على شاشات الموبايل
-    if (isMobile && _isMobileSearchOpen) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        decoration: headerDecoration,
-        child: Row(
-          children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back),
-              tooltip: 'إغلاق البحث',
-              onPressed: () {
-                setState(() {
-                  _isMobileSearchOpen = false;
-                  _searchController.clear();
-                  _onSearchChanged('');
-                });
-              },
-            ),
-            Expanded(
-              child: TextField(
-                controller: _searchController,
-                autofocus: true,
-                decoration: InputDecoration(
-                  hintText: _searchHint,
-                  isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  prefixIcon: const Icon(Icons.search, size: 18),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear, size: 16),
-                          onPressed: () {
-                            _searchController.clear();
-                            _onSearchChanged('');
-                          },
-                        )
-                      : null,
-                ),
-                onChanged: _onSearchChanged,
-              ),
-            ),
-            if ((_selectedAreaId != null || _selectedProjectId != null) && _isSearchActive) ...[
-              const SizedBox(width: 4),
-              IconButton(
-                icon: Icon(_forceGlobalSearch ? Icons.filter_alt_off : Icons.public, size: 20),
-                tooltip: _forceGlobalSearch ? 'إلغاء البحث الشامل' : 'بحث شامل في كل التطبيق',
-                onPressed: () {
-                  setState(() {
-                    _forceGlobalSearch = !_forceGlobalSearch;
-                    _onSearchChanged(_searchController.text);
-                  });
-                },
-              ),
-            ],
-          ],
-        ),
-      );
-    }
-
-    // 2. الهيدر المدمج لشاشات الموبايل (< 600px)
-    if (isMobile) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        decoration: headerDecoration,
-        child: Row(
-          children: [
-            Builder(
-              builder: (ctx) => IconButton(
-                icon: const Icon(Icons.menu),
-                tooltip: 'القائمة الجانبية',
-                onPressed: () => Scaffold.of(ctx).openDrawer(),
-              ),
-            ),
-
-            // عنوان السياق الحالي
-            Expanded(
-              child: Text(
-                _currentContextTitle,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-
-            // زر فتح البحث
-            IconButton(
-              icon: const Icon(Icons.search, size: 22),
-              tooltip: 'بحث',
-              onPressed: () => setState(() => _isMobileSearchOpen = true),
-            ),
-
-            // زر التبديل السريع بين القائمة والكانبان والجدول (أيقونة مدمجة)
-            IconButton(
-              icon: Icon(
-                _viewMode == 'list'
-                    ? Icons.view_kanban_rounded
-                    : _viewMode == 'kanban'
-                        ? Icons.table_chart_rounded
-                        : Icons.view_list_rounded,
-                size: 20,
-              ),
-              tooltip: _viewMode == 'list'
-                  ? 'عرض الكانبان'
-                  : _viewMode == 'kanban'
-                      ? 'عرض الجدول'
-                      : 'عرض القوائم',
-              onPressed: () => setState(() {
-                if (_viewMode == 'list') {
-                  _viewMode = 'kanban';
-                } else if (_viewMode == 'kanban') {
-                  _viewMode = 'table';
-                } else {
-                  _viewMode = 'list';
-                }
-              }),
-            ),
-
-            const SizedBox(width: 2),
-
-            // زر تصدير CSV مدمج للموبايل
-            IconButton(
-              icon: const Icon(Icons.download_rounded, size: 20),
-              tooltip: 'تصدير المهام إلى CSV / Excel',
-              onPressed: _exportCurrentTasksToCsv,
-            ),
-
-            const SizedBox(width: 2),
-
-            // زر المزامنة السحابية المدمج بدون نص يفيض
-            SyncStatusButton(
-              onTriggerSync: widget.onSyncRequested,
-              compact: true,
-            ),
-
-            const SizedBox(width: 4),
-
-            // زر الحساب والمصادقة المدمج
-            _buildAuthButton(isCompact: true),
-          ],
-        ),
-      );
-    }
-
-    // 3. الهيدر للتابلت والشاشات الكبيرة (Desktop & Tablet)
-    final bool isWide = screenWidth >= 800;
-    final bool isMedium = screenWidth >= 550;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: headerDecoration,
-      child: Row(
-        children: [
-          if (!isDesktop)
-            Builder(
-              builder: (ctx) => IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () => Scaffold.of(ctx).openDrawer(),
-              ),
-            ),
-
-          // عنوان السياق الحالي
-          Expanded(
-            flex: isWide ? 2 : 3,
-            child: Text(
-              _currentContextTitle,
-              style: TextStyle(fontSize: isWide ? 18 : 15, fontWeight: FontWeight.bold),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-
-          const SizedBox(width: 8),
-
-          // حقل البحث المقيّد بالسياق
-          Expanded(
-            flex: isWide ? 3 : 4,
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: _searchHint,
-                isDense: true,
-                prefixIcon: const Icon(Icons.search, size: 18),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear, size: 16),
-                        onPressed: () {
-                          _searchController.clear();
-                          _onSearchChanged('');
-                        },
-                      )
-                    : null,
-              ),
-              onChanged: _onSearchChanged,
-            ),
-          ),
-
-          // زر توسيع البحث للنطاق الشامل عند التواجد داخل مشروع أو مجال
-          if ((_selectedAreaId != null || _selectedProjectId != null) && _isSearchActive) ...[
-            const SizedBox(width: 6),
-            isWide
-                ? TextButton.icon(
-                    icon: Icon(_forceGlobalSearch ? Icons.filter_alt_off : Icons.public, size: 16),
-                    label: Text(_forceGlobalSearch ? 'إلغاء الشامل' : 'بحث شامل'),
-                    onPressed: () {
-                      setState(() {
-                        _forceGlobalSearch = !_forceGlobalSearch;
-                        _onSearchChanged(_searchController.text);
-                      });
-                    },
-                  )
-                : IconButton(
-                    icon: Icon(_forceGlobalSearch ? Icons.filter_alt_off : Icons.public, size: 18),
-                    tooltip: _forceGlobalSearch ? 'إلغاء الشامل' : 'بحث شامل',
-                    onPressed: () {
-                      setState(() {
-                        _forceGlobalSearch = !_forceGlobalSearch;
-                        _onSearchChanged(_searchController.text);
-                      });
-                    },
-                  ),
-          ],
-
-          const SizedBox(width: 8),
-
-          // أزرار التبديل السريع للعرض (List / Kanban / Table)
-          if (isMedium)
-            SegmentedButton<String>(
-              segments: const [
-                ButtonSegment(value: 'list', icon: Icon(Icons.view_list_rounded, size: 16)),
-                ButtonSegment(value: 'kanban', icon: Icon(Icons.view_kanban_rounded, size: 16)),
-                ButtonSegment(value: 'table', icon: Icon(Icons.table_chart_rounded, size: 16)),
-              ],
-              selected: {_viewMode},
-              onSelectionChanged: (set) => setState(() => _viewMode = set.first),
-            )
-          else
-            IconButton(
-              icon: Icon(
-                _viewMode == 'list'
-                    ? Icons.view_kanban_rounded
-                    : _viewMode == 'kanban'
-                        ? Icons.table_chart_rounded
-                        : Icons.view_list_rounded,
-                size: 20,
-              ),
-              tooltip: _viewMode == 'list'
-                  ? 'عرض الكانبان'
-                  : _viewMode == 'kanban'
-                      ? 'عرض الجدول'
-                      : 'عرض القوائم',
-              onPressed: () => setState(() {
-                if (_viewMode == 'list') {
-                  _viewMode = 'kanban';
-                } else if (_viewMode == 'kanban') {
-                  _viewMode = 'table';
-                } else {
-                  _viewMode = 'list';
-                }
-              }),
-            ),
-
-          const SizedBox(width: 6),
-
-          // زر تصدير المهام إلى CSV / Excel
-          IconButton(
-            icon: const Icon(Icons.download_rounded, size: 20),
-            tooltip: 'تصدير المهام الحالية إلى CSV / Excel',
-            onPressed: _exportCurrentTasksToCsv,
-          ),
-
-          const SizedBox(width: 4),
-
-          // زر حالة وطلب المزامنة السحابية (Offline-First Sync)
-          SyncStatusButton(
-            onTriggerSync: widget.onSyncRequested,
-            compact: !isWide,
-          ),
-
-          const SizedBox(width: 6),
-
-          // زر إضافة مهمة سريعة
-          if (isWide)
-            ElevatedButton.icon(
-              onPressed: () => _showAddTaskDialog(),
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('مهمة جديدة'),
-            )
-          else
-            IconButton.filled(
-              onPressed: () => _showAddTaskDialog(),
-              icon: const Icon(Icons.add, size: 18),
-              tooltip: 'مهمة جديدة',
-            ),
-
-          const SizedBox(width: 6),
-
-          // زر الحساب والمصادقة (Supabase Auth)
-          _buildAuthButton(isCompact: !isWide),
-        ],
-      ),
-    );
-  }
-
-  // زر الحساب وتسجيل الدخول المتجاوب
-  Widget _buildAuthButton({bool isCompact = false}) {
-    return ListenableBuilder(
-      listenable: AuthController.instance,
-      builder: (context, _) {
-        final auth = AuthController.instance;
-        if (auth.isAuthenticated) {
-          return PopupMenuButton<String>(
-            tooltip: 'الملف الشخصي',
-            onSelected: (val) {
-              if (val == 'signout') {
-                auth.signOut();
-              }
-            },
-            itemBuilder: (ctx) => [
-              PopupMenuItem(
-                enabled: false,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(auth.displayName ?? 'مستخدم Tasky', style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text(auth.userEmail ?? '', style: const TextStyle(fontSize: 11, color: Colors.grey)),
-                  ],
-                ),
-              ),
-              const PopupMenuDivider(),
-              const PopupMenuItem(
-                value: 'signout',
-                child: Row(
-                  children: [
-                    Icon(Icons.logout, size: 16, color: Colors.red),
-                    SizedBox(width: 8),
-                    Text('تسجيل الخروج', style: TextStyle(color: Colors.red)),
-                  ],
-                ),
-              ),
-            ],
-            child: CircleAvatar(
-              radius: isCompact ? 14 : 18,
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              child: Text(
-                (auth.displayName?.isNotEmpty == true ? auth.displayName![0] : 'U').toUpperCase(),
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: isCompact ? 11 : 13,
-                ),
-              ),
-            ),
-          );
-        }
-
-        if (isCompact) {
-          return IconButton(
-            icon: const Icon(Icons.person_outline, size: 22),
-            tooltip: 'تسجيل الدخول',
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const AuthScreen()),
-              );
-            },
-          );
-        }
-
-        return OutlinedButton.icon(
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const AuthScreen()),
-            );
-          },
-          icon: const Icon(Icons.person_outline, size: 18),
-          label: const Text('تسجيل الدخول'),
-        );
-      },
-    );
-  }
-
-  // المحتوى المعروض في مساحة العمل المركزية
-  Widget _buildMainWorkspaceContent() {
-    // 0. شاشة الملاحظات العامة (Resources & Knowledge Vault)
-    if (_showNotes) {
-      return const NotesScreen();
-    }
-
-    // 0.1 شاشة السجل المالي والتسويات (Financial Logs & Settlements)
-    if (_showFinance) {
-      return const FinancialLogScreen();
-    }
-
-    // 0.2 شاشة الأرشيف العام (Global Archive)
-    if (_showArchive) {
-      return const ArchiveScreen();
-    }
-
-    // 0.3 شاشة سلة المهملات (Trash Bin)
-    if (_showTrash) {
-      return const TrashScreen();
-    }
-
-    // 1. إذا كان المستخدم فاتحاً صفحة مشروع مخصصة
-    if (_selectedProjectId != null && !_isSearchActive) {
-      final project = widget.projects.firstWhere((p) => p.id == _selectedProjectId);
-      return ProjectDetailScreen(
-        project: project,
-        projectTasks: _contextTasks,
-        taskTags: widget.taskTags,
-        viewMode: _viewMode,
-        onUpdateProject: (up) => widget.onSaveProject?.call(up),
-        onDeleteProject: (id) {
-          widget.onDeleteProject?.call(id);
-          setState(() => _selectedProjectId = null);
-        },
-        onTaskTap: (t) => setState(() => _openedTask = t),
-        onToggleTaskCompleted: (t, isDone) {
-          widget.onToggleTaskCompleted?.call(t, isDone);
-        },
-        onTaskStatusChanged: widget.onTaskStatusChanged,
-        onTaskPriorityChanged: widget.onTaskPriorityChanged,
-        onAddNewTask: () => _showAddTaskDialog(),
-      );
-    }
-
-    // 2. إذا كان المستخدم فاتحاً صفحة مجال مخصصة
-    if (_selectedAreaId != null && !_isSearchActive) {
-      final area = widget.areas.firstWhere((a) => a.id == _selectedAreaId);
-      final areaProjects = widget.projects.where((p) => p.areaId == area.id).toList();
-
-      return AreaDetailScreen(
-        area: area,
-        areaProjects: areaProjects,
-        areaTasks: _contextTasks,
-        taskTags: widget.taskTags,
-        viewMode: _viewMode,
-        onUpdateArea: (up) => widget.onSaveArea?.call(up),
-        onDeleteArea: (id) {
-          widget.onDeleteArea?.call(id);
-          setState(() => _selectedAreaId = null);
-        },
-        onProjectTap: (p) => setState(() => _selectedProjectId = p.id),
-        onTaskTap: (t) => setState(() => _openedTask = t),
-        onToggleTaskCompleted: widget.onToggleTaskCompleted,
-        onTaskStatusChanged: widget.onTaskStatusChanged,
-        onTaskPriorityChanged: widget.onTaskPriorityChanged,
-        onAddNewProject: () => _showAddProjectDialog(area.id),
-        onAddNewTask: () => _showAddTaskDialog(),
-      );
-    }
-
-    // 3. العرض الافتراضي (اليوم، القادمة، المعلقة، عاجل، أو نتائج البحث)
-    final subtaskCounts = <String, int>{};
-    final completedSubtaskCounts = <String, int>{};
-    for (final s in widget.subtasks) {
-      subtaskCounts[s.taskId] = (subtaskCounts[s.taskId] ?? 0) + 1;
-      if (s.isCompleted) {
-        completedSubtaskCounts[s.taskId] = (completedSubtaskCounts[s.taskId] ?? 0) + 1;
-      }
-    }
-
-    if (_viewMode == 'kanban') {
-      return KanbanBoardView(
-        tasks: _contextTasks,
-        subtaskCounts: subtaskCounts,
-        completedSubtaskCounts: completedSubtaskCounts,
-        taskTags: widget.taskTags,
-        onTaskTap: (t) => setState(() => _openedTask = t),
-        onTaskStatusChanged: (task, status) => widget.onTaskStatusChanged?.call(task, status),
-        onAddTaskInColumn: (status) => _showAddTaskDialog(defaultStatus: status),
-      );
-    }
-
-    if (_viewMode == 'table') {
-      return TasksTableView(
-        tasks: _contextTasks,
-        areas: widget.areas,
-        projects: widget.projects,
-        taskTags: widget.taskTags,
-        subtaskCounts: subtaskCounts,
-        completedSubtaskCounts: completedSubtaskCounts,
-        onTaskTap: (t) => setState(() => _openedTask = t),
-        onToggleCompleted: widget.onToggleTaskCompleted,
-        onTaskStatusChanged: (task, status) => widget.onTaskStatusChanged?.call(task, status),
-        onTaskPriorityChanged: (task, priority) => widget.onTaskPriorityChanged?.call(task, priority),
-        onAddTask: () => _showAddTaskDialog(),
-      );
-    }
-
-    return TaskListView(
-      tasks: _contextTasks,
-      subtaskCounts: subtaskCounts,
-      completedSubtaskCounts: completedSubtaskCounts,
-      taskTags: widget.taskTags,
-      emptyMessage: _isSearchActive
-          ? 'لم يتم العثور على أي نتائج تطابق "${_searchController.text}"'
-          : 'لا توجد مهام في هذا القسم حالياً',
-      onTaskTap: (t) => setState(() => _openedTask = t),
-      onToggleCompleted: widget.onToggleTaskCompleted,
-      onAddTask: () => _showAddTaskDialog(),
     );
   }
 }
