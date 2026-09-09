@@ -200,7 +200,7 @@
   - إضافة الحقول والدوال الداعمة للنموذج الموحد (`role` / `shareToken` / `isPublic` / `isPublicLink`) مع قراءة مرنة في `fromMap` لمفاتيح `permission_level` / `permission` / `role` و`share_token` / `is_public`.
   - ربط `ShareReadService` واختباره (`share_read_service_test.dart`) بالنموذج الموحد، وحذف الكود الميت `SharingController`.
   - التحقق: `flutter analyze` نظيف (No issues found!) وجميع الاختبارات ناجحة (238/238).
-- [ ] **المرحلة 2: تفكيك الواجهات العملاقة (Decomposing God Widgets)**:
+- [x] **المرحلة 2: تفكيك الواجهات العملاقة (Decomposing God Widgets)**:
   - [x] استخراج حوارات الإضافة والتصدير من `MainLayoutScreen` إلى مجلد مستقل `widgets/dialogs/` (تقليص 406 أسطر).
   - [x] تفكيك `TaskDetailDrawer` (1,005 أسطر) إلى أقسام مستقلة وموديلر (`task_subtasks_section`, `task_properties_section`, `task_tags_section`).
   - [x] تفكيك `HierarchicalTreeSidebar` (986 سطراً) إلى ويدجتس مستقلة تحت `sidebar_tree/` وتقليص الملف لـ 241 سطراً.
@@ -215,3 +215,8 @@
     * `lib/features/tags/data/repositories/tag_repository_impl.dart`
   - تنظيف مجلد `lib/core/` من النماذج والمستودعات القديمة، وتحديث كافة مسارات الاستيراد (Imports) في المشروع والاختبارات.
   - الحفاظ التام والمستمر على **238/238 اختباراً ناجحاً بنسبة 100%** ونظافة `flutter analyze`.
+- [x] **المرحلة 5: حزمة التدقيق المعماري التكميلية (Post-Audit Architecture Cleanups)**:
+  - حذف الكود الميت وملفات البرميل غير المستوردة (`sharing_controller.dart`, `tasks.dart`, `areas.dart`, `projects.dart`).
+  - فصل واجهات `INoteRepository` و `IAttachmentRepository` في مجلدات `domain/repositories/` النقية.
+  - تطهير وتوحيد عناصر العرض بين شاشتي الأرشيف وسلة المهملات (`EmptyStateView`, `ArchiveItemCard`, `TrashItemCard`).
+  - إعادة توزيع خدمات المهام المتخصصة (`attachment_service.dart`, `recurrence_service.dart`) إلى `features/tasks/services/`.

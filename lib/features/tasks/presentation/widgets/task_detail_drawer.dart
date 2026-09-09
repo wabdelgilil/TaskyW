@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tasky/features/tags/data/models/tag_model.dart';
-import '../../../../core/services/attachment_service.dart';
+import '../../services/attachment_service.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../../core/theme/app_colors.dart';
 

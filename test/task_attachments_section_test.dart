@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tasky/core/services/attachment_service.dart';
+import 'package:tasky/features/tasks/services/attachment_service.dart';
 import 'package:tasky/features/tasks/data/models/attachment_model.dart';
 import 'package:tasky/features/tasks/data/repositories/attachment_repository_impl.dart';
 import 'package:tasky/features/tasks/presentation/widgets/task_attachments_section.dart';

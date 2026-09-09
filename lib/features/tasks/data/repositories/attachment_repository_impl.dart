@@ -1,27 +1,9 @@
 import 'package:sqflite/sqflite.dart';
-
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/database_tables.dart';
+import '../../domain/repositories/i_attachment_repository.dart';
 import '../models/attachment_model.dart';
-
-/// مستودع المرفقات المحلي (Offline-First).
-///
-/// عمليات CRUD على جدول `attachments` في SQLite مع دعم الحذف الناعم
-/// والدورات المتزامنة عبر `sync_status`.
-abstract class IAttachmentRepository {
-  Future<List<AttachmentModel>> getAttachmentsByTask(String taskId);
-
-  Future<AttachmentModel?> getAttachmentById(String id);
-
-  Future<void> insertAttachment(AttachmentModel attachment);
-
-  Future<void> updateAttachment(AttachmentModel attachment);
-
-  Future<void> softDeleteAttachment(String id);
-
-  /// التحديد عبر sync_status للدفع في دورة المزامنة.
-  Future<List<AttachmentModel>> getAttachmentsBySyncStatus(String syncStatus);
-}
+export '../../domain/repositories/i_attachment_repository.dart';
 
 class AttachmentRepositoryImpl implements IAttachmentRepository {
   final AppDatabase _appDatabase = AppDatabase.instance;

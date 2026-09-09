@@ -1,9 +1,9 @@
 import 'package:uuid/uuid.dart';
 
-import '../../features/tasks/data/models/subtask_model.dart';
-import '../../features/tasks/data/models/task_model.dart';
-import '../../features/tasks/domain/repositories/i_subtask_repository.dart';
-import '../../features/tasks/domain/repositories/i_task_repository.dart';
+import '../data/models/subtask_model.dart';
+import '../data/models/task_model.dart';
+import '../domain/repositories/i_subtask_repository.dart';
+import '../domain/repositories/i_task_repository.dart';
 
 /// قيم أنماط التكرار المعتمدة.
 class TaskRecurrencePattern {

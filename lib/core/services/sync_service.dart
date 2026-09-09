@@ -5,7 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../database/app_database.dart';
 import '../database/database_tables.dart';
-import 'attachment_service.dart';
+import '../../features/tasks/services/attachment_service.dart';
 import 'supabase_service.dart';
 
 /// نتيجة عملية المزامنة.

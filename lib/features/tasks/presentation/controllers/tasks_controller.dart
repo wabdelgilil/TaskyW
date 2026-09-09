@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import '../../../../core/services/recurrence_service.dart';
+import '../../services/recurrence_service.dart';
 import '../../../../core/utils/date_time_utils.dart';
 import '../../data/models/task_model.dart';
 import '../../data/repositories/subtask_repository_impl.dart';

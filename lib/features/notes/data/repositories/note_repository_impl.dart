@@ -1,23 +1,9 @@
 import 'package:sqflite/sqflite.dart';
-
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/database_tables.dart';
+import '../../domain/repositories/i_note_repository.dart';
 import '../models/note_model.dart';
-
-/// مستودع الملاحظات المحلي (Offline-First).
-abstract class INoteRepository {
-  Future<List<NoteModel>> getNotes({bool includeArchived = false});
-
-  Future<NoteModel?> getNoteById(String id);
-
-  Future<void> insertNote(NoteModel note);
-
-  Future<void> updateNote(NoteModel note);
-
-  Future<void> softDeleteNote(String id);
-
-  Future<List<NoteModel>> getNotesBySyncStatus(String syncStatus);
-}
+export '../../domain/repositories/i_note_repository.dart';
 
 class NoteRepositoryImpl implements INoteRepository {
   final AppDatabase _appDatabase = AppDatabase.instance;

@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:tasky/core/database/app_database.dart';
-import 'package:tasky/core/services/recurrence_service.dart';
+import 'package:tasky/features/tasks/services/recurrence_service.dart';
 import 'package:tasky/features/tasks/data/models/subtask_model.dart';
 import 'package:tasky/features/tasks/data/models/task_model.dart';
 import 'package:tasky/features/tasks/data/repositories/subtask_repository_impl.dart';

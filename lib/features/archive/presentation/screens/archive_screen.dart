@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../notes/data/models/note_model.dart';
+import '../../../../core/widgets/empty_state_view.dart';
 import '../../../notes/presentation/controllers/notes_controller.dart';
-import '../../../projects/data/models/project_model.dart';
 import '../../../projects/presentation/controllers/projects_controller.dart';
-import '../../../tasks/data/models/task_model.dart';
 import '../../../tasks/presentation/controllers/tasks_controller.dart';
+import '../widgets/archive_item_card.dart';
 
 /// شاشة الأرشيف العام (Global Archive View):
 /// تعرض المهام والمشاريع والملاحظات المؤرشفة مع إمكانية استرجاعها بضغطة زر.
@@ -274,7 +273,7 @@ class _ArchiveScreenState extends State<ArchiveScreen>
         }).toList();
 
         if (tasks.isEmpty) {
-          return _buildEmptyState(
+          return EmptyStateView(
             icon: Icons.archive_outlined,
             title: _searchQuery.isEmpty ? 'لا توجد مهام مؤرشفة' : 'لا توجد نتائج مطابقة',
             subtitle: _searchQuery.isEmpty
@@ -289,65 +288,16 @@ class _ArchiveScreenState extends State<ArchiveScreen>
           separatorBuilder: (_, _) => const SizedBox(height: 10),
           itemBuilder: (context, index) {
             final task = tasks[index];
-            return _buildTaskArchiveCard(context, task, isDark);
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildTaskArchiveCard(BuildContext context, TaskModel task, bool isDark) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: AppColors.border(context)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            Icon(
-              Icons.inventory_2_outlined,
-              color: isDark ? const Color(0xFF818CF8) : const Color(0xFF6366F1),
-              size: 22,
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    task.title,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary(context),
-                    ),
-                  ),
-                  if (task.description != null && task.description!.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      task.description!,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textSecondary(context),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ],
+            return ArchiveItemCard(
+              leading: Icon(
+                Icons.inventory_2_outlined,
+                color: isDark ? const Color(0xFF818CF8) : const Color(0xFF6366F1),
+                size: 22,
               ),
-            ),
-            const SizedBox(width: 10),
-            OutlinedButton.icon(
-              icon: const Icon(Icons.unarchive_outlined, size: 16),
-              label: const Text('استعادة للأعمال النشطة'),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              ),
-              onPressed: () async {
+              title: task.title,
+              subtitle: task.description,
+              actionLabel: 'استعادة للأعمال النشطة',
+              onAction: () async {
                 final messenger = ScaffoldMessenger.of(context);
                 final success = await _tasksController.unarchiveTask(task.id);
                 if (mounted && success) {
@@ -359,10 +309,10 @@ class _ArchiveScreenState extends State<ArchiveScreen>
                   );
                 }
               },
-            ),
-          ],
-        ),
-      ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -382,7 +332,7 @@ class _ArchiveScreenState extends State<ArchiveScreen>
         }).toList();
 
         if (projects.isEmpty) {
-          return _buildEmptyState(
+          return EmptyStateView(
             icon: Icons.folder_special_outlined,
             title: _searchQuery.isEmpty ? 'لا توجد مشاريع مؤرشفة' : 'لا توجد نتائج مطابقة',
             subtitle: _searchQuery.isEmpty
@@ -397,65 +347,14 @@ class _ArchiveScreenState extends State<ArchiveScreen>
           separatorBuilder: (_, _) => const SizedBox(height: 10),
           itemBuilder: (context, index) {
             final project = projects[index];
-            return _buildProjectArchiveCard(context, project, isDark);
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildProjectArchiveCard(
-      BuildContext context, ProjectModel project, bool isDark) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: AppColors.border(context)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            Text(project.iconEmoji, style: const TextStyle(fontSize: 22)),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    project.name,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary(context),
-                    ),
-                  ),
-                  if (project.description != null && project.description!.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      project.description!,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textSecondary(context),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(width: 10),
-            OutlinedButton.icon(
-              icon: const Icon(Icons.unarchive_outlined, size: 16),
-              label: const Text('استعادة المشروع'),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              ),
-              onPressed: () async {
+            return ArchiveItemCard(
+              leading: Text(project.iconEmoji, style: const TextStyle(fontSize: 22)),
+              title: project.name,
+              subtitle: project.description,
+              actionLabel: 'استعادة المشروع',
+              onAction: () async {
                 final messenger = ScaffoldMessenger.of(context);
-                final success =
-                    await _projectsController.unarchiveProject(project.id);
+                final success = await _projectsController.unarchiveProject(project.id);
                 if (mounted && success) {
                   messenger.showSnackBar(
                     SnackBar(
@@ -465,10 +364,10 @@ class _ArchiveScreenState extends State<ArchiveScreen>
                   );
                 }
               },
-            ),
-          ],
-        ),
-      ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -489,7 +388,7 @@ class _ArchiveScreenState extends State<ArchiveScreen>
         }).toList();
 
         if (notes.isEmpty) {
-          return _buildEmptyState(
+          return EmptyStateView(
             icon: Icons.note_alt_outlined,
             title: _searchQuery.isEmpty ? 'لا توجد ملاحظات مؤرشفة' : 'لا توجد نتائج مطابقة',
             subtitle: _searchQuery.isEmpty
@@ -504,61 +403,12 @@ class _ArchiveScreenState extends State<ArchiveScreen>
           separatorBuilder: (_, _) => const SizedBox(height: 10),
           itemBuilder: (context, index) {
             final note = notes[index];
-            return _buildNoteArchiveCard(context, note, isDark);
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildNoteArchiveCard(BuildContext context, NoteModel note, bool isDark) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: AppColors.border(context)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            const Icon(Icons.sticky_note_2_outlined, color: Colors.amber, size: 22),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    note.title,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary(context),
-                    ),
-                  ),
-                  if (note.content != null && note.content!.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      note.content!,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textSecondary(context),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(width: 10),
-            OutlinedButton.icon(
-              icon: const Icon(Icons.unarchive_outlined, size: 16),
-              label: const Text('إلغاء الأرشفة'),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              ),
-              onPressed: () async {
+            return ArchiveItemCard(
+              leading: const Icon(Icons.sticky_note_2_outlined, color: Colors.amber, size: 22),
+              title: note.title,
+              subtitle: note.content,
+              actionLabel: 'إلغاء الأرشفة',
+              onAction: () async {
                 final messenger = ScaffoldMessenger.of(context);
                 final success = await _notesController.setArchived(note.id, false);
                 if (mounted && success) {
@@ -570,46 +420,10 @@ class _ArchiveScreenState extends State<ArchiveScreen>
                   );
                 }
               },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-  }) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 54, color: AppColors.textMuted(context)),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary(context),
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              subtitle,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                color: AppColors.textSecondary(context),
-              ),
-            ),
-          ],
-        ),
-      ),
+            );
+          },
+        );
+      },
     );
   }
 }

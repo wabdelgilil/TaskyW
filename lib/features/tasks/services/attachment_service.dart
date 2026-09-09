@@ -4,9 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../features/tasks/data/models/attachment_model.dart';
-import '../../features/tasks/data/repositories/attachment_repository_impl.dart';
-import 'supabase_service.dart';
+import '../../../../core/services/supabase_service.dart';
+import '../data/models/attachment_model.dart';
+import '../data/repositories/attachment_repository_impl.dart';
 
 /// واجهة التخزين السحابي للمرفقات (قابلة للاختبار دون Supabase).
 abstract class AttachmentStorageCloud {

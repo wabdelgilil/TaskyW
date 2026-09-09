@@ -116,6 +116,26 @@ graph LR
 
 ---
 
+### 🔹 المرحلة 5: حزمة التدقيق المعماري التكميلية (Post-Audit Architecture Cleanups) — ✅ مكتملة
+* **المصدر**: مخرجات تقرير التدقيق المعماري المشترك في [`REFACTORING_AUDIT_NOTES.md`](file:///d:/programming/Tasky3.0/project_management/REFACTORING_AUDIT_NOTES.md).
+* **المهام التفصيلية المنجزة**:
+  1. **إزالة الكود الميت والملفات المهجورة (Dead Code Cleanup)**: ✅
+     - حذف `lib/features/sharing/presentation/controllers/sharing_controller.dart` غير المستخدم.
+     - حذف ملفات البرميل غير المستخدمة: `tasks.dart`، `areas.dart`، و `projects.dart`.
+  2. **فصل واجهات المستودعات المتداخلة (Repository Layer Pure Interfaces)**: ✅
+     - إنشاء واجهة نقية `INoteRepository` في `lib/features/notes/domain/repositories/i_note_repository.dart`.
+     - إنشاء واجهة نقية `IAttachmentRepository` في `lib/features/tasks/domain/repositories/i_attachment_repository.dart`.
+  3. **تطهير واجهات الأرشيف وسلة المهملات (Deduplicating Archive & Trash Screens)**: ✅
+     - استخراج `EmptyStateView` مشترك في `lib/core/widgets/empty_state_view.dart`.
+     - استخراج `ArchiveItemCard` في `lib/features/archive/presentation/widgets/archive_item_card.dart`.
+     - استخراج `TrashItemCard` في `lib/features/trash/presentation/widgets/trash_item_card.dart`.
+     - تقليص حجم الشاشتين وتنظيف المنطق المكرر بنسبة 100%.
+  4. **إعادة توزيع خدمات Core المتخصصة**: ✅
+     - نقل خدمات المهام المتخصصة (`attachment_service.dart`, `recurrence_service.dart`) إلى حزمة `lib/features/tasks/services/`.
+     - تحديث كافة مسارات الاستيراد والاختبارات التابعة لها بنجاح.
+
+---
+
 ## مصفوفة الصلاحيات وحدود العمل (Permissions & Boundaries Matrix)
 
 | الإجراء | الوكيل الرئيسي (Master Agent) | الوكيل الفرعي (Subagent) |

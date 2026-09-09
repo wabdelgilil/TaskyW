@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import '../../../../core/services/attachment_service.dart';
+import '../../services/attachment_service.dart';
 import '../../data/models/attachment_model.dart';
 
 /// متحكم المرفقات الخاص بمهمة: تحميل وإضافة وحذف المرفقات (Offline-First).

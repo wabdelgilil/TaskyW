@@ -46,6 +46,21 @@
     * [`i_tag_repository.dart`](file:///d:/programming/Tasky3.0/lib/features/tags/domain/repositories/i_tag_repository.dart)
     * [`tag_repository_impl.dart`](file:///d:/programming/Tasky3.0/lib/features/tags/data/repositories/tag_repository_impl.dart)
   - تحديث كافة مسارات الاستيراد (`package:tasky/features/tags/...`) في شاشات العرض وقوائم المهام والكانبان واختبارات الـ unit tests.
+- **المرحلة 5: حزمة التدقيق المعماري التكميلية (Post-Audit Architecture Cleanups)**:
+  - **حذف الكود الميت وملفات البرميل المهجورة**:
+    * حذف `lib/features/sharing/presentation/controllers/sharing_controller.dart` بعد دمج المشاركة في `UniversalShareDialog`.
+    * حذف ملفات البرميل غير المستخدمة `lib/features/tasks/tasks.dart`، `lib/features/areas/areas.dart`، و `lib/features/projects/projects.dart`.
+  - **فصل واجهات المستودعات المتداخلة إلى واجهات Domain نقية**:
+    * إنشاء واجهة [`INoteRepository`](file:///d:/programming/Tasky3.0/lib/features/notes/domain/repositories/i_note_repository.dart) وتجريدها من استيرادات SQLite المباشرة.
+    * إنشاء واجهة [`IAttachmentRepository`](file:///d:/programming/Tasky3.0/lib/features/tasks/domain/repositories/i_attachment_repository.dart) وتجريدها في طبقة Domain.
+  - **تطهير واجهات الأرشيف وسلة المهملات واستخراج المكونات المشتركة**:
+    * إنشاء ويدجت الحالة الفارغة الموحدة [`EmptyStateView`](file:///d:/programming/Tasky3.0/lib/core/widgets/empty_state_view.dart) لإعادة استخدامها في كافة شاشات التطبيق.
+    * إنشاء [`ArchiveItemCard`](file:///d:/programming/Tasky3.0/lib/features/archive/presentation/widgets/archive_item_card.dart) لتجريد عرض بطاقات الأرشيف.
+    * إنشاء [`TrashItemCard`](file:///d:/programming/Tasky3.0/lib/features/trash/presentation/widgets/trash_item_card.dart) لتجريد عرض بطاقات سلة المهملات.
+    * تقليص حجم وتنظيف شاشتي [`ArchiveScreen`](file:///d:/programming/Tasky3.0/lib/features/archive/presentation/screens/archive_screen.dart) و [`TrashScreen`](file:///d:/programming/Tasky3.0/lib/features/trash/presentation/screens/trash_screen.dart).
+  - **إعادة توزيع الخدمات المتخصصة إلى مسار حزمها**:
+    * نقل `attachment_service.dart` و `recurrence_service.dart` من `lib/core/services/` إلى [`lib/features/tasks/services/`](file:///d:/programming/Tasky3.0/lib/features/tasks/services/).
+    * تحديث مسارات الاستيراد في كافة المتحكمات والشاشات والاختبارات التابعة لها.
 - **التحقق وضمان الجودة الصارمة (Zero Regressions)**:
   * فحص `flutter analyze`: نظيف تماماً **`No issues found!`** (0 أخطاء و 0 تحذيرات).
   * فحص `flutter test`: نجاح **238/238 اختباراً بنسبة 100%**.

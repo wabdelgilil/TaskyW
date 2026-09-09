@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/confirm_delete_dialog.dart';
+import '../../../../core/widgets/empty_state_view.dart';
 import '../../../notes/data/models/note_model.dart';
 import '../../../notes/data/repositories/note_repository_impl.dart';
 import '../../../notes/presentation/controllers/notes_controller.dart';
-import '../../../projects/data/models/project_model.dart';
 import '../../../projects/presentation/controllers/projects_controller.dart';
-import '../../../tasks/data/models/task_model.dart';
 import '../../../tasks/presentation/controllers/tasks_controller.dart';
+import '../widgets/trash_item_card.dart';
 
 /// شاشة سلة المهملات (Global Trash Screen):
 /// تعرض جميع العناصر المحذوفة ناعماً (مهام، مشاريع، ملاحظات) مع خيارات الاستعادة
@@ -178,7 +178,7 @@ class _TrashScreenState extends State<TrashScreen>
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.12),
+              color: Colors.redAccent.withOpacity(0.12),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
@@ -202,7 +202,7 @@ class _TrashScreenState extends State<TrashScreen>
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'العناصر المحذوفة محفوظة هنا مؤقتاً؛ يمكنك استعادتها أو حذفها نهائياً لتوفير المساحة',
+                  'العناصر المحذوفة مؤقتاً، يمكنك استعادتها أو حذفها نهائياً لتفريغ المساحة',
                   style: TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary(context),
@@ -212,21 +212,20 @@ class _TrashScreenState extends State<TrashScreen>
               ],
             ),
           ),
-          if (_totalTrashCount > 0)
-            ElevatedButton.icon(
-              icon: const Icon(Icons.delete_forever_rounded, size: 18),
-              label: const Text('إفراغ السلة'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red.shade700,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              ),
-              onPressed: _confirmEmptyTrash,
+          // زر إفراغ السلة بالكامل
+          OutlinedButton.icon(
+            icon: const Icon(Icons.delete_forever_rounded, size: 18, color: Colors.red),
+            label: const Text('إفراغ السلة', style: TextStyle(color: Colors.red)),
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: Colors.redAccent),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             ),
-          const SizedBox(width: 6),
+            onPressed: _totalTrashCount > 0 ? _confirmEmptyTrash : null,
+          ),
+          const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
-            tooltip: 'تحديث سلة المهملات',
+            tooltip: 'تحديث السلة',
             onPressed: _loadData,
           ),
         ],
@@ -292,7 +291,7 @@ class _TrashScreenState extends State<TrashScreen>
                   builder: (context, _) => Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.folder_open_outlined, size: 18),
+                      const Icon(Icons.folder_outlined, size: 18),
                       const SizedBox(width: 6),
                       Text('المشاريع (${_projectsController.trashCount})'),
                     ],
@@ -332,7 +331,7 @@ class _TrashScreenState extends State<TrashScreen>
         }).toList();
 
         if (tasks.isEmpty) {
-          return _buildEmptyState(
+          return EmptyStateView(
             icon: Icons.delete_outline_rounded,
             title: _searchQuery.isEmpty ? 'سلة المهام فارغة' : 'لا توجد نتائج مطابقة',
             subtitle: _searchQuery.isEmpty
@@ -347,60 +346,13 @@ class _TrashScreenState extends State<TrashScreen>
           separatorBuilder: (_, _) => const SizedBox(height: 10),
           itemBuilder: (context, index) {
             final task = tasks[index];
-            return _buildTrashTaskCard(context, task, isDark);
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildTrashTaskCard(BuildContext context, TaskModel task, bool isDark) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: AppColors.border(context)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            const Icon(Icons.delete_sweep_outlined, color: Colors.redAccent, size: 22),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    task.title,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      decoration: TextDecoration.lineThrough,
-                      color: AppColors.textSecondary(context),
-                    ),
-                  ),
-                  if (task.description != null && task.description!.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      task.description!,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textMuted(context),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(width: 10),
-            // زر استعادة
-            IconButton(
-              icon: const Icon(Icons.restore_from_trash_rounded, color: Colors.green, size: 22),
-              tooltip: 'استعادة المهمة',
-              onPressed: () async {
+            return TrashItemCard(
+              leading: const Icon(Icons.delete_sweep_outlined, color: Colors.redAccent, size: 22),
+              title: task.title,
+              subtitle: task.description,
+              restoreTooltip: 'استعادة المهمة',
+              deleteTooltip: 'حذف نهائي',
+              onRestore: () async {
                 final messenger = ScaffoldMessenger.of(context);
                 final success = await _tasksController.restoreTask(task.id);
                 if (mounted && success) {
@@ -412,12 +364,7 @@ class _TrashScreenState extends State<TrashScreen>
                   );
                 }
               },
-            ),
-            // زر حذف نهائي
-            IconButton(
-              icon: const Icon(Icons.delete_forever_rounded, color: Colors.red, size: 22),
-              tooltip: 'حذف نهائي',
-              onPressed: () async {
+              onPermanentDelete: () async {
                 final messenger = ScaffoldMessenger.of(context);
                 final confirmed = await ConfirmDeleteDialog.show(
                   context,
@@ -433,10 +380,10 @@ class _TrashScreenState extends State<TrashScreen>
                   }
                 }
               },
-            ),
-          ],
-        ),
-      ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -456,7 +403,7 @@ class _TrashScreenState extends State<TrashScreen>
         }).toList();
 
         if (projects.isEmpty) {
-          return _buildEmptyState(
+          return EmptyStateView(
             icon: Icons.folder_delete_outlined,
             title: _searchQuery.isEmpty ? 'سلة المشاريع فارغة' : 'لا توجد نتائج مطابقة',
             subtitle: _searchQuery.isEmpty
@@ -471,61 +418,13 @@ class _TrashScreenState extends State<TrashScreen>
           separatorBuilder: (_, _) => const SizedBox(height: 10),
           itemBuilder: (context, index) {
             final project = projects[index];
-            return _buildTrashProjectCard(context, project, isDark);
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildTrashProjectCard(
-      BuildContext context, ProjectModel project, bool isDark) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: AppColors.border(context)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            Text(project.iconEmoji, style: const TextStyle(fontSize: 22)),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    project.name,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      decoration: TextDecoration.lineThrough,
-                      color: AppColors.textSecondary(context),
-                    ),
-                  ),
-                  if (project.description != null && project.description!.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      project.description!,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textMuted(context),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(width: 10),
-            // زر استعادة
-            IconButton(
-              icon: const Icon(Icons.restore_from_trash_rounded, color: Colors.green, size: 22),
-              tooltip: 'استعادة المشروع',
-              onPressed: () async {
+            return TrashItemCard(
+              leading: Text(project.iconEmoji, style: const TextStyle(fontSize: 22)),
+              title: project.name,
+              subtitle: project.description,
+              restoreTooltip: 'استعادة المشروع',
+              deleteTooltip: 'حذف نهائي',
+              onRestore: () async {
                 final messenger = ScaffoldMessenger.of(context);
                 final success = await _projectsController.restoreProject(project.id);
                 if (mounted && success) {
@@ -537,12 +436,7 @@ class _TrashScreenState extends State<TrashScreen>
                   );
                 }
               },
-            ),
-            // زر حذف نهائي
-            IconButton(
-              icon: const Icon(Icons.delete_forever_rounded, color: Colors.red, size: 22),
-              tooltip: 'حذف نهائي',
-              onPressed: () async {
+              onPermanentDelete: () async {
                 final messenger = ScaffoldMessenger.of(context);
                 final confirmed = await ConfirmDeleteDialog.show(
                   context,
@@ -558,10 +452,10 @@ class _TrashScreenState extends State<TrashScreen>
                   }
                 }
               },
-            ),
-          ],
-        ),
-      ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -578,7 +472,7 @@ class _TrashScreenState extends State<TrashScreen>
     }).toList();
 
     if (notes.isEmpty) {
-      return _buildEmptyState(
+      return EmptyStateView(
         icon: Icons.note_alt_outlined,
         title: _searchQuery.isEmpty ? 'سلة الملاحظات فارغة' : 'لا توجد نتائج مطابقة',
         subtitle: _searchQuery.isEmpty
@@ -593,115 +487,31 @@ class _TrashScreenState extends State<TrashScreen>
       separatorBuilder: (_, _) => const SizedBox(height: 10),
       itemBuilder: (context, index) {
         final note = notes[index];
-        return _buildTrashNoteCard(context, note, isDark);
+        return TrashItemCard(
+          leading: const Icon(Icons.sticky_note_2_outlined, color: Colors.grey, size: 22),
+          title: note.title,
+          subtitle: note.content,
+          restoreTooltip: 'استعادة الملاحظة',
+          onRestore: () async {
+            final messenger = ScaffoldMessenger.of(context);
+            final restored = note.copyWith(
+              deletedAt: null,
+              syncStatus: 'pending_update',
+              updatedAt: DateTime.now().toUtc(),
+            );
+            await _noteRepository.updateNote(restored);
+            await _loadTrashNotes();
+            if (mounted) {
+              messenger.showSnackBar(
+                SnackBar(
+                  content: Text('تمت استعادة الملاحظة "${note.title}" بنجاح'),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            }
+          },
+        );
       },
-    );
-  }
-
-  Widget _buildTrashNoteCard(BuildContext context, NoteModel note, bool isDark) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: AppColors.border(context)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            const Icon(Icons.sticky_note_2_outlined, color: Colors.grey, size: 22),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    note.title,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      decoration: TextDecoration.lineThrough,
-                      color: AppColors.textSecondary(context),
-                    ),
-                  ),
-                  if (note.content != null && note.content!.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      note.content!,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textMuted(context),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(width: 10),
-            // زر استعادة
-            IconButton(
-              icon: const Icon(Icons.restore_from_trash_rounded, color: Colors.green, size: 22),
-              tooltip: 'استعادة الملاحظة',
-              onPressed: () async {
-                final messenger = ScaffoldMessenger.of(context);
-                final restored = note.copyWith(
-                  deletedAt: null,
-                  syncStatus: 'pending_update',
-                  updatedAt: DateTime.now().toUtc(),
-                );
-                await _noteRepository.updateNote(restored);
-                await _loadTrashNotes();
-                if (mounted) {
-                  messenger.showSnackBar(
-                    SnackBar(
-                      content: Text('تمت استعادة الملاحظة "${note.title}" بنجاح'),
-                      duration: const Duration(seconds: 2),
-                    ),
-                  );
-                }
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-  }) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 54, color: AppColors.textMuted(context)),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary(context),
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              subtitle,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                color: AppColors.textSecondary(context),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
