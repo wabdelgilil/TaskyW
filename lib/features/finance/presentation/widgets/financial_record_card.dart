@@ -46,7 +46,7 @@ class FinancialRecordCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
         side: BorderSide(
-          color: record.isPendingInvoice ? Colors.orange.withOpacity(0.5) : AppColors.border(context),
+          color: record.isPendingInvoice ? Colors.orange.withValues(alpha: 0.5) : AppColors.border(context),
           width: record.isPendingInvoice ? 1.4 : 1,
         ),
       ),
@@ -60,7 +60,7 @@ class FinancialRecordCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: badgeColor.withOpacity(0.12),
+                    color: badgeColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(typeIcon, color: badgeColor, size: 18),
@@ -127,9 +127,9 @@ class FinancialRecordCard extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: Colors.orange.withOpacity(0.18),
+                        color: Colors.orange.withValues(alpha: 0.18),
                         borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: Colors.orange.withOpacity(0.5)),
+                        border: Border.all(color: Colors.orange.withValues(alpha: 0.5)),
                       ),
                       child: Text(
                         l10n.invoicePendingTap,
@@ -149,7 +149,7 @@ class FinancialRecordCard extends StatelessWidget {
                         color: (record.settlementStatus == 'settled'
                                 ? Colors.blueGrey
                                 : (record.isClaimFromWork ? Colors.green : Colors.redAccent))
-                            .withOpacity(0.12),
+                            .withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(

@@ -76,7 +76,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                   },
                   child: Container(
                     padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(color: pColor.withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
+                    decoration: BoxDecoration(color: pColor.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
                     child: Text(_emoji, style: const TextStyle(fontSize: 24)),
                   ),
                 ),
@@ -88,7 +88,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey.withOpacity(0.3))),
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey.withValues(alpha: 0.3))),
                     child: Row(
                       children: [
                         Container(width: 16, height: 16, decoration: BoxDecoration(color: pColor, shape: BoxShape.circle)),

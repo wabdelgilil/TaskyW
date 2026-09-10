@@ -79,7 +79,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                       shape: BoxShape.circle,
                       border: isPicked ? Border.all(color: Colors.white, width: 2.5) : null,
                       boxShadow: isPicked
-                          ? [BoxShadow(color: c.withOpacity(0.6), blurRadius: 4, spreadRadius: 1)]
+                          ? [BoxShadow(color: c.withValues(alpha: 0.6), blurRadius: 4, spreadRadius: 1)]
                           : null,
                     ),
                   ),

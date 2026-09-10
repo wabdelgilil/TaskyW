@@ -57,10 +57,10 @@ class PriorityBadge extends StatelessWidget {
     final widget = Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
       decoration: BoxDecoration(
-        color: isDark ? color.withOpacity(0.20) : color.withOpacity(0.12),
+        color: isDark ? color.withValues(alpha: 0.20) : color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(6),
         border: Border.all(
-          color: isDark ? color.withOpacity(0.55) : color.withOpacity(0.40),
+          color: isDark ? color.withValues(alpha: 0.55) : color.withValues(alpha: 0.40),
           width: 1.2,
         ),
       ),

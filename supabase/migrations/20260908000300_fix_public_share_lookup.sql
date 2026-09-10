@@ -44,11 +44,13 @@ begin
   end if;
 
   -- المسار التراجعي لمشاركة المهام عبر tasks.share_token المزامن محلياً
+  -- يتحقق من أن المهمة مُفعّلة للمشاركة العامة (is_public) لتجنب التحرير غير المصرح به
   if v_row is null then
     select to_jsonb(r) into v_row
     from public.tasks r
     where r.share_token = p_token
-      and r.deleted_at is null;
+      and r.deleted_at is null
+      and r.is_public = true;
   end if;
 
   if v_row is null then

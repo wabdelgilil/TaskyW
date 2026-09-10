@@ -13,8 +13,6 @@ class AppTheme {
         onPrimary: Color(0xFF0F172A),
         surface: AppColors.darkSurface,
         onSurface: AppColors.darkTextPrimary,
-        background: AppColors.darkBackground,
-        onBackground: AppColors.darkTextPrimary,
         outline: AppColors.darkBorder,
       ),
       cardTheme: CardThemeData(
@@ -66,15 +64,15 @@ class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.darkSurface,
-        indicatorColor: AppColors.brandLight.withOpacity(0.2),
-        labelTextStyle: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        indicatorColor: AppColors.brandLight.withValues(alpha: 0.2),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return const TextStyle(color: AppColors.brandLight, fontWeight: FontWeight.bold, fontSize: 12);
           }
           return const TextStyle(color: AppColors.darkTextSecondary, fontSize: 12);
         }),
-        iconTheme: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return const IconThemeData(color: AppColors.brandLight);
           }
           return const IconThemeData(color: AppColors.darkTextSecondary);
@@ -93,14 +91,12 @@ class AppTheme {
         onPrimary: Colors.white,
         surface: AppColors.lightSurface,
         onSurface: AppColors.lightTextPrimary,
-        background: AppColors.lightBackground,
-        onBackground: AppColors.lightTextPrimary,
         outline: AppColors.lightBorder,
       ),
       cardTheme: CardThemeData(
         color: AppColors.lightCard,
         elevation: 1,
-        shadowColor: Colors.black.withOpacity(0.08),
+        shadowColor: Colors.black.withValues(alpha: 0.08),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
           side: const BorderSide(color: AppColors.lightBorder, width: 1),
@@ -147,15 +143,15 @@ class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.lightSurface,
-        indicatorColor: AppColors.brandPrimary.withOpacity(0.12),
-        labelTextStyle: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        indicatorColor: AppColors.brandPrimary.withValues(alpha: 0.12),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return const TextStyle(color: AppColors.brandPrimary, fontWeight: FontWeight.bold, fontSize: 12);
           }
           return const TextStyle(color: AppColors.lightTextSecondary, fontSize: 12);
         }),
-        iconTheme: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return const IconThemeData(color: AppColors.brandPrimary);
           }
           return const IconThemeData(color: AppColors.lightTextSecondary);
@@ -175,8 +171,6 @@ class AppTheme {
         onPrimary: Color(0xFF000000),
         surface: AppColors.oledSurface,
         onSurface: AppColors.oledTextPrimary,
-        background: AppColors.oledBackground,
-        onBackground: AppColors.oledTextPrimary,
         outline: AppColors.oledBorder,
       ),
       cardTheme: CardThemeData(
@@ -239,15 +233,15 @@ class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.oledSurface,
-        indicatorColor: AppColors.brandLight.withOpacity(0.25),
-        labelTextStyle: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        indicatorColor: AppColors.brandLight.withValues(alpha: 0.25),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return const TextStyle(color: AppColors.brandLight, fontWeight: FontWeight.bold, fontSize: 12);
           }
           return const TextStyle(color: AppColors.oledTextSecondary, fontSize: 12);
         }),
-        iconTheme: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return const IconThemeData(color: AppColors.brandLight);
           }
           return const IconThemeData(color: AppColors.oledTextSecondary);

@@ -129,7 +129,7 @@ class RecordDialog {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.03),
+                          color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.black.withValues(alpha: 0.03),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: AppColors.border(context)),
                         ),
@@ -148,7 +148,7 @@ class RecordDialog {
                             ),
                             const SizedBox(height: 8),
                             DropdownButtonFormField<String>(
-                              value: settlementType,
+                              initialValue: settlementType,
                               isDense: true,
                               decoration: const InputDecoration(
                                 contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),

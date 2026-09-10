@@ -73,7 +73,7 @@ class _CurrencyPickerSheetState extends State<CurrencyPickerSheet> {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 16,
             offset: const Offset(0, -4),
           ),
@@ -88,7 +88,7 @@ class _CurrencyPickerSheetState extends State<CurrencyPickerSheet> {
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.4),
+                color: Colors.grey.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -135,7 +135,7 @@ class _CurrencyPickerSheetState extends State<CurrencyPickerSheet> {
                   borderSide: BorderSide(color: AppColors.border(context)),
                 ),
                 filled: true,
-                fillColor: isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.03),
+                fillColor: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.black.withValues(alpha: 0.03),
               ),
             ),
           ),
@@ -177,8 +177,8 @@ class _CurrencyPickerSheetState extends State<CurrencyPickerSheet> {
                       return ListTile(
                         leading: CircleAvatar(
                           backgroundColor: isSelected
-                              ? Theme.of(context).colorScheme.primary.withOpacity(0.18)
-                              : (isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.04)),
+                              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.18)
+                              : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.04)),
                           child: Text(
                             item.flagEmoji,
                             style: const TextStyle(fontSize: 20),
@@ -206,7 +206,7 @@ class _CurrencyPickerSheetState extends State<CurrencyPickerSheet> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.04),
+                                  color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.04),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(

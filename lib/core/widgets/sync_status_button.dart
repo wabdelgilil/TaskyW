@@ -139,10 +139,10 @@ class _SyncStatusButtonState extends State<SyncStatusButton> with SingleTickerPr
                   ? const EdgeInsets.all(8)
                   : const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
+                color: color.withValues(alpha: 0.12),
                 shape: widget.compact ? BoxShape.circle : BoxShape.rectangle,
                 borderRadius: widget.compact ? null : BorderRadius.circular(20),
-                border: Border.all(color: color.withOpacity(0.3), width: 1),
+                border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
               ),
               child: widget.compact
                   ? iconWidget

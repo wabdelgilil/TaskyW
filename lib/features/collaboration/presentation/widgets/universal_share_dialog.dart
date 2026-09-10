@@ -265,7 +265,7 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: primaryColor.withOpacity(0.12),
+                      color: primaryColor.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(Icons.share_rounded, color: primaryColor, size: 22),
@@ -506,9 +506,9 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.orange.withOpacity(0.10),
+          color: Colors.orange.withValues(alpha: 0.10),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.orange.withOpacity(0.35)),
+          border: Border.all(color: Colors.orange.withValues(alpha: 0.35)),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -537,7 +537,7 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
         children: [
           CircleAvatar(
             radius: 16,
-            backgroundColor: primaryColor.withOpacity(0.15),
+            backgroundColor: primaryColor.withValues(alpha: 0.15),
             child: Text(
               (share.collaboratorEmail ?? 'U').substring(0, 1).toUpperCase(),
               style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 13),
@@ -613,10 +613,10 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: share.permissionLevel == 'admin'
-                    ? Colors.purple.withOpacity(0.12)
+                    ? Colors.purple.withValues(alpha: 0.12)
                     : (share.permissionLevel == 'editor'
-                        ? Colors.blue.withOpacity(0.12)
-                        : Colors.grey.withOpacity(0.12)),
+                        ? Colors.blue.withValues(alpha: 0.12)
+                        : Colors.grey.withValues(alpha: 0.12)),
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
                   color: share.permissionLevel == 'admin'
@@ -711,7 +711,7 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
               ),
               Switch(
                 value: hasLink,
-                activeColor: primaryColor,
+                activeThumbColor: primaryColor,
                 onChanged: canManage ? _togglePublicLink : null,
               ),
             ],
@@ -721,9 +721,9 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.10),
+                color: Colors.orange.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.orange.withOpacity(0.35)),
+                border: Border.all(color: Colors.orange.withValues(alpha: 0.35)),
               ),
               child: Row(
                 children: [
@@ -788,9 +788,9 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.08),
+                color: Colors.blue.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.blue.withOpacity(0.2)),
+                border: Border.all(color: Colors.blue.withValues(alpha: 0.2)),
               ),
               child: Row(
                 children: [
@@ -811,7 +811,7 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.link_off_rounded, size: 48, color: AppColors.textSecondary(context).withOpacity(0.5)),
+                    Icon(Icons.link_off_rounded, size: 48, color: AppColors.textSecondary(context).withValues(alpha: 0.5)),
                     const SizedBox(height: 12),
                     Text(
                       l10n.shareLinkDisabled,

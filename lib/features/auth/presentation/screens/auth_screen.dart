@@ -173,9 +173,9 @@ class _AuthScreenState extends State<AuthScreen> {
             width: 72,
             height: 72,
             decoration: BoxDecoration(
-              color: primaryColor.withOpacity(0.12),
+              color: primaryColor.withValues(alpha: 0.12),
               shape: BoxShape.circle,
-              border: Border.all(color: primaryColor.withOpacity(0.3), width: 2),
+              border: Border.all(color: primaryColor.withValues(alpha: 0.3), width: 2),
             ),
             child: Icon(
               Icons.mark_email_unread_outlined,
@@ -211,9 +211,9 @@ class _AuthScreenState extends State<AuthScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: isDark ? AppColors.surface(context) : Colors.blue.shade50.withOpacity(0.6),
+              color: isDark ? AppColors.surface(context) : Colors.blue.shade50.withValues(alpha: 0.6),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: primaryColor.withOpacity(0.25)),
+              border: Border.all(color: primaryColor.withValues(alpha: 0.25)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -241,9 +241,9 @@ class _AuthScreenState extends State<AuthScreen> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.amber.withOpacity(0.1),
+            color: Colors.amber.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.amber.withOpacity(0.35)),
+            border: Border.all(color: Colors.amber.withValues(alpha: 0.35)),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -270,9 +270,9 @@ class _AuthScreenState extends State<AuthScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.12),
+              color: Colors.green.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.green.withOpacity(0.3)),
+              border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
             ),
             child: Row(
               children: [
@@ -295,9 +295,9 @@ class _AuthScreenState extends State<AuthScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.12),
+              color: Colors.red.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.red.withOpacity(0.3)),
+              border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
             ),
             child: Row(
               children: [
@@ -382,7 +382,7 @@ class _AuthScreenState extends State<AuthScreen> {
               width: 64,
               height: 64,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.12),
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -426,9 +426,9 @@ class _AuthScreenState extends State<AuthScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.12),
+                color: Colors.green.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.green.withOpacity(0.3)),
+                border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [
@@ -451,9 +451,9 @@ class _AuthScreenState extends State<AuthScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.12),
+                color: Colors.red.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.red.withOpacity(0.3)),
+                border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -477,9 +477,9 @@ class _AuthScreenState extends State<AuthScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.amber.withOpacity(0.1),
+                color: Colors.amber.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.amber.withOpacity(0.35)),
+                border: Border.all(color: Colors.amber.withValues(alpha: 0.35)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,

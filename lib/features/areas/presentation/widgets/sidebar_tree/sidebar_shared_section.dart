@@ -122,10 +122,10 @@ class _SidebarSharedSectionState extends State<SidebarSharedSection> {
                         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                         decoration: BoxDecoration(
                           color: perm == 'admin'
-                              ? Colors.red.withOpacity(0.12)
+                              ? Colors.red.withValues(alpha: 0.12)
                               : perm == 'editor'
-                                  ? Colors.blue.withOpacity(0.12)
-                                  : Colors.grey.withOpacity(0.15),
+                                  ? Colors.blue.withValues(alpha: 0.12)
+                                  : Colors.grey.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(

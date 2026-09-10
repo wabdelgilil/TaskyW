@@ -141,15 +141,15 @@ class _KanbanColumn extends StatelessWidget {
     final label = StatusBadge.getStatusLabel(status, context.l10n);
 
     return DragTarget<TaskModel>(
-      onWillAccept: (data) => data != null && data.status != status,
-      onAccept: (data) => onTaskDropped(data),
+      onWillAcceptWithDetails: (details) => details.data.status != status,
+      onAcceptWithDetails: (details) => onTaskDropped(details.data),
       builder: (context, candidateData, rejectedData) {
         final isHovered = candidateData.isNotEmpty;
 
         return Container(
           decoration: BoxDecoration(
             color: isHovered
-                ? color.withOpacity(0.12)
+                ? color.withValues(alpha: 0.12)
                 : (AppColors.isOled(context)
                     ? AppColors.oledSurface
                     : (isDark ? AppColors.darkSurface : AppColors.lightSurfaceSubtle)),
@@ -189,7 +189,7 @@ class _KanbanColumn extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                       decoration: BoxDecoration(
-                        color: isDark ? Colors.black38 : Colors.black.withOpacity(0.06),
+                        color: isDark ? Colors.black38 : Colors.black.withValues(alpha: 0.06),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(

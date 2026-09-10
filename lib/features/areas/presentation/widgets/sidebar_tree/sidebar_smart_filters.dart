@@ -58,7 +58,7 @@ class SidebarFilterTile extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 1.5),
         decoration: BoxDecoration(
           color: isSelected
-              ? Theme.of(context).colorScheme.primary.withOpacity(0.18)
+              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.18)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
         ),
@@ -83,8 +83,8 @@ class SidebarFilterTile extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
-                      : (isDark ? Colors.black38 : Colors.black.withOpacity(0.06)),
+                      ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
+                      : (isDark ? Colors.black38 : Colors.black.withValues(alpha: 0.06)),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(

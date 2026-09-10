@@ -180,7 +180,7 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
             ? null
             : [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 8,
                   offset: const Offset(-2, 0),
                 ),

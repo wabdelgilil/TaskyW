@@ -28,7 +28,7 @@ class ProgressBarWidget extends StatelessWidget {
           Container(
             height: height,
             width: double.infinity,
-            color: effectiveColor.withOpacity(0.15),
+            color: effectiveColor.withValues(alpha: 0.15),
           ),
           AnimatedFractionallySizedBox(
             duration: const Duration(milliseconds: 300),

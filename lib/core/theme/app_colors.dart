@@ -205,6 +205,6 @@ class AppColors {
 
   /// تحويل كود Color إلى كود HEX
   static String toHex(Color color) {
-    return '#${color.value.toRadixString(16).substring(2).toUpperCase()}';
+    return '#${color.toARGB32().toRadixString(16).substring(2).toUpperCase()}';
   }
 }

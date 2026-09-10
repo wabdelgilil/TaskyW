@@ -178,7 +178,7 @@ class _TrashScreenState extends State<TrashScreen>
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.redAccent.withOpacity(0.12),
+              color: Colors.redAccent.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
@@ -257,7 +257,7 @@ class _TrashScreenState extends State<TrashScreen>
                   : null,
               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               filled: true,
-              fillColor: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.03),
+              fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide.none,

@@ -66,15 +66,15 @@ class TaskCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       clipBehavior: Clip.antiAlias,
       elevation: isDark ? 0 : 1,
-      shadowColor: Colors.black.withOpacity(0.08),
+      shadowColor: Colors.black.withValues(alpha: 0.08),
       color: customColor != null
-          ? (isDark ? customColor.withOpacity(0.14) : customColor.withOpacity(0.08))
+          ? (isDark ? customColor.withValues(alpha: 0.14) : customColor.withValues(alpha: 0.08))
           : null,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
           color: customColor != null
-              ? (isDark ? customColor.withOpacity(0.65) : customColor.withOpacity(0.50))
+              ? (isDark ? customColor.withValues(alpha: 0.65) : customColor.withValues(alpha: 0.50))
               : AppColors.border(context),
           width: customColor != null ? 1.5 : 1,
         ),
@@ -171,7 +171,7 @@ class TaskCard extends StatelessWidget {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                                 decoration: BoxDecoration(
-                                  color: isDark ? Colors.black26 : Colors.black.withOpacity(0.04),
+                                  color: isDark ? Colors.black26 : Colors.black.withValues(alpha: 0.04),
                                   borderRadius: BorderRadius.circular(6),
                                   border: Border.all(
                                     color: AppColors.border(context),
@@ -208,10 +208,10 @@ class TaskCard extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                                 decoration: BoxDecoration(
                                   color: isOverdue
-                                      ? AppColors.priorityUrgent.withOpacity(0.15)
+                                      ? AppColors.priorityUrgent.withValues(alpha: 0.15)
                                       : (isDueToday
-                                          ? AppColors.statusInProgress.withOpacity(0.15)
-                                          : (isDark ? Colors.black26 : Colors.black.withOpacity(0.04))),
+                                          ? AppColors.statusInProgress.withValues(alpha: 0.15)
+                                          : (isDark ? Colors.black26 : Colors.black.withValues(alpha: 0.04))),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Row(
@@ -248,11 +248,11 @@ class TaskCard extends StatelessWidget {
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                                   decoration: BoxDecoration(
                                     color: badgeColor != null
-                                        ? badgeColor.withOpacity(isDark ? 0.22 : 0.12)
-                                        : (isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.04)),
+                                        ? badgeColor.withValues(alpha: isDark ? 0.22 : 0.12)
+                                        : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.04)),
                                     borderRadius: BorderRadius.circular(6),
                                     border: badgeColor != null
-                                        ? Border.all(color: badgeColor.withOpacity(isDark ? 0.6 : 0.45), width: 0.9)
+                                        ? Border.all(color: badgeColor.withValues(alpha: isDark ? 0.6 : 0.45), width: 0.9)
                                         : null,
                                   ),
                                   child: Row(
@@ -292,10 +292,10 @@ class TaskCard extends StatelessWidget {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                                   decoration: BoxDecoration(
-                                    color: isDark ? const Color(0xFF8B5CF6).withOpacity(0.2) : const Color(0xFF8B5CF6).withOpacity(0.1),
+                                    color: isDark ? const Color(0xFF8B5CF6).withValues(alpha: 0.2) : const Color(0xFF8B5CF6).withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(6),
                                     border: Border.all(
-                                      color: isDark ? const Color(0xFFA78BFA).withOpacity(0.4) : const Color(0xFF7C3AED).withOpacity(0.3),
+                                      color: isDark ? const Color(0xFFA78BFA).withValues(alpha: 0.4) : const Color(0xFF7C3AED).withValues(alpha: 0.3),
                                     ),
                                   ),
                                   child: Row(
@@ -324,10 +324,10 @@ class TaskCard extends StatelessWidget {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
                                   decoration: BoxDecoration(
-                                    color: AppColors.fromHex(tag.colorHex).withOpacity(isDark ? 0.22 : 0.12),
+                                    color: AppColors.fromHex(tag.colorHex).withValues(alpha: isDark ? 0.22 : 0.12),
                                     borderRadius: BorderRadius.circular(6),
                                     border: Border.all(
-                                      color: AppColors.fromHex(tag.colorHex).withOpacity(isDark ? 0.6 : 0.4),
+                                      color: AppColors.fromHex(tag.colorHex).withValues(alpha: isDark ? 0.6 : 0.4),
                                       width: 0.9,
                                     ),
                                   ),

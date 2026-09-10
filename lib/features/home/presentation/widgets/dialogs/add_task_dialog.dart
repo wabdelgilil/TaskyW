@@ -127,7 +127,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
               children: [
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: _status,
+                    initialValue: _status,
                     decoration: InputDecoration(labelText: l10n.statusLabel),
                     items: [
                       DropdownMenuItem(value: 'todo', child: Text(l10n.statusWaiting)),
@@ -144,7 +144,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: _priority,
+                    initialValue: _priority,
                     decoration: InputDecoration(labelText: l10n.priorityLabel),
                     items: [
                       DropdownMenuItem(value: 'low', child: Text(l10n.priorityLow)),
@@ -164,7 +164,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
               children: [
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: _areaId,
+                    initialValue: _areaId,
                     decoration: InputDecoration(labelText: l10n.areaLabel),
                     items: widget.areas.map((a) {
                       return DropdownMenuItem(value: a.id, child: Text('${a.iconEmoji} ${a.name}'));
@@ -182,7 +182,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: DropdownButtonFormField<String?>(
-                    value: _projectId,
+                    initialValue: _projectId,
                     decoration: InputDecoration(labelText: l10n.projectLabel),
                     items: [
                       DropdownMenuItem(value: null, child: Text(l10n.noProject)),

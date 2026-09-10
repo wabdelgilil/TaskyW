@@ -73,10 +73,10 @@ class SidebarTagsSection extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                 margin: const EdgeInsets.symmetric(vertical: 1.5),
                 decoration: BoxDecoration(
-                  color: isSelected ? tagColor.withOpacity(0.18) : Colors.transparent,
+                  color: isSelected ? tagColor.withValues(alpha: 0.18) : Colors.transparent,
                   borderRadius: BorderRadius.circular(6),
                   border: isSelected
-                      ? Border.all(color: tagColor.withOpacity(0.5), width: 1)
+                      ? Border.all(color: tagColor.withValues(alpha: 0.5), width: 1)
                       : null,
                 ),
                 child: Row(
@@ -105,7 +105,7 @@ class SidebarTagsSection extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                         decoration: BoxDecoration(
-                          color: isDark ? Colors.black38 : Colors.black.withOpacity(0.06),
+                          color: isDark ? Colors.black38 : Colors.black.withValues(alpha: 0.06),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(

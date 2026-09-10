@@ -125,7 +125,7 @@ class _ArchiveScreenState extends State<ArchiveScreen>
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: (isDark ? const Color(0xFF818CF8) : const Color(0xFF6366F1))
-                  .withOpacity(0.15),
+                  .withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -193,7 +193,7 @@ class _ArchiveScreenState extends State<ArchiveScreen>
                   : null,
               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               filled: true,
-              fillColor: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.03),
+              fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide.none,

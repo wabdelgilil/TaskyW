@@ -254,7 +254,7 @@ class _TaskAttachmentsSectionState extends State<TaskAttachmentsSection> {
       margin: const EdgeInsets.symmetric(vertical: 4),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.03),
+        color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: AppColors.border(context)),
       ),

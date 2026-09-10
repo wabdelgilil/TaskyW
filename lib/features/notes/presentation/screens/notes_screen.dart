@@ -229,8 +229,8 @@ class _NotesScreenState extends State<NotesScreen> {
                     isDense: true,
                     filled: true,
                     fillColor: isDark
-                        ? Colors.white.withOpacity(0.05)
-                        : Colors.black.withOpacity(0.03),
+                        ? Colors.white.withValues(alpha: 0.05)
+                        : Colors.black.withValues(alpha: 0.03),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(color: AppColors.border(context)),
@@ -375,7 +375,7 @@ class _NoteCard extends StatelessWidget {
         : (isDark ? const Color(0xFF1E293B) : const Color(0xFFFFF8E1));
 
     return Material(
-      color: baseColor.withOpacity(isDark ? 0.22 : 0.9),
+      color: baseColor.withValues(alpha: isDark ? 0.22 : 0.9),
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: onEdit,

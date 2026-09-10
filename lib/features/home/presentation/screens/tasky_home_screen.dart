@@ -144,6 +144,7 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
   Future<void> _handleSilentSync() async {
     try {
       SyncController.instance.startSyncing();
+      final syncFailMsg = context.l10n.syncAutoFail;
       final result = await SyncService.instance.syncNow();
       if (result.authenticated) {
         if (result.success) {
@@ -152,7 +153,7 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
             await _reloadLocalDataOnly();
           }
         } else {
-          SyncController.instance.setError(result.message ?? context.l10n.syncAutoFail);
+          SyncController.instance.setError(result.message ?? syncFailMsg);
         }
       } else {
         _updatePendingSyncStatus();
@@ -179,16 +180,18 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
   Future<void> _handleSyncRequested() async {
     _autoSyncTimer?.cancel();
     SyncController.instance.startSyncing();
+    final syncPartialFailMsg = context.l10n.syncPartialFail;
+    final syncLoginRequiredMsg = context.l10n.syncLoginRequired;
     final result = await SyncService.instance.syncNow();
     if (result.authenticated) {
       if (result.success) {
         SyncController.instance.setSynced();
       } else {
-        SyncController.instance.setError(result.message ?? context.l10n.syncPartialFail);
+        SyncController.instance.setError(result.message ?? syncPartialFailMsg);
       }
       await _reloadLocalDataOnly();
     } else {
-      SyncController.instance.setError(result.message ?? context.l10n.syncLoginRequired);
+      SyncController.instance.setError(result.message ?? syncLoginRequiredMsg);
     }
   }
 

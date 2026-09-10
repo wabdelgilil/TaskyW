@@ -108,12 +108,12 @@ class _FinancialLogScreenState extends State<FinancialLogScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.12),
+                            color: Colors.orange.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
                               color: _controller.activeFilter == 'pending_invoices'
                                   ? Colors.orange
-                                  : Colors.orange.withOpacity(0.3),
+                                  : Colors.orange.withValues(alpha: 0.3),
                               width: _controller.activeFilter == 'pending_invoices' ? 1.5 : 1,
                             ),
                           ),
@@ -145,10 +145,10 @@ class _FinancialLogScreenState extends State<FinancialLogScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
-                          color: (netBalance >= 0 ? Colors.green : Colors.redAccent).withOpacity(0.12),
+                          color: (netBalance >= 0 ? Colors.green : Colors.redAccent).withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: (netBalance >= 0 ? Colors.green : Colors.redAccent).withOpacity(0.3),
+                            color: (netBalance >= 0 ? Colors.green : Colors.redAccent).withValues(alpha: 0.3),
                           ),
                         ),
                         child: Row(

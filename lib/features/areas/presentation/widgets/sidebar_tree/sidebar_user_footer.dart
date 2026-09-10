@@ -20,7 +20,7 @@ class SidebarUserFooter extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: isDark ? Colors.black12 : Colors.grey.withOpacity(0.05),
+        color: isDark ? Colors.black12 : Colors.grey.withValues(alpha: 0.05),
       ),
       child: Column(
         children: [
@@ -114,7 +114,7 @@ class SidebarUserFooter extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                   margin: const EdgeInsets.only(bottom: 6),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -186,7 +186,7 @@ class SidebarUserFooter extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: themeColor.withOpacity(0.12),
+                          color: themeColor.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(

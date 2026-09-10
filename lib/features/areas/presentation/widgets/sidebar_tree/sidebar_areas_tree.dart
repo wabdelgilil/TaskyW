@@ -102,7 +102,7 @@ class _SidebarAreasTreeState extends State<SidebarAreasTree> {
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
                   decoration: BoxDecoration(
                     color: isAreaSelected
-                        ? areaColor.withOpacity(0.18)
+                        ? areaColor.withValues(alpha: 0.18)
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -141,7 +141,7 @@ class _SidebarAreasTreeState extends State<SidebarAreasTree> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: isDark ? Colors.black38 : Colors.black.withOpacity(0.06),
+                            color: isDark ? Colors.black38 : Colors.black.withValues(alpha: 0.06),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
@@ -179,7 +179,7 @@ class _SidebarAreasTreeState extends State<SidebarAreasTree> {
                             margin: const EdgeInsets.symmetric(vertical: 1),
                             decoration: BoxDecoration(
                               color: isProjSelected
-                                  ? projColor.withOpacity(0.18)
+                                  ? projColor.withValues(alpha: 0.18)
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(6),
                             ),

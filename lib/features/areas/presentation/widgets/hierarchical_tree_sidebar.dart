@@ -104,7 +104,7 @@ class HierarchicalTreeSidebar extends StatelessWidget {
             ? null
             : [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.025),
+                  color: Colors.black.withValues(alpha: 0.025),
                   blurRadius: 6,
                   offset: const Offset(1, 0),
                 ),

@@ -70,8 +70,8 @@ class _QuickAddTaskBarState extends State<QuickAddTaskBar> {
                 ),
                 filled: true,
                 fillColor: isDark
-                    ? Colors.white.withOpacity(0.04)
-                    : Colors.black.withOpacity(0.02),
+                    ? Colors.white.withValues(alpha: 0.04)
+                    : Colors.black.withValues(alpha: 0.02),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),

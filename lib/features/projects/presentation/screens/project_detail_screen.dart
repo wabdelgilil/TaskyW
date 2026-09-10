@@ -87,7 +87,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: pColor.withOpacity(0.15),
+                            color: pColor.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(color: pColor),
                           ),
@@ -106,7 +106,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                            border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
                           ),
                           child: Row(
                             children: [
@@ -132,7 +132,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                   ),
                   const SizedBox(height: 14),
                   DropdownButtonFormField<String>(
-                    value: status,
+                    initialValue: status,
                     decoration: InputDecoration(labelText: context.l10n.projectStatus),
                     items: [
                       DropdownMenuItem(value: 'active', child: Text(context.l10n.projectStatusActive)),
@@ -203,7 +203,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                   ? null
                   : [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.03),
+                        color: Colors.black.withValues(alpha: 0.03),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -220,9 +220,9 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                       height: 52,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: projectColor.withOpacity(0.18),
+                        color: projectColor.withValues(alpha: 0.18),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: projectColor.withOpacity(0.5)),
+                        border: Border.all(color: projectColor.withValues(alpha: 0.5)),
                       ),
                       child: Text(widget.project.iconEmoji, style: const TextStyle(fontSize: 28)),
                     ),
@@ -241,7 +241,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                 decoration: BoxDecoration(
-                                  color: projectColor.withOpacity(0.15),
+                                  color: projectColor.withValues(alpha: 0.15),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
@@ -378,9 +378,9 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: AppColors.priorityUrgent.withOpacity(0.12),
+                          color: AppColors.priorityUrgent.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: AppColors.priorityUrgent.withOpacity(0.4)),
+                          border: Border.all(color: AppColors.priorityUrgent.withValues(alpha: 0.4)),
                         ),
                         child: Row(
                           children: [

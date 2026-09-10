@@ -164,8 +164,8 @@ class _TaskListViewState extends State<TaskListView> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: isDark
-                  ? Colors.white.withOpacity(0.05)
-                  : Colors.black.withOpacity(0.03),
+                  ? Colors.white.withValues(alpha: 0.05)
+                  : Colors.black.withValues(alpha: 0.03),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: AppColors.border(context)),
             ),
@@ -236,7 +236,7 @@ class _TaskListViewState extends State<TaskListView> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
                 decoration: BoxDecoration(
-                  color: isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.05),
+                  color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
@@ -270,9 +270,9 @@ class _TaskListViewState extends State<TaskListView> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: color.withOpacity(isDark ? 0.12 : 0.08),
+          color: color.withValues(alpha: isDark ? 0.12 : 0.08),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color.withOpacity(isDark ? 0.35 : 0.25)),
+          border: Border.all(color: color.withValues(alpha: isDark ? 0.35 : 0.25)),
         ),
         child: Row(
           children: [
@@ -301,7 +301,7 @@ class _TaskListViewState extends State<TaskListView> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.18),
+                color: color.withValues(alpha: 0.18),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
@@ -333,7 +333,7 @@ class _TaskListViewState extends State<TaskListView> {
               width: 72,
               height: 72,
               decoration: BoxDecoration(
-                color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.03),
+                color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -511,10 +511,10 @@ class _TaskListViewState extends State<TaskListView> {
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
-              color: completedColor.withOpacity(isDark ? 0.12 : 0.08),
+              color: completedColor.withValues(alpha: isDark ? 0.12 : 0.08),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: completedColor.withOpacity(isDark ? 0.35 : 0.25),
+                color: completedColor.withValues(alpha: isDark ? 0.35 : 0.25),
               ),
             ),
             child: Row(
@@ -539,7 +539,7 @@ class _TaskListViewState extends State<TaskListView> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: completedColor.withOpacity(0.18),
+                    color: completedColor.withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(

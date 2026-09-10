@@ -82,7 +82,7 @@ class AreaDetailScreen extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: aColor.withOpacity(0.15),
+                            color: aColor.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(color: aColor),
                           ),
@@ -100,7 +100,7 @@ class AreaDetailScreen extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                            border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
                           ),
                           child: Row(
                             children: [
@@ -168,7 +168,7 @@ class AreaDetailScreen extends StatelessWidget {
                   ? null
                   : [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
+                        color: Colors.black.withValues(alpha: 0.04),
                         blurRadius: 6,
                         offset: const Offset(0, 2),
                       ),
@@ -184,9 +184,9 @@ class AreaDetailScreen extends StatelessWidget {
                       height: 56,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: areaColor.withOpacity(0.18),
+                        color: areaColor.withValues(alpha: 0.18),
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: areaColor.withOpacity(0.5)),
+                        border: Border.all(color: areaColor.withValues(alpha: 0.5)),
                       ),
                       child: Text(area.iconEmoji, style: const TextStyle(fontSize: 30)),
                     ),
@@ -294,7 +294,7 @@ class AreaDetailScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: areaColor.withOpacity(0.15),
+                      color: areaColor.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
@@ -323,7 +323,7 @@ class AreaDetailScreen extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: isDark ? Colors.white.withOpacity(0.02) : Colors.black.withOpacity(0.02),
+                color: isDark ? Colors.white.withValues(alpha: 0.02) : Colors.black.withValues(alpha: 0.02),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.border(context)),
               ),
@@ -353,7 +353,7 @@ class AreaDetailScreen extends StatelessWidget {
                           ? null
                           : [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.04),
+                                color: Colors.black.withValues(alpha: 0.04),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
@@ -405,7 +405,7 @@ class AreaDetailScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: Colors.grey.withOpacity(0.15),
+                      color: Colors.grey.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
@@ -430,7 +430,7 @@ class AreaDetailScreen extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: isDark ? Colors.white.withOpacity(0.02) : Colors.black.withOpacity(0.02),
+                color: isDark ? Colors.white.withValues(alpha: 0.02) : Colors.black.withValues(alpha: 0.02),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.border(context)),
               ),

@@ -171,7 +171,7 @@ void main() {
 
     expect(find.text('ملاحظة الحذف'), findsWidgets);
 
-    await tester.tap(find.text('نعم، احذف'));
+    await tester.tap(find.text('نعم، حذف'));
     await tester.pumpAndSettle();
 
     expect(find.text('ملاحظة الحذف'), findsNothing);

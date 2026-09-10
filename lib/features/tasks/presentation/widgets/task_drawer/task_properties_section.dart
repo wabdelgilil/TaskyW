@@ -258,7 +258,7 @@ class TaskPropertiesSection extends StatelessWidget {
                   children: [
                     Switch.adaptive(
                       value: isRecurring,
-                      activeColor: const Color(0xFF8B5CF6),
+                      activeThumbColor: const Color(0xFF8B5CF6),
                       onChanged: (val) => onIsRecurringChanged(val),
                     ),
                     const SizedBox(width: 6),

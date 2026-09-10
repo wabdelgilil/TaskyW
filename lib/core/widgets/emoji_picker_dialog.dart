@@ -146,9 +146,9 @@ class _EmojiPickerDialogState extends State<EmojiPickerDialog> {
             height: 44,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.12),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.3)),
+              border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
             ),
             child: Text(
               _selectedEmoji.isNotEmpty ? _selectedEmoji : '❓',
@@ -181,7 +181,7 @@ class _EmojiPickerDialogState extends State<EmojiPickerDialog> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isDark ? Colors.black26 : Colors.grey.withOpacity(0.06),
+                color: isDark ? Colors.black26 : Colors.grey.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: _parseError != null
@@ -305,7 +305,7 @@ class _EmojiPickerDialogState extends State<EmojiPickerDialog> {
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+                                    ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(

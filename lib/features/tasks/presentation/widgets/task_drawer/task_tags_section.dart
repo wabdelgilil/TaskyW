@@ -52,7 +52,7 @@ class TaskTagsSection extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
             decoration: BoxDecoration(
-              color: isDark ? Colors.white.withOpacity(0.03) : Colors.black.withOpacity(0.02),
+              color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.black.withValues(alpha: 0.02),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: AppColors.border(context), width: 0.8),
             ),
@@ -72,9 +72,9 @@ class TaskTagsSection extends StatelessWidget {
               return Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: rawColor.withOpacity(isDark ? 0.22 : 0.12),
+                  color: rawColor.withValues(alpha: isDark ? 0.22 : 0.12),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: rawColor.withOpacity(isDark ? 0.6 : 0.4), width: 1),
+                  border: Border.all(color: rawColor.withValues(alpha: isDark ? 0.6 : 0.4), width: 1),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -99,7 +99,7 @@ class TaskTagsSection extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                       child: Padding(
                         padding: const EdgeInsets.all(2),
-                        child: Icon(Icons.close, size: 14, color: tagColor.withOpacity(0.8)),
+                        child: Icon(Icons.close, size: 14, color: tagColor.withValues(alpha: 0.8)),
                       ),
                     ),
                   ],
@@ -175,8 +175,8 @@ class TaskTagsSection extends StatelessWidget {
                             decoration: BoxDecoration(color: rawColor, shape: BoxShape.circle),
                           ),
                           label: Text(tag.name, style: TextStyle(fontSize: 12, color: tagColor, fontWeight: FontWeight.w600)),
-                          backgroundColor: rawColor.withOpacity(isDark ? 0.2 : 0.1),
-                          side: BorderSide(color: rawColor.withOpacity(0.4)),
+                          backgroundColor: rawColor.withValues(alpha: isDark ? 0.2 : 0.1),
+                          side: BorderSide(color: rawColor.withValues(alpha: 0.4)),
                           onPressed: () {
                             onAssignTag?.call(tag);
                             Navigator.pop(ctx);
@@ -222,7 +222,7 @@ class TaskTagsSection extends StatelessWidget {
                                     shape: BoxShape.circle,
                                     border: isPicked ? Border.all(color: Colors.white, width: 2) : null,
                                     boxShadow: isPicked
-                                        ? [BoxShadow(color: c.withOpacity(0.6), blurRadius: 4, spreadRadius: 1)]
+                                        ? [BoxShadow(color: c.withValues(alpha: 0.6), blurRadius: 4, spreadRadius: 1)]
                                         : null,
                                   ),
                                 ),

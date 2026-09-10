@@ -53,3 +53,11 @@ supabase/.temp/
 
 # Screenshots from local playwright tests
 test_playwright.png
+
+# Environment variables & secrets
+.env
+.env.*
+*.pem
+*.key
+*.secret
+*.credentials

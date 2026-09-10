@@ -361,8 +361,8 @@ class _ChoiceCard extends StatelessWidget {
     return Expanded(
       child: Material(
         color: selected
-            ? AppColors.statusInProgress.withOpacity(isDark ? 0.2 : 0.12)
-            : (isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.03)),
+            ? AppColors.statusInProgress.withValues(alpha: isDark ? 0.2 : 0.12)
+            : (isDark ? Colors.white.withValues(alpha: 0.04) : Colors.black.withValues(alpha: 0.03)),
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           borderRadius: BorderRadius.circular(10),

@@ -52,7 +52,7 @@ class ConfirmDeleteDialog extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppColors.priorityUrgent.withOpacity(0.12),
+              color: AppColors.priorityUrgent.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: const Icon(

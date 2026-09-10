@@ -103,7 +103,7 @@ class _ColorPickerDialogState extends State<ColorPickerDialog> {
                         width: isSelected ? 3 : 1,
                       ),
                       boxShadow: isSelected
-                          ? [BoxShadow(color: color.withOpacity(0.5), blurRadius: 8, spreadRadius: 1)]
+                          ? [BoxShadow(color: color.withValues(alpha: 0.5), blurRadius: 8, spreadRadius: 1)]
                           : null,
                     ),
                     child: isSelected

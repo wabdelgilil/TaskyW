@@ -1,10 +1,17 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// كلاس مركزي لإدارة وتهيئة خدمة Supabase لمشروع Tasky
 class SupabaseService {
   static const String projectUrl = 'https://yjcpevqahefzcpbvajcq.supabase.co';
-  static const String anonKey = 'sb_publishable_uSsp_QE2JldkFTNiU2O28w_Fz1y7HEA';
+  static String get publishableKey {
+    try {
+      return dotenv.env['SUPABASE_ANON_KEY'] ?? '';
+    } catch (_) {
+      return '';
+    }
+  }
 
   static bool _isInitialized = false;
 
@@ -13,9 +20,9 @@ class SupabaseService {
     if (_isInitialized) return;
 
     try {
-      await Supabase.initialize(
+await Supabase.initialize(
         url: projectUrl,
-        anonKey: anonKey,
+        publishableKey: publishableKey,
         debug: kDebugMode,
       );
       _isInitialized = true;
