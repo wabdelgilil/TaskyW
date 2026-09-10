@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/core/theme/app_colors.dart';
 import 'package:tasky/features/settings/presentation/controllers/settings_controller.dart';
 import 'package:tasky/features/settings/data/models/app_settings_model.dart';
@@ -6,27 +7,77 @@ import 'package:tasky/core/services/notification_service.dart';
 import 'package:tasky/core/constants/app_version.dart';
 import 'package:tasky/features/auth/presentation/controllers/auth_controller.dart';
 
-/// شاشة الإعدادات العامة للتطبيق
+/// شاشة الإعدادات العامة للتطبيق (مع دعم اللغة الرسمي عبر `context.l10n`).
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final settings = SettingsController.instance;
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('الإعدادات'),
+        title: Text(l10n.commonSettings),
       ),
       body: AnimatedBuilder(
         animation: settings,
         builder: (context, _) {
+          final l10n = context.l10n;
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              // ===== قسم اللغة والمنطقة =====
+              _SectionHeader(
+                title: l10n.sectionLanguage,
+                icon: Icons.translate,
+                color: const Color(0xFF8B5CF6),
+              ),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(l10n.settingsLanguage),
+                        subtitle: Text(l10n.settingsLanguageDesc),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          _ChoiceCard(
+                            label: l10n.settingsLanguageSystemShort,
+                            icon: Icons.language_outlined,
+                            selected: settings.languageCode == 'system',
+                            onTap: () => settings.updateLanguage('system'),
+                          ),
+                          const SizedBox(width: 8),
+                          _ChoiceCard(
+                            label: l10n.languageArabic,
+                            icon: Icons.translate,
+                            selected: settings.languageCode == 'ar',
+                            onTap: () => settings.updateLanguage('ar'),
+                          ),
+                          const SizedBox(width: 8),
+                          _ChoiceCard(
+                            label: l10n.languageEnglish,
+                            icon: Icons.text_fields,
+                            selected: settings.languageCode == 'en',
+                            onTap: () => settings.updateLanguage('en'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
               // ===== قسم الإشعارات =====
               _SectionHeader(
-                title: 'الإشعارات والتنبيهات',
+                title: l10n.sectionNotifications,
                 icon: Icons.notifications_active_outlined,
                 color: AppColors.statusInProgress,
               ),
@@ -37,41 +88,47 @@ class SettingsScreen extends StatelessWidget {
                     children: [
                       SwitchListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('إشعارات التطبيق'),
-                        subtitle: const Text('تشغيل أو إيقاف كل التنبيهات المحلية (تذكيرات المهام)'),
+                        title: Text(l10n.settingsNotifications),
+                        subtitle: Text(l10n.settingsNotificationsDesc),
                         value: settings.notificationsEnabled,
                         onChanged: (val) => settings.setNotificationsEnabled(val),
                       ),
                       const Divider(),
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('وقت التذكير الافتراضي'),
-                        subtitle: Text('${settings.defaultReminderMinutes} دقيقة قبل الموعد'),
+                        title: Text(l10n.settingsReminderTime),
+                        subtitle: Text(
+                          l10n.settingsReminderMinutes(settings.defaultReminderMinutes),
+                        ),
                         trailing: PopupMenuButton<int>(
                           onSelected: (val) => settings.setDefaultReminderMinutes(val),
                           itemBuilder: (_) => [5, 15, 30, 60, 120].map((m) =>
-                            PopupMenuItem(value: m, child: Text('$m دقيقة')),
+                            PopupMenuItem(value: m, child: Text('$m')),
                           ).toList(),
                         ),
                       ),
                       const Divider(),
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('طلب صلاحية التنبيهات'),
-                        subtitle: const Text('تأكيد صلاحية التنبيهات على الأندرويد/IOS'),
+                        title: Text(l10n.settingsRequestPermission),
+                        subtitle: Text(l10n.settingsRequestPermissionDesc),
                         trailing: ElevatedButton.icon(
                           onPressed: () async {
                             final granted = await NotificationService.instance.requestPermissions();
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(
-                                  granted ? 'تم تفعيل صلاحية التنبيهات بنجاح' : 'تم رفض طلب الصلاحية',
-                                )),
+                                SnackBar(
+                                  content: Text(
+                                    granted
+                                        ? l10n.settingsPermissionGranted
+                                        : l10n.settingsPermissionDenied,
+                                  ),
+                                ),
                               );
                             }
                           },
                           icon: const Icon(Icons.security, size: 18),
-                          label: const Text('تفعيل'),
+                          label: Text(l10n.settingsEnable),
                         ),
                       ),
                     ],
@@ -82,7 +139,7 @@ class SettingsScreen extends StatelessWidget {
 
               // ===== قسم المالية والعملات =====
               _SectionHeader(
-                title: 'المالية والعملات',
+                title: l10n.sectionFinance,
                 icon: Icons.account_balance_wallet_outlined,
                 color: const Color(0xFFF59E0B),
               ),
@@ -93,8 +150,8 @@ class SettingsScreen extends StatelessWidget {
                     children: [
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('العملة الافتراضية'),
-                        subtitle: Text('العملة المستخدمة في السجلات المالية الجديدة: ${settings.defaultCurrency}'),
+                        title: Text(l10n.settingsCurrency),
+                        subtitle: Text(l10n.settingsCurrencyDesc(settings.defaultCurrency)),
                         trailing: PopupMenuButton<String>(
                           initialValue: settings.defaultCurrency,
                           onSelected: (val) => settings.setDefaultCurrency(val),
@@ -111,7 +168,7 @@ class SettingsScreen extends StatelessWidget {
 
               // ===== قسم المظهر والثيم =====
               _SectionHeader(
-                title: 'المظهر والثيم',
+                title: l10n.sectionAppearance,
                 icon: Icons.palette_outlined,
                 color: AppColors.statusCompleted,
               ),
@@ -122,32 +179,34 @@ class SettingsScreen extends StatelessWidget {
                     children: [
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('وضع المظهر'),
-                        subtitle: Text(settings.effectiveThemeMode == 'light'
-                            ? 'الوضع النهاري (Light)'
-                            : (settings.effectiveThemeMode == 'dark'
-                                ? 'الوضع الليلي (Dark)'
-                                : 'السواد العميق (OLED)')),
+                        title: Text(l10n.themeModeLabel),
+                        subtitle: Text(
+                          settings.effectiveThemeMode == 'light'
+                              ? l10n.themeLightFull
+                              : (settings.effectiveThemeMode == 'dark'
+                                  ? l10n.themeDarkFull
+                                  : l10n.themeOledFull),
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          _ThemeChoice(
-                            label: 'نهاري',
+                          _ChoiceCard(
+                            label: l10n.themeLight,
                             icon: Icons.light_mode_outlined,
                             selected: settings.effectiveThemeMode == 'light',
                             onTap: () => settings.setThemeMode('light'),
                           ),
                           const SizedBox(width: 8),
-                          _ThemeChoice(
-                            label: 'ليلي',
+                          _ChoiceCard(
+                            label: l10n.themeDark,
                             icon: Icons.dark_mode_outlined,
                             selected: settings.effectiveThemeMode == 'dark',
                             onTap: () => settings.setThemeMode('dark'),
                           ),
                           const SizedBox(width: 8),
-                          _ThemeChoice(
-                            label: 'OLED',
+                          _ChoiceCard(
+                            label: l10n.themeOled,
                             icon: Icons.brightness_7,
                             selected: settings.effectiveThemeMode == 'oled',
                             onTap: () => settings.setThemeMode('oled'),
@@ -162,7 +221,7 @@ class SettingsScreen extends StatelessWidget {
 
               // ===== قسم البيانات حول التطبيق =====
               _SectionHeader(
-                title: 'بيانات التطبيق',
+                title: l10n.sectionData,
                 icon: Icons.info_outline,
                 color: AppColors.textMuted(context),
               ),
@@ -174,17 +233,20 @@ class SettingsScreen extends StatelessWidget {
                     children: [
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('إصدار التطبيق'),
-                        subtitle: Text('الإصدار ${AppVersion.shortVersion}'),
+                        title: Text(l10n.appVersion),
+                        subtitle: Text(
+                          l10n.versionLabel(AppVersion.shortVersion),
+                        ),
                       ),
                       const Divider(),
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('حالة الحساب'),
+                        title: Text(l10n.accountStatus),
                         subtitle: Text(
                           AuthController.instance.isAuthenticated
-                              ? 'مسجل الدخول: ${AuthController.instance.userEmail ?? 'مستخدم'}'
-                              : 'غير مسجل الدخول',
+                              ? l10n.signedInAs(
+                                  AuthController.instance.userEmail ?? 'user')
+                              : l10n.signedOut,
                         ),
                       ),
                     ],
@@ -233,13 +295,13 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-class _ThemeChoice extends StatelessWidget {
+class _ChoiceCard extends StatelessWidget {
   final String label;
   final IconData icon;
   final bool selected;
   final VoidCallback onTap;
 
-  const _ThemeChoice({
+  const _ChoiceCard({
     required this.label,
     required this.icon,
     required this.selected,
@@ -261,7 +323,7 @@ class _ThemeChoice extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           onTap: onTap,
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
@@ -271,12 +333,15 @@ class _ThemeChoice extends StatelessWidget {
             ),
             child: Column(
               children: [
-                Icon(icon, size: 22, color: color),
+                Icon(icon, size: 20, color: color),
                 const SizedBox(height: 4),
                 Text(
                   label,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: color,
                   ),

@@ -2,6 +2,21 @@
 
 ## سجل الإنجازات والمهام المكتملة
 
+### [2026-09-10] - النظام الرسمي للترجمة والتعريب (Flutter Official ARB / l10n) — الإصدار 3.0.0+1
+- **البنية التحتية الرسمية (Official l10n Infrastructure)**:
+  - إضافة `flutter_localizations` (sdk) + `intl: any` + تفعيل `generate: true` في `pubspec.yaml` وإنشاء ملف الإعداد `l10n.yaml` (قالب `app_ar.arb` + قاموس `app_en.arb` + `nullable-getter: false`).
+  - إنشاء القواميس الرسمية `lib/l10n/app_ar.arb` و `lib/l10n/app_en.arb` بدعم الـ Placeholders المعرّفة (`taskCountRemaining`, `welcomeUser`, `settingsReminderMinutes`, `settingsCurrencyDesc`, `versionLabel`, `signedInAs`) مع تعريفات `@key` الكاملة ونوع كل متغير.
+  - توليد كود `AppLocalizations` عبر `flutter gen-l10n` بنجاح والمخرجات في `lib/l10n/app_localizations.dart`.
+- **طبقة البيانات والإعدادات (Data & Settings Layer)**:
+  - إضافة `languageCode` (الافتراضي `'system'`) إلى `AppSettingsModel` مع `supportedLanguages = ['system', 'ar', 'en']` وتحديث `copyWith`.
+  - إضافة مفتاح `settings.language_code` في `SettingsService` (load/save/clear).
+  - في `SettingsController`: خاصية `activeLocale` (null = لغة الجهاز، وإلا `Locale('ar')` / `Locale('en')`) ودالة `updateLanguage(code)` مع بث فوري وحفظ.
+- **التكامل مع الواجهات (UI Integration)**:
+  - ربط `MaterialApp` في `lib/main.dart` بخصائص `locale: SettingsController.instance.activeLocale` و `localizationsDelegates` و `supportedLocales` مع دمج الاستماع عبر `Listenable.merge`.
+  - إنشاء الامتداد `LocalizationX` (`context.l10n`) في `lib/core/l10n/localization_x.dart` لاستدعاء الترجمة بأمان نوعي كامل.
+  - إعادة بناء `SettingsScreen` بالكامل كعرض حي للنظام: قسم "اللغة والمنطقة" بمنتقي ثلاثي (تلقائي / العربية RTL / English LTR)، وإعادة بناء `_ThemeChoice` → `_ChoiceCard` العام، وتحويل كافة نصوص الشاشة إلى `context.l10n`.
+  - `flutter analyze` = **No issues found** و `flutter test` = **264/264 اختباراً ناجحاً** (255 سابقة + 9 جديدة: 5 اختبارات لغة + 4 اختبارات ARB في `test/l10n_test.dart`).
+
 ### [2026-09-10] - تجربة الموبايل المتكاملة، التنبيهات الذكية المخصصة، ونظام الإعدادات الشامل (v3.0.0+1)
 - **المرحلة 1: الباك إند والمنطق (Backend & Data Layer)**:
   - ترقية سكيما SQLite: إضافة عمود `notifications_enabled INTEGER NOT NULL DEFAULT 1` لجدول `projects` في `database_tables.dart` + ترحيل `_ensureProjectColumns` في `app_database.dart` (version 7→8).

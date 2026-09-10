@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tasky/core/theme/app_theme.dart';
@@ -20,6 +22,7 @@ void main() {
       expect(c.defaultCurrency, 'SAR');
       expect(c.defaultViewMode, 'list');
       expect(c.themeMode, 'light');
+      expect(c.languageCode, 'system');
     });
 
     test('الإعدادات تُحمَّل من التخزين المحلي', () async {
@@ -29,6 +32,7 @@ void main() {
         'settings.default_currency': 'USD',
         'settings.default_view_mode': 'kanban',
         'settings.theme_mode': 'oled',
+        'settings.language_code': 'en',
       });
       await SettingsController.instance.load();
 
@@ -38,6 +42,8 @@ void main() {
       expect(c.defaultCurrency, 'USD');
       expect(c.defaultViewMode, 'kanban');
       expect(c.themeMode, 'oled');
+      expect(c.languageCode, 'en');
+      expect(c.activeLocale, const Locale('en'));
     });
   });
 
@@ -92,12 +98,55 @@ void main() {
     });
   });
 
+  group('SettingsController - اللغة والترجمة (ARB l10n)', () {
+    test('عند اختيار "system" تكون اللغة النشطة تلقائية (null)', () {
+      expect(SettingsController.instance.languageCode, 'system');
+      expect(SettingsController.instance.activeLocale, isNull);
+    });
+
+    test('updateLanguage(\'ar\') يضبط اللغة العربية وRTL فوراً ويحفظ', () async {
+      await SettingsController.instance.updateLanguage('ar');
+
+      expect(SettingsController.instance.languageCode, 'ar');
+      expect(SettingsController.instance.activeLocale, const Locale('ar'));
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('settings.language_code'), 'ar');
+    });
+
+    test('updateLanguage(\'en\') يضبط اللغة الإنجليزية ويحفظ', () async {
+      await SettingsController.instance.updateLanguage('en');
+
+      expect(SettingsController.instance.languageCode, 'en');
+      expect(SettingsController.instance.activeLocale, const Locale('en'));
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('settings.language_code'), 'en');
+    });
+
+    test('تجاهل أكواد اللغات غير المدعومة', () async {
+      await SettingsController.instance.updateLanguage('fr');
+
+      expect(SettingsController.instance.languageCode, 'system');
+      expect(SettingsController.instance.activeLocale, isNull);
+    });
+
+    test('اللغة المحفوظة تُسترجَع عبر load()', () async {
+      await SettingsController.instance.updateLanguage('ar');
+      await SettingsController.instance.load();
+
+      expect(SettingsController.instance.languageCode, 'ar');
+      expect(SettingsController.instance.activeLocale, const Locale('ar'));
+    });
+  });
+
   group('SettingsService - حدود القيم المدعومة', () {
     test('قوائم العملات وأوضاع العرض والثيم مدعومة وقابلة للاستخدام', () {
       expect(AppSettingsModel.supportedCurrencies, contains('SAR'));
       expect(AppSettingsModel.supportedCurrencies, contains('USD'));
       expect(AppSettingsModel.supportedViewModes, ['list', 'kanban']);
       expect(AppSettingsModel.supportedThemeModes, ['light', 'dark', 'oled']);
+      expect(AppSettingsModel.supportedLanguages, ['system', 'ar', 'en']);
     });
   });
 }

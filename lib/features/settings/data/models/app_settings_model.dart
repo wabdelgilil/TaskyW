@@ -18,12 +18,16 @@ class AppSettingsModel {
   /// الثيم المفضل: light / dark / oled.
   final String themeMode;
 
+  /// كود اللغة المفضل: system / ar / en (`system` = لغة الجهاز تلقائياً).
+  final String languageCode;
+
   const AppSettingsModel({
     this.notificationsEnabled = true,
     this.defaultReminderMinutes = 15,
     this.defaultCurrency = 'SAR',
     this.defaultViewMode = 'list',
     this.themeMode = 'light',
+    this.languageCode = 'system',
   });
 
   AppSettingsModel copyWith({
@@ -32,6 +36,7 @@ class AppSettingsModel {
     String? defaultCurrency,
     String? defaultViewMode,
     String? themeMode,
+    String? languageCode,
   }) {
     return AppSettingsModel(
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
@@ -40,6 +45,7 @@ class AppSettingsModel {
       defaultCurrency: defaultCurrency ?? this.defaultCurrency,
       defaultViewMode: defaultViewMode ?? this.defaultViewMode,
       themeMode: themeMode ?? this.themeMode,
+      languageCode: languageCode ?? this.languageCode,
     );
   }
 
@@ -59,4 +65,7 @@ class AppSettingsModel {
   static const List<String> supportedViewModes = ['list', 'kanban'];
 
   static const List<String> supportedThemeModes = ['light', 'dark', 'oled'];
+
+  /// أكواد اللغات المدعومة: الافتراضي يستخدم لغة الجهاز تلقائياً.
+  static const List<String> supportedLanguages = ['system', 'ar', 'en'];
 }

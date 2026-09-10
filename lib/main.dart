@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tasky/l10n/app_localizations.dart';
 import 'core/services/supabase_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/home/presentation/screens/tasky_home_screen.dart';
@@ -31,12 +32,18 @@ class TaskyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: ThemeController.instance,
+      listenable: Listenable.merge([
+        ThemeController.instance,
+        SettingsController.instance,
+      ]),
       builder: (context, _) {
         return MaterialApp(
           title: 'TaskyW',
           debugShowCheckedModeBanner: false,
           theme: ThemeController.instance.activeTheme,
+          locale: SettingsController.instance.activeLocale,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           onGenerateRoute: (settings) {
             final name = settings.name ?? '';
             final uri = Uri.tryParse(name);

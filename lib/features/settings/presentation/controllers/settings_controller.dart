@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 import 'package:tasky/core/theme/app_theme.dart';
 import 'package:tasky/features/settings/data/models/app_settings_model.dart';
@@ -25,6 +27,20 @@ class SettingsController extends ChangeNotifier {
   String get defaultCurrency => _settings.defaultCurrency;
   String get defaultViewMode => _settings.defaultViewMode;
   String get themeMode => _settings.themeMode;
+  String get languageCode => _settings.languageCode;
+
+  /// اللغة النشطة: null = تلقائي (لغة الجهاز)، أو `Locale('ar')` / `Locale('en')`.
+  Locale? get activeLocale {
+    switch (_settings.languageCode) {
+      case 'ar':
+        return const Locale('ar');
+      case 'en':
+        return const Locale('en');
+      case 'system':
+      default:
+        return null;
+    }
+  }
 
   static AppThemeStyle _themeStyleFromString(String mode) {
     switch (mode) {
@@ -89,6 +105,14 @@ class SettingsController extends ChangeNotifier {
   Future<void> setThemeMode(String mode) async {
     _settings = _settings.copyWith(themeMode: mode);
     ThemeController.instance.setStyle(_themeStyleFromString(mode));
+    await _service.save(_settings);
+    notifyListeners();
+  }
+
+  /// تغيير لغة الواجهة (system / ar / en) مع بث التحديث لحظياً.
+  Future<void> updateLanguage(String code) async {
+    if (!AppSettingsModel.supportedLanguages.contains(code)) return;
+    _settings = _settings.copyWith(languageCode: code);
     await _service.save(_settings);
     notifyListeners();
   }

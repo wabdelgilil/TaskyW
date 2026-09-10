@@ -1,0 +1,110 @@
+{
+  "@@locale": "en",
+  "@@info": "English dictionary for Tasky (Flutter official l10n).",
+
+  "appTitle": "TaskyW",
+
+  "commonCancel": "Cancel",
+  "commonSave": "Save",
+  "commonDelete": "Delete",
+  "commonAdd": "Add",
+  "commonClose": "Close",
+  "commonSettings": "Settings",
+  "commonSearch": "Search",
+  "commonToday": "Today's Tasks",
+
+  "taskCountRemaining": "{count} tasks remaining",
+  "@taskCountRemaining": {
+    "description": "Number of remaining tasks in a group.",
+    "placeholders": {
+      "count": { "type": "int", "example": "5" }
+    }
+  },
+
+  "welcomeUser": "Welcome, {name}",
+  "@welcomeUser": {
+    "description": "Friendly greeting by user name.",
+    "placeholders": {
+      "name": { "type": "String", "example": "Ahmed" }
+    }
+  },
+
+  "sectionNotifications": "Notifications & Alerts",
+  "sectionLanguage": "Language & Region",
+  "sectionFinance": "Finance & Currencies",
+  "sectionAppearance": "Appearance & Theme",
+  "sectionData": "App Data",
+
+  "settingsNotifications": "App Notifications",
+  "settingsNotificationsDesc": "Turn all local notifications (task reminders) on or off",
+  "settingsReminderTime": "Default reminder time",
+  "settingsReminderMinutes": "{minutes} minutes before due",
+  "@settingsReminderMinutes": {
+    "description": "Default reminder lead time in minutes.",
+    "placeholders": {
+      "minutes": { "type": "int", "example": "15" }
+    }
+  },
+  "settingsRequestPermission": "Request notification permission",
+  "settingsRequestPermissionDesc": "Confirm notification permission on Android/iOS",
+  "settingsPermissionGranted": "Notification permission enabled successfully",
+  "settingsPermissionDenied": "Notification permission was denied",
+  "settingsEnable": "Enable",
+
+  "settingsLanguage": "App language",
+  "settingsLanguageDesc": "Choose the interface language (default: device language)",
+  "settingsLanguageSystem": "System default",
+  "settingsLanguageSystemShort": "System",
+  "languageArabic": "العربية (RTL)",
+  "languageEnglish": "English (LTR)",
+
+  "settingsCurrency": "Default currency",
+  "settingsCurrencyDesc": "Currency used for new financial records: {currency}",
+  "@settingsCurrencyDesc": {
+    "description": "Description of the current default currency.",
+    "placeholders": {
+      "currency": { "type": "String", "example": "SAR" }
+    }
+  },
+
+  "settingsViewMode": "View mode",
+  "viewModeList": "List",
+  "viewModeKanban": "Kanban",
+
+  "themeModeLabel": "Theme mode",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "themeOled": "OLED",
+  "themeLightFull": "Light mode",
+  "themeDarkFull": "Dark mode",
+  "themeOledFull": "Deep black (OLED)",
+
+  "appVersion": "App version",
+  "versionLabel": "Version {version}",
+  "@versionLabel": {
+    "description": "Current app version.",
+    "placeholders": {
+      "version": { "type": "String", "example": "3.0.0" }
+    }
+  },
+
+  "accountStatus": "Account status",
+  "signedInAs": "Signed in: {email}",
+  "@signedInAs": {
+    "description": "Sign-in status with email.",
+    "placeholders": {
+      "email": { "type": "String", "example": "user@tasky.app" }
+    }
+  },
+  "signedOut": "Not signed in",
+
+  "profileTitle": "Profile",
+  "profileDisplayName": "Display name",
+  "profileEmail": "Email address",
+
+  "navHome": "Today",
+  "navProjects": "Projects",
+  "navNotes": "Notes",
+  "navFinance": "Finance",
+  "navSettings": "Settings"
+}

@@ -1,0 +1,110 @@
+{
+  "@@locale": "ar",
+  "@@info": "القاموس العربي الأساسي لتطبيق Tasky (ملف القالب الرسمي لـ Flutter l10n).",
+
+  "appTitle": "TaskyW",
+
+  "commonCancel": "إلغاء",
+  "commonSave": "حفظ",
+  "commonDelete": "حذف",
+  "commonAdd": "إضافة",
+  "commonClose": "إغلاق",
+  "commonSettings": "الإعدادات",
+  "commonSearch": "بحث",
+  "commonToday": "مهام اليوم",
+
+  "taskCountRemaining": "متبقي {count} مهام",
+  "@taskCountRemaining": {
+    "description": "عدد المهام المتبقية في مجموعة ما.",
+    "placeholders": {
+      "count": { "type": "int", "example": "5" }
+    }
+  },
+
+  "welcomeUser": "مرحباً {name}",
+  "@welcomeUser": {
+    "description": "ترحيب ترحيبي بالمستخدم باسمه.",
+    "placeholders": {
+      "name": { "type": "String", "example": "أحمد" }
+    }
+  },
+
+  "sectionNotifications": "الإشعارات والتنبيهات",
+  "sectionLanguage": "اللغة والمنطقة",
+  "sectionFinance": "المالية والعملات",
+  "sectionAppearance": "المظهر والثيم",
+  "sectionData": "بيانات التطبيق",
+
+  "settingsNotifications": "إشعارات التطبيق",
+  "settingsNotificationsDesc": "تشغيل أو إيقاف كل التنبيهات المحلية (تذكيرات المهام)",
+  "settingsReminderTime": "وقت التذكير الافتراضي",
+  "settingsReminderMinutes": "قبل الموعد بـ {minutes} دقيقة",
+  "@settingsReminderMinutes": {
+    "description": "تذكير افتراضي قبل الموعد بالدقائق.",
+    "placeholders": {
+      "minutes": { "type": "int", "example": "15" }
+    }
+  },
+  "settingsRequestPermission": "طلب صلاحية التنبيهات",
+  "settingsRequestPermissionDesc": "تأكيد صلاحية التنبيهات على الأندرويد/IOS",
+  "settingsPermissionGranted": "تم تفعيل صلاحية التنبيهات بنجاح",
+  "settingsPermissionDenied": "تم رفض طلب الصلاحية",
+  "settingsEnable": "تفعيل",
+
+  "settingsLanguage": "لغة التطبيق",
+  "settingsLanguageDesc": "اختيار لغة الواجهات (الافتراضي: لغة الجهاز)",
+  "settingsLanguageSystem": "تلقائي (لغة الجهاز)",
+  "settingsLanguageSystemShort": "تلقائي",
+  "languageArabic": "العربية (RTL)",
+  "languageEnglish": "English (LTR)",
+
+  "settingsCurrency": "العملة الافتراضية",
+  "settingsCurrencyDesc": "العملة المستخدمة في السجلات المالية الجديدة: {currency}",
+  "@settingsCurrencyDesc": {
+    "description": "وصف العملة الافتراضية الحالية.",
+    "placeholders": {
+      "currency": { "type": "String", "example": "SAR" }
+    }
+  },
+
+  "settingsViewMode": "طريقة العرض",
+  "viewModeList": "قائمة",
+  "viewModeKanban": "كانبان",
+
+  "themeModeLabel": "وضع المظهر",
+  "themeLight": "نهاري",
+  "themeDark": "ليلي",
+  "themeOled": "OLED",
+  "themeLightFull": "الوضع النهاري (Light)",
+  "themeDarkFull": "الوضع الليلي (Dark)",
+  "themeOledFull": "السواد العميق (OLED)",
+
+  "appVersion": "إصدار التطبيق",
+  "versionLabel": "الإصدار {version}",
+  "@versionLabel": {
+    "description": "رقم إصدار التطبيق الحالي.",
+    "placeholders": {
+      "version": { "type": "String", "example": "3.0.0" }
+    }
+  },
+
+  "accountStatus": "حالة الحساب",
+  "signedInAs": "مسجل الدخول: {email}",
+  "@signedInAs": {
+    "description": "حالة تسجيل الدخول مع البريد.",
+    "placeholders": {
+      "email": { "type": "String", "example": "user@tasky.app" }
+    }
+  },
+  "signedOut": "غير مسجل الدخول",
+
+  "profileTitle": "الملف الشخصي",
+  "profileDisplayName": "الاسم المعروض",
+  "profileEmail": "البريد الإلكتروني",
+
+  "navHome": "اليوم",
+  "navProjects": "المشاريع",
+  "navNotes": "الملاحظات",
+  "navFinance": "المالية",
+  "navSettings": "الإعدادات"
+}

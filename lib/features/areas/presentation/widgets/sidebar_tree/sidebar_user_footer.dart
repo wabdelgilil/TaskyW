@@ -6,6 +6,7 @@ import 'package:tasky/core/theme/app_theme.dart';
 import 'package:tasky/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:tasky/features/auth/presentation/screens/auth_screen.dart';
 import 'package:tasky/features/settings/presentation/screens/profile_screen.dart';
+import 'package:tasky/features/settings/presentation/screens/settings_screen.dart';
 
 /// الجزء السفلي من القائمة الجانبية: بطاقة الحساب ومبدّل الثيم
 class SidebarUserFooter extends StatelessWidget {
@@ -201,6 +202,37 @@ class SidebarUserFooter extends StatelessWidget {
                 ),
               );
             },
+          ),
+          const SizedBox(height: 4),
+
+          // زر الإعدادات
+          InkWell(
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+              );
+            },
+            borderRadius: BorderRadius.circular(8),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+              child: Row(
+                children: [
+                  Icon(Icons.settings_outlined, size: 18, color: AppColors.textSecondary(context)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'الإعدادات',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textSecondary(context),
+                      ),
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right, size: 16, color: Colors.grey),
+                ],
+              ),
+            ),
           ),
         ],
       ),

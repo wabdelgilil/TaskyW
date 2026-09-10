@@ -10,6 +10,7 @@ class SettingsService {
   static const String _keyCurrency = 'settings.default_currency';
   static const String _keyViewMode = 'settings.default_view_mode';
   static const String _keyThemeMode = 'settings.theme_mode';
+  static const String _keyLanguageCode = 'settings.language_code';
 
   Future<AppSettingsModel> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -21,6 +22,7 @@ class SettingsService {
           prefs.getString(_keyCurrency) ?? 'SAR',
       defaultViewMode: prefs.getString(_keyViewMode) ?? 'list',
       themeMode: prefs.getString(_keyThemeMode) ?? 'light',
+      languageCode: prefs.getString(_keyLanguageCode) ?? 'system',
     );
   }
 
@@ -31,6 +33,7 @@ class SettingsService {
     await prefs.setString(_keyCurrency, settings.defaultCurrency);
     await prefs.setString(_keyViewMode, settings.defaultViewMode);
     await prefs.setString(_keyThemeMode, settings.themeMode);
+    await prefs.setString(_keyLanguageCode, settings.languageCode);
   }
 
   Future<void> clear() async {
@@ -40,5 +43,6 @@ class SettingsService {
     await prefs.remove(_keyCurrency);
     await prefs.remove(_keyViewMode);
     await prefs.remove(_keyThemeMode);
+    await prefs.remove(_keyLanguageCode);
   }
 }

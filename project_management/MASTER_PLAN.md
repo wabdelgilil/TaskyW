@@ -241,6 +241,11 @@
   - [x] تمييز المشروع في عروض "جميع المهام": ربط شارة المشروع التفاعلية (`Smart Project Badge`) في كروت المهام بوضعي القائمة والكانبان مع خيار التجميع حسب المشروع.
   - [x] تحسينات الموبايل المتكاملة: تطوير الشريط السفلي الذكي وإخفاؤه من الديسكتوب، تفعيل إيماءات السحب للمهام (Swipe to Complete/Delete)، وشريط الإضافة السريعة.
   - [x] التحقق والتكامل الشامل لضمان `flutter analyze` نظيف و 100% نجاح في الاختبارات.
+  - [x] **النظام الرسمي للترجمة والتعريب (Flutter Official ARB / l10n)**:
+    - [x] تهيئة `flutter_localizations` + `intl` + `generate: true` في `pubspec.yaml` وملف `l10n.yaml` (قالب `app_ar.arb` + قاموس `app_en.arb`) مع دعم الـ Placeholders (`taskCountRemaining`, `settingsReminderMinutes`, `settingsCurrencyDesc`, `versionLabel` ...) وتوليد `AppLocalizations` عبر `flutter gen-l10n`.
+    - [x] إضافة `languageCode` (الافتراضي `'system'`) إلى `AppSettingsModel` + `SettingsService` مع دالتي `activeLocale` (null = لغة الجهاز) و`updateLanguage` في `SettingsController`.
+    - [x] ربط `MaterialApp` بخصائص `locale` / `localizationsDelegates` / `supportedLocales` وإنشاء امتداد `LocalizationX` (`context.l10n`) للاستدعاء بأمان نوعي كامل (Compile-time Type Safety).
+    - [x] منتقي اللغة الثلاثي (تلقائي / العربية RTL / English LTR) في شاشة الإعدادات + 5 اختبارات لغة في `settings_controller_test.dart` + 4 اختبارات ARB في `l10n_test.dart`.
 
 ### 10. الوحدات المؤجلة والتوسعات المستقبلية (Postponed Modules & Long-Term Roadmap)
 *(المواصفات التفصيلية وتوزيع طبقات الفرونت إند والباك إند متوفرة في: [14_FUTURE_MODULES_AND_ANALYTICS_DASHBOARD_PLAN.md](file:///d:/programming/Tasky3.0/project_management/14_FUTURE_MODULES_AND_ANALYTICS_DASHBOARD_PLAN.md))*
