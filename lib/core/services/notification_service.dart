@@ -5,6 +5,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:tasky/features/projects/data/models/project_model.dart';
+import 'package:tasky/features/settings/presentation/controllers/settings_controller.dart';
 
 /// خدمة الإشعارات المحلية (Singleton) لدعم Windows و Android و iOS.
 class NotificationService {
@@ -67,14 +69,54 @@ class NotificationService {
     return iosGranted;
   }
 
-  /// جدولة تذكير مهمة عند حلول الموعد المحدد.
+  /// هل صلاحية التنبيهات مفعّلة على النظام؟ (تعمل مع أندرويد وIOS فقط)
+  Future<bool> checkPermissionStatus() async {
+    await init();
+    if (!_isInitialized) return false;
+
+    try {
+      final android = _plugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      final androidGranted = await android?.areNotificationsEnabled() ?? true;
+      if (!androidGranted) return false;
+
+      final ios = _plugin.resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin>();
+      final iosStatus = await ios?.checkPermissions();
+      if (iosStatus != null) {
+        return iosStatus.isEnabled;
+      }
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// التحقق المزدوج قبل إرسال أي تنبيه: الإعدادات العامة + تفعيل إشعارات المشروع.
+  bool shouldNotifyFor({ProjectModel? project, DateTime? scheduledDate}) {
+    if (!SettingsController.instance.notificationsEnabled) return false;
+    if (project != null && !project.notificationsEnabled) return false;
+    if (scheduledDate != null && !scheduledDate.isAfter(DateTime.now())) {
+      return false;
+    }
+    return true;
+  }
+
+  /// جدولة تذكير مهمة عند حلول الموعد المحدد (مع التحقق المزدوج الذكي).
   Future<void> scheduleTaskReminder({
     required String taskId,
     required String title,
     required DateTime scheduledDate,
+    ProjectModel? project,
   }) async {
     await init();
     if (!_isInitialized) return;
+
+    // تحقق مزدوج: الإعدادات العامة + كتم المشروع + موعد مستقبلي.
+    if (!shouldNotifyFor(project: project, scheduledDate: scheduledDate)) {
+      await cancelTaskReminder(taskId);
+      return;
+    }
 
     await _plugin.zonedSchedule(
       _notificationIdFor(taskId),
@@ -101,6 +143,14 @@ class NotificationService {
   Future<void> cancelTaskReminder(String taskId) async {
     if (!_isInitialized) return;
     await _plugin.cancel(_notificationIdFor(taskId));
+  }
+
+  /// إلغاء تذكيرات مجموعة مهام دفعة واحدة (يُستخدم عند كتم إشعارات مشروع).
+  Future<void> cancelRemindersForTasks(Iterable<String> taskIds) async {
+    if (!_isInitialized) return;
+    for (final taskId in taskIds) {
+      await _plugin.cancel(_notificationIdFor(taskId));
+    }
   }
 
   int _notificationIdFor(String taskId) => taskId.hashCode & 0x7fffffff;

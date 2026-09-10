@@ -38,6 +38,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
   late final TextEditingController _descCtrl;
   String _emoji = '📋';
   String _colorHex = '#10B981';
+  bool _notificationsEnabled = true;
 
   @override
   void initState() {
@@ -101,6 +102,14 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
             TextField(controller: _nameCtrl, decoration: const InputDecoration(labelText: 'اسم المشروع')),
             const SizedBox(height: 10),
             TextField(controller: _descCtrl, maxLines: 2, decoration: const InputDecoration(labelText: 'وصف المشروع (اختياري)')),
+            const SizedBox(height: 12),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('إشعارات هذا المشروع'),
+              subtitle: const Text('تفعيل التذكيرات المحلية لمهام هذا المشروع'),
+              value: _notificationsEnabled,
+              onChanged: (val) => setState(() => _notificationsEnabled = val),
+            ),
           ],
         ),
       ),
@@ -116,6 +125,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                 description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
                 iconEmoji: _emoji,
                 colorHex: _colorHex,
+                notificationsEnabled: _notificationsEnabled,
                 createdAt: DateTime.now().toUtc(),
                 updatedAt: DateTime.now().toUtc(),
               );

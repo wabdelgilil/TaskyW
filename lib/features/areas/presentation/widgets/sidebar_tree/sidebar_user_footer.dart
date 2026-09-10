@@ -5,6 +5,7 @@ import 'package:tasky/core/theme/app_colors.dart';
 import 'package:tasky/core/theme/app_theme.dart';
 import 'package:tasky/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:tasky/features/auth/presentation/screens/auth_screen.dart';
+import 'package:tasky/features/settings/presentation/screens/profile_screen.dart';
 
 /// الجزء السفلي من القائمة الجانبية: بطاقة الحساب ومبدّل الثيم
 class SidebarUserFooter extends StatelessWidget {
@@ -29,44 +30,8 @@ class SidebarUserFooter extends StatelessWidget {
               if (auth.isAuthenticated) {
                 return InkWell(
                   onTap: () {
-                    showModalBottomSheet(
-                      context: context,
-                      builder: (ctx) => Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            ListTile(
-                              leading: CircleAvatar(
-                                backgroundColor: Theme.of(context).colorScheme.primary,
-                                child: Text(
-                                  (auth.displayName?.isNotEmpty == true ? auth.displayName![0] : 'U').toUpperCase(),
-                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              title: Text(auth.displayName ?? 'مستخدم Tasky', style: const TextStyle(fontWeight: FontWeight.bold)),
-                              subtitle: Text(auth.userEmail ?? ''),
-                            ),
-                            const Divider(),
-                            ListTile(
-                              leading: const Icon(Icons.cloud_done_outlined, color: Colors.green),
-                              title: const Text('متصل بسحابة Supabase'),
-                              subtitle: const Text('المزامنة السحابية نشطة'),
-                            ),
-                            const SizedBox(height: 10),
-                            ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-                              onPressed: () {
-                                Navigator.of(ctx).pop();
-                                auth.signOut();
-                              },
-                              icon: const Icon(Icons.logout, size: 18),
-                              label: const Text('تسجيل الخروج'),
-                            ),
-                          ],
-                        ),
-                      ),
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const ProfileScreen()),
                     );
                   },
                   borderRadius: BorderRadius.circular(8),

@@ -112,13 +112,11 @@ class SupabaseCollaborationCloud implements CollaborationCloud {
   }) async {
     final client = _client;
     if (client == null) return;
-    final result = await client
+    // Supabase v2 يرمي PostgrestException عند الفشل — لا حاجة لفحص `.error`.
+    await client
         .from('entity_shares')
         .update(changes)
         .eq('id', shareId);
-    if (result.error != null) {
-      throw StateError(result.error!.message);
-    }
     // ربط أي دعوة معلقة بهذا الحساب فور إجرائها إن كان البريد مسجلاً لدينا.
     await _tryAutoLink();
   }

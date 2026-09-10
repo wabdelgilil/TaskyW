@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tasky/features/tags/data/models/tag_model.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/status_badge.dart';
+import '../../../projects/data/models/project_model.dart';
 import '../../data/models/task_model.dart';
 import 'task_card.dart';
 
@@ -14,6 +15,8 @@ class KanbanBoardView extends StatefulWidget {
   final Map<String, int> subtaskCounts; // taskId -> totalSubtasks
   final Map<String, int> completedSubtaskCounts; // taskId -> completedSubtasks
   final Map<String, List<TagModel>> taskTags;
+  final List<ProjectModel> projects;
+  final Function(String? projectId)? onProjectBadgeTap;
 
   const KanbanBoardView({
     super.key,
@@ -24,6 +27,8 @@ class KanbanBoardView extends StatefulWidget {
     this.subtaskCounts = const {},
     this.completedSubtaskCounts = const {},
     this.taskTags = const {},
+    this.projects = const [],
+    this.onProjectBadgeTap,
   });
 
   static const List<String> columns = [
@@ -78,6 +83,8 @@ class _KanbanBoardViewState extends State<KanbanBoardView> {
                       subtaskCounts: widget.subtaskCounts,
                       completedSubtaskCounts: widget.completedSubtaskCounts,
                       taskTags: widget.taskTags,
+                      projects: widget.projects,
+                      onProjectBadgeTap: widget.onProjectBadgeTap,
                       onTaskDropped: (task) => widget.onTaskStatusChanged(task, status),
                       onTaskTap: widget.onTaskTap,
                       onAddTask: () => widget.onAddTaskInColumn?.call(status),
@@ -99,8 +106,10 @@ class _KanbanColumn extends StatelessWidget {
   final Map<String, int> subtaskCounts;
   final Map<String, int> completedSubtaskCounts;
   final Map<String, List<TagModel>> taskTags;
+  final List<ProjectModel> projects;
   final Function(TaskModel task) onTaskDropped;
   final Function(TaskModel task)? onTaskTap;
+  final Function(String? projectId)? onProjectBadgeTap;
   final VoidCallback? onAddTask;
 
   const _KanbanColumn({
@@ -109,10 +118,20 @@ class _KanbanColumn extends StatelessWidget {
     required this.subtaskCounts,
     required this.completedSubtaskCounts,
     required this.taskTags,
+    this.projects = const [],
     required this.onTaskDropped,
     this.onTaskTap,
+    this.onProjectBadgeTap,
     this.onAddTask,
   });
+
+  ProjectModel? _projectOf(TaskModel task) {
+    if (task.projectId == null) return null;
+    for (final p in projects) {
+      if (p.id == task.projectId) return p;
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -230,6 +249,8 @@ class _KanbanColumn extends StatelessWidget {
                                   totalSubtasksCount: totalSubs,
                                   completedSubtasksCount: doneSubs,
                                   tags: taskTags[task.id] ?? const [],
+                                  projectName: _projectOf(task)?.name,
+                                  projectEmoji: _projectOf(task)?.iconEmoji,
                                 ),
                               ),
                             ),
@@ -240,6 +261,8 @@ class _KanbanColumn extends StatelessWidget {
                                 totalSubtasksCount: totalSubs,
                                 completedSubtasksCount: doneSubs,
                                 tags: taskTags[task.id] ?? const [],
+                                projectName: _projectOf(task)?.name,
+                                projectEmoji: _projectOf(task)?.iconEmoji,
                               ),
                             ),
                             child: TaskCard(
@@ -247,6 +270,14 @@ class _KanbanColumn extends StatelessWidget {
                               totalSubtasksCount: totalSubs,
                               completedSubtasksCount: doneSubs,
                               tags: taskTags[task.id] ?? const [],
+                              projectName: _projectOf(task)?.name,
+                              projectEmoji: _projectOf(task)?.iconEmoji,
+                              projectColor: _projectOf(task) != null
+                                  ? AppColors.fromHex(_projectOf(task)!.colorHex)
+                                  : null,
+                              onProjectBadgeTap: _projectOf(task) != null
+                                  ? () => onProjectBadgeTap?.call(_projectOf(task)!.id)
+                                  : null,
                               onTap: () => onTaskTap?.call(task),
                               onToggleCompleted: (val) {
                                 final newStatus = (val == true) ? 'completed' : 'todo';

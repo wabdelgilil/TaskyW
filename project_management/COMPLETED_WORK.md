@@ -2,6 +2,28 @@
 
 ## سجل الإنجازات والمهام المكتملة
 
+### [2026-09-10] - تجربة الموبايل المتكاملة، التنبيهات الذكية المخصصة، ونظام الإعدادات الشامل (v3.0.0+1)
+- **المرحلة 1: الباك إند والمنطق (Backend & Data Layer)**:
+  - ترقية سكيما SQLite: إضافة عمود `notifications_enabled INTEGER NOT NULL DEFAULT 1` لجدول `projects` في `database_tables.dart` + ترحيل `_ensureProjectColumns` في `app_database.dart` (version 7→8).
+  - تحديث `ProjectModel` بحقل `notificationsEnabled` (`_parseNotificationFlag` لقراءة int/bool/null + toMap/fromMap/copyWith).
+  - إضاف`notifications_enabled` إلى أعمدة المزامنة في `SyncService` للمشاريع مع تحويل bool↔int في `toCloudPayload`/`toLocalRow`.
+  - بناء وحدة الإعدادات الكاملة: `AppSettingsModel` (الإشعارات، وقت التذكير، العملة، وضع العرض، الثيم) + `SettingsService` (shared_preferences) + `SettingsController` (singleton ChangeNotifier مع load/persist/setters).
+  - ترقية `NotificationService`: دالة `checkPermissionStatus`، الفلترة الذكية `shouldNotifyFor` (الإعداد العام + كتم المشروع + موعد مستقبلي)، تمرير `project` في `scheduleTaskReminder`، وإضافة `cancelRemindersForTasks`.
+  - إنشاء `lib/core/constants/app_version.dart` (ثابت `3.0.0+1`) ومزامنة `pubspec.yaml` وإضافة `shared_preferences`.
+  - إضافة `updateDisplayName` في `AuthController` لتحديث الاسم المعروض عبر Supabase.
+  - اختبارات وحدة جديدة: `settings_controller_test.dart` (6 اختبارات) + `notification_logic_test.dart` (11 اختبارات) — إجمالي **255/255 اختباراً ناجحاً** و `flutter analyze` = No issues found.
+- **المرحلة 2: الفرونت إند وتجربة المستخدم (Frontend & UX)**:
+  - فتح تفاصيل المهمة على الموبايل عبر `TaskDetailBottomSheet` (نسبة 90% + مقبض سحب) مع دعم `TaskDetailDrawer` لعرض القابل للتخصيص (`width`).
+  - شاشة الإعدادات الشاملة `SettingsScreen` (إشعارات + وقت التذكير + طلب الصلاحيات + العملة + وضع العرض + الثيم الثلاثي + حول التطبيق).
+  - صفحة البروفايل المستقلة `ProfileScreen` (الاسم/البريد/حالة السحابة/الإصدار/تسجيل الخروج) وربطها ببطاقة الحساب في الـ Sidebar بدل bottom sheet القديمة.
+  - زر كتم/تفعيل التنبيهات في `ProjectDetailScreen` (جرس الهيدر + SwitchListTile في حوارات الإنشاء `AddProjectDialog` والتعديل).
+  - ربط العملة الافتراضية من `SettingsController.defaultCurrency` بحوار `RecordDialog`.
+  - شارة المشروع التفاعلية (Smart Project Badge) في `TaskCard` (قائمة + كانبان) مع تلون بلون المشروع وفتح تفاصيله عند النقر، و`onProjectBadgeTap`.
+  - خيار تجميع قائمة المهام حسب المشروع `_groupByProject` في `TaskListView`.
+  - تحسينات الموبايل: `NavigationBar` بخمسة أقسام مخفى على الديسكتوب، إيماءات السحب (يمين=إنجاز، يسار=حذف مع SnackBar undo عبر `onRestoreTask`)، وشريط الإضافة السريعة `QuickAddTaskBar` في أسفل شاشة اليوم.
+  - تمرير `project` في استدعاء `scheduleTaskReminder` داخل `TaskDetailDrawer` للتحقق المزدوج من كتم المشروع.
+  - تفعيل `SettingsController.instance.load()` عند تهيئة `main()` لتطبيق الثيم والإعدادات المحفوظة.
+
 ### [2026-09-09] - إعادة الهيكلة ومواءمة المعمارية: المرحلة الأولى وتفكيك نوافذ الحوار
 - **المرحلة 1: توحيد نموذج المشاركة والقضاء على الازدواجية (Deduplication & Cleanup)**:
   - توحيد كلاس `EntityShareModel` بالاعتماد الحصري على نموذج `lib/features/collaboration/data/models/entity_share_model.dart` ودعمه لمفاتيح الصلاحية المتعددة (`permission_level`, `permission`, `role`) وخصائص التوافقية مع الروابط العامة.

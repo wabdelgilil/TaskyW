@@ -209,6 +209,12 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
     _scheduleAutoSync();
   }
 
+  Future<void> _handleRestoreTask(String taskId) async {
+    await _tasksController.restoreTask(taskId);
+    await _loadSubtasksAndTagsMap();
+    _scheduleAutoSync();
+  }
+
   Future<void> _handleTaskStatusChanged(TaskModel task, String newStatus) async {
     await _tasksController.updateStatus(task.id, newStatus);
     await _loadSubtasksAndTagsMap();
@@ -343,6 +349,7 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
       onSyncRequested: _handleSyncRequested,
       onSaveTask: _handleSaveTask,
       onDeleteTask: _handleDeleteTask,
+      onRestoreTask: _handleRestoreTask,
       onTaskStatusChanged: _handleTaskStatusChanged,
       onTaskPriorityChanged: _handleTaskPriorityChanged,
       onToggleTaskCompleted: _handleToggleTaskCompleted,

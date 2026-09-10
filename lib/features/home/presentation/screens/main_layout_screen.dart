@@ -4,9 +4,11 @@ import 'package:tasky/core/services/export_service.dart';
 import 'package:tasky/features/areas/data/models/area_model.dart';
 import 'package:tasky/features/areas/presentation/widgets/hierarchical_tree_sidebar.dart';
 import 'package:tasky/features/projects/data/models/project_model.dart';
+import 'package:tasky/features/settings/presentation/screens/settings_screen.dart';
 import 'package:tasky/features/tags/data/models/tag_model.dart';
 import 'package:tasky/features/tasks/data/models/subtask_model.dart';
 import 'package:tasky/features/tasks/data/models/task_model.dart';
+import 'package:tasky/features/tasks/presentation/widgets/task_detail_bottom_sheet.dart';
 import 'package:tasky/features/tasks/presentation/widgets/task_detail_drawer.dart';
 import '../widgets/dialogs/add_area_dialog.dart';
 import '../widgets/dialogs/add_project_dialog.dart';
@@ -15,6 +17,7 @@ import '../widgets/dialogs/create_tag_dialog.dart';
 import '../widgets/dialogs/export_tasks_dialog.dart';
 import '../widgets/main_top_header.dart';
 import '../widgets/main_workspace_content.dart';
+import '../widgets/quick_add_task_bar.dart';
 
 /// الشاشة الهيكلية الرئيسية للتطبيق (Master Responsive Layout Screen)
 /// تجمع بين الشجرة الهرمية الجانبية، شريط البحث المقيّد بالسياق، مساحة العمل، درج التفاصيل، والشريط السفلي
@@ -48,6 +51,8 @@ class MainLayoutScreen extends StatefulWidget {
 
   final Function(String query, {String? areaId, String? projectId})? onSearch;
 
+  final Function(String taskId)? onRestoreTask;
+
   const MainLayoutScreen({
     super.key,
     required this.areas,
@@ -74,6 +79,7 @@ class MainLayoutScreen extends StatefulWidget {
     this.onCreateTag,
     this.onDeleteTag,
     this.onSearch,
+    this.onRestoreTask,
   });
 
   @override
@@ -107,6 +113,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
 
   // فهرس الشريط السفلي
   int _bottomNavIndex = 0;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void dispose() {
@@ -526,6 +533,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
     );
 
     return Scaffold(
+      key: _scaffoldKey,
       drawer: isDesktop ? null : Drawer(child: SafeArea(child: treeSidebar)),
       floatingActionButton: isDesktop || _showNotes || _showFinance || _showArchive || _showTrash
           ? null
@@ -574,8 +582,8 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
                     onExportCsv: _exportCurrentTasksToCsv,
                     onAddTask: () => _showAddTaskDialog(),
                   ),
-                  Expanded(
-                    child: MainWorkspaceContent(
+Expanded(
+                  child: MainWorkspaceContent(
                       showNotes: _showNotes,
                       showFinance: _showFinance,
                       showArchive: _showArchive,
@@ -600,14 +608,68 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
                         widget.onDeleteArea?.call(id);
                         setState(() => _selectedAreaId = null);
                       },
-                      onTaskTap: (t) => setState(() => _openedTask = t),
+                      onTaskTap: (t) {
+                        if (isDesktop) {
+                          setState(() => _openedTask = t);
+                        } else {
+                          showTaskDetailBottomSheet(
+                            context,
+                            task: t,
+                            subtasks: widget.subtasks.where((s) => s.taskId == t.id).toList(),
+                            areas: widget.areas,
+                            projects: widget.projects,
+                            availableTags: widget.tags,
+                            taskTags: widget.taskTags[t.id] ?? const [],
+                            onAssignTag: (tag) => widget.onAssignTag?.call(t, tag),
+                            onRemoveTag: (tag) => widget.onRemoveTag?.call(t, tag),
+                            onCreateTag: widget.onCreateTag != null
+                                ? (n, c) => widget.onCreateTag!.call(n, c)
+                                : (n, c) {},
+                            onSaveTask: widget.onSaveTask?.call ?? (_) {},
+                            onDeleteTask: (id) => widget.onDeleteTask?.call(id),
+                            onAddSubtask: (title) => widget.onAddSubtask?.call(t.id, title),
+                            onToggleSubtask: (sub, done) => widget.onToggleSubtask?.call(sub, done),
+                            onDeleteSubtask: (subId) => widget.onDeleteSubtask?.call(subId),
+                          );
+                        }
+                      },
                       onToggleTaskCompleted: widget.onToggleTaskCompleted,
                       onTaskStatusChanged: widget.onTaskStatusChanged,
                       onTaskPriorityChanged: widget.onTaskPriorityChanged,
                       onAddNewProject: (areaId) => _showAddProjectDialog(areaId),
                       onAddNewTask: (defaultStatus) => _showAddTaskDialog(defaultStatus: defaultStatus),
                       onSelectProjectId: (id) => setState(() => _selectedProjectId = id),
+                      onDeleteTask: widget.onDeleteTask,
+                      onRestoreTask: widget.onRestoreTask,
                     ),
+                ),
+                if (!isDesktop &&
+                    _activeFilter == 'today' &&
+                    _selectedProjectId == null &&
+                    _selectedAreaId == null &&
+                    _selectedTagId == null &&
+                    !_isSearchActive &&
+                    !_showNotes &&
+                    !_showFinance &&
+                    !_showArchive &&
+                    !_showTrash)
+                  QuickAddTaskBar(
+                    onQuickAdd: (title) {
+                      if (title.trim().isEmpty || widget.onSaveTask == null) return;
+                      final now = DateTime.now();
+                      final today = DateTime(now.year, now.month, now.day);
+                      final task = TaskModel(
+                        id: 'task-${DateTime.now().millisecondsSinceEpoch}',
+                        areaId: widget.areas.isNotEmpty ? widget.areas.first.id : '',
+                        title: title.trim(),
+                        dueDate: today,
+                        status: 'todo',
+                        priority: 'medium',
+                        createdAt: now.toUtc(),
+                        updatedAt: now.toUtc(),
+                      );
+                      widget.onSaveTask!(task);
+                    },
                   ),
                 ],
               ),
@@ -636,34 +698,55 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _bottomNavIndex,
-        onDestinationSelected: (idx) {
-          setState(() {
-            _bottomNavIndex = idx;
-            if (idx == 0) {
-              _activeFilter = 'today';
-              _selectedAreaId = null;
-              _selectedProjectId = null;
-            } else if (idx == 1) {
-              _activeFilter = 'all';
-              _viewMode = 'list';
-              _selectedAreaId = null;
-              _selectedProjectId = null;
-            } else if (idx == 2) {
-              _activeFilter = 'all';
-              _viewMode = 'kanban';
-              _selectedAreaId = null;
-              _selectedProjectId = null;
-            }
-          });
-        },
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.wb_sunny_outlined), selectedIcon: Icon(Icons.wb_sunny), label: 'اليوم'),
-          NavigationDestination(icon: Icon(Icons.view_list_outlined), selectedIcon: Icon(Icons.view_list), label: 'القوائم'),
-          NavigationDestination(icon: Icon(Icons.view_kanban_outlined), selectedIcon: Icon(Icons.view_kanban), label: 'الكانبان'),
-        ],
-      ),
+      bottomNavigationBar: isDesktop
+          ? null
+          : NavigationBar(
+              selectedIndex: _bottomNavIndex,
+              onDestinationSelected: (idx) {
+                if (idx == 4) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                  );
+                  return;
+                }
+                if (idx == 1) {
+                  _scaffoldKey.currentState?.openDrawer();
+                  setState(() {
+                    _bottomNavIndex = idx;
+                  });
+                  return;
+                }
+                setState(() {
+                  _bottomNavIndex = idx;
+                  if (idx == 0) {
+                    _activeFilter = 'today';
+                  } else if (idx == 2) {
+                    _activeFilter = 'all';
+                  } else if (idx == 3) {
+                    _showFinance = true;
+                    _showNotes = false;
+                    _showArchive = false;
+                    _showTrash = false;
+                  }
+                  _selectedAreaId = null;
+                  _selectedProjectId = null;
+                  _selectedTagId = null;
+                  if (idx != 3) {
+                    _showNotes = false;
+                    _showFinance = false;
+                    _showArchive = false;
+                    _showTrash = false;
+                  }
+                });
+              },
+              destinations: const [
+                NavigationDestination(icon: Icon(Icons.wb_sunny_outlined), selectedIcon: Icon(Icons.wb_sunny), label: 'اليوم'),
+                NavigationDestination(icon: Icon(Icons.folder_open_outlined), selectedIcon: Icon(Icons.folder), label: 'المشاريع'),
+                NavigationDestination(icon: Icon(Icons.edit_note_outlined), selectedIcon: Icon(Icons.edit_note), label: 'الملاحظات'),
+                NavigationDestination(icon: Icon(Icons.account_balance_wallet_outlined), selectedIcon: Icon(Icons.account_balance_wallet), label: 'المالية'),
+                NavigationDestination(icon: Icon(Icons.settings_outlined), selectedIcon: Icon(Icons.settings), label: 'الإعدادات'),
+              ],
+            ),
     );
   }
 }

@@ -32,6 +32,7 @@ class DatabaseTables {
       color_hex TEXT NOT NULL DEFAULT '#10B981',
       status TEXT NOT NULL DEFAULT 'active',
       target_date TEXT,
+      notifications_enabled INTEGER NOT NULL DEFAULT 1,
       order_index INTEGER NOT NULL DEFAULT 0,
       sync_status TEXT NOT NULL DEFAULT 'pending_insert',
       created_at TEXT NOT NULL,

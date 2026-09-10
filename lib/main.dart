@@ -3,11 +3,13 @@ import 'package:flutter/services.dart';
 import 'core/services/supabase_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/home/presentation/screens/tasky_home_screen.dart';
+import 'features/settings/presentation/controllers/settings_controller.dart';
 import 'features/sharing/presentation/screens/public_share_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SupabaseService.initialize();
+  await SettingsController.instance.load();
 
   // ضبط شريط الحالة والنظام ليعمل بسلاسة بدون تداخل على الهواتف
   SystemChrome.setSystemUIOverlayStyle(

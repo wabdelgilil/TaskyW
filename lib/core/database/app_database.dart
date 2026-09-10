@@ -35,7 +35,7 @@ class AppDatabase {
       return await databaseFactoryFfiWeb.openDatabase(
         path,
         options: OpenDatabaseOptions(
-          version: 7,
+          version: 8,
           onCreate: (db, version) async {
             await _createTables(db);
             await _seeder.seedInitialData(db);
@@ -44,6 +44,7 @@ class AppDatabase {
             await _createTables(db);
             await _ensureTaskColumns(db);
             await _ensureTaskTagColumns(db);
+            await _ensureProjectColumns(db);
           },
         ),
       );
@@ -66,7 +67,7 @@ class AppDatabase {
 
     return await openDatabase(
       path,
-      version: 7,
+      version: 8,
       onCreate: (db, version) async {
         await _createTables(db);
         await _seeder.seedInitialData(db);
@@ -75,6 +76,7 @@ class AppDatabase {
         await _createTables(db);
         await _ensureTaskColumns(db);
         await _ensureTaskTagColumns(db);
+        await _ensureProjectColumns(db);
       },
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
@@ -137,6 +139,18 @@ class AppDatabase {
     await db.execute(
       "UPDATE task_tags SET updated_at = created_at WHERE updated_at IS NULL",
     );
+  }
+
+  /// إضافة أعمدة مرحلة الترقية (v7 → v8) لجدول المشاريع دون تكرار (كتم/تفعيل التنبيهات).
+  Future<void> _ensureProjectColumns(Database db) async {
+    final columns = await db.rawQuery('PRAGMA table_info(projects)');
+    final existing = columns.map((c) => c['name'] as String).toSet();
+
+    if (!existing.contains('notifications_enabled')) {
+      await db.execute(
+        'ALTER TABLE projects ADD COLUMN notifications_enabled INTEGER NOT NULL DEFAULT 1',
+      );
+    }
   }
 
   static Future<void> resetForTest() async {

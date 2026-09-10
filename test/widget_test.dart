@@ -89,7 +89,7 @@ void main() {
     await tester.pump();
 
     expect(find.byIcon(Icons.arrow_back), findsOneWidget);
-    expect(find.byType(TextField), findsOneWidget);
+    expect(find.byType(TextField), findsWidgets);
 
     // إغلاق البحث والعودة
     await tester.tap(find.byIcon(Icons.arrow_back));

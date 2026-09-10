@@ -31,6 +31,47 @@
    ```
    وأن الناتج يشير إلى المشروع `yjcpevqahefzcpbvajcq` وليس الآخر.
 
+---
+
+### 3. تقسيم الأدوار والمسؤوليات بين الوكلاء (Agent Specialization & Division of Labor)
+يعتمد تطوير Tasky 3.0 على نموذج العمل المزدوج المتخصص:
+
+* **الوكيل الرئيسي (Main Agent) — مسؤول الواجهات وتجربة المستخدم (Frontend Lead)**:
+  - هو قائد التطوير والمخاطب المباشر للمستخدم.
+  - مسؤول حصرياً عن طبقة العرض والواجهات (Presentation Layer / Flutter UI & Widgets).
+  - تصميم الشاشات، استجابة الموبايل والديسكتوب (Responsive Layouts)، النوافذ السفلية (BottomSheets)، والحوارات التفاعلية (Dialogs).
+  - ربط الواجهات بالمتحكمات وتوجيه استدعاءات المستخدم وتناسق الألوان والثيم.
+  - تنسيق خطط العمل الشاملة وتحديث وثائق المشروع (`MASTER_PLAN.md` و `COMPLETED_WORK.md`).
+
+* **الوكيل الفرعي (Sub Agent) — مسؤول المنطق والبيانات (Backend & Logic Specialist)**:
+  - يُستدعى بواسطة الوكيل الرئيسي لتنفيذ مهام المنطق والبيانات المعزولة.
+  - مسؤول عن طبقات البيانات والمجال (Data & Domain Layers).
+  - بنية وتحديثات قواعد البيانات المحلية (SQLite / Drift / Migrations) والترتيب السحابي (Supabase Schemas).
+  - خدمات المنطق والخدمات الخلفية (Services مثل `NotificationService`, `SettingsService`, `SyncService`).
+  - نماذج البيانات (Models)، المستودعات (Repositories)، والمتحكمات المنطقية (Controllers).
+  - كتابة اختبارات الوحدة (Unit & Repository Tests) وضمان سلامة معالجة البيانات دون التداخل مع ملفات الواجهات.
+
+---
+
+### 4. إدارة إصدارات المشروع ورسائل الكوميت (Automated Project Versioning & Commit Protocol)
+- **ملفات الإصدار المعتمدة**:
+  1. ملف تهيئة Flutter الأساسي: `pubspec.yaml` (سطر `version: X.Y.Z+B`).
+  2. ملف الثوابت المباشر للتطبيق: `lib/core/constants/app_version.dart`.
+- **بروتوكول الترقية الإلزامي**:
+  - عند كل إضافة خاصية جديدة (Feature) أو تعديل جوهري (Fix/Refactor)، **يتم رفع رقم الإصدار تلقائياً** (`Patch` للتعديلات والتحسينات، و `Minor` للميزات والوحدات الجديدة).
+  - يجب مزامنة رقم الإصدار في كلا الملفين `pubspec.yaml` و `app_version.dart`.
+- **بروتوكول رسائل الكوميت (Git Commit Message Format)**:
+  - يجب دائماً أن تبدأ رسالة الكوميت برقم الإصدار المعتمد بين قوسين أو مسبوقاً بـ `v`:
+    ```
+    v3.0.1: [Feature] Add project notification toggle and mobile task bottomsheet
+    ```
+    أو:
+    ```
+    v3.0.2: [Fix] Resolve notification scheduling on project mute
+    ```
+  - يُمنع عمل أي كوميت بدون تضمين رقم الإصدار في بداية العنوان.
+  - يُعرض رقم الإصدار دائماً في واجهات التطبيق (شاشة البروفايل، شاشة الإعدادات، وقسم حول التطبيق).
+
 ## أوامر تحقق مفيدة
 - معرف الجداول العامة: `supabase db query --linked "select table_name from information_schema.tables where table_schema='public' order by table_name;"`
 - الفهارس: `supabase db query --linked "select indexname, tablename from pg_indexes where schemaname='public' order by tablename;"`

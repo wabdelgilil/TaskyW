@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../settings/presentation/controllers/settings_controller.dart';
 import '../../data/models/financial_record_model.dart';
 import '../controllers/financial_controller.dart';
 
@@ -18,8 +19,9 @@ class RecordDialog {
     final toAccountCtrl = TextEditingController(text: record?.toAccount ?? '');
     final notesCtrl = TextEditingController(text: record?.notes ?? '');
 
+    final settingsCurrency = SettingsController.instance.defaultCurrency;
     String type = record?.type ?? 'expense';
-    String currency = record?.currency ?? 'SAR';
+    String currency = record?.currency ?? settingsCurrency;
     bool isPendingInvoice = record?.isPendingInvoice ?? false;
     String settlementType = record?.settlementType ?? 'none';
     DateTime txDate = record?.transactionDate ?? DateTime.now();

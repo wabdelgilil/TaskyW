@@ -16,6 +16,8 @@ class TaskCard extends StatelessWidget {
   final String? projectEmoji;
   final String? areaName;
   final List<TagModel> tags;
+  final VoidCallback? onProjectBadgeTap;
+  final Color? projectColor;
 
   const TaskCard({
     super.key,
@@ -28,6 +30,8 @@ class TaskCard extends StatelessWidget {
     this.projectEmoji,
     this.areaName,
     this.tags = const [],
+    this.onProjectBadgeTap,
+    this.projectColor,
   });
 
   bool get isCompleted => task.status == 'completed';
@@ -53,6 +57,9 @@ class TaskCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final rawColor = task.colorHex != null ? AppColors.fromHex(task.colorHex) : null;
     final customColor = rawColor != null ? AppColors.adaptiveCustomColor(rawColor, isDark) : null;
+    final badgeColor = projectColor != null
+        ? AppColors.adaptiveCustomColor(projectColor!, isDark)
+        : null;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
@@ -231,29 +238,51 @@ class TaskCard extends StatelessWidget {
                                 ),
                               ),
 
-                            // اسم المشروع التابع له
+                            // اسم المشروع التابع له (شارة قابلة للنقر تفتح صفحة المشروع)
                             if (projectName != null)
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.04),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    if (projectEmoji != null) ...[
-                                      Text(projectEmoji!, style: const TextStyle(fontSize: 11)),
-                                      const SizedBox(width: 4),
-                                    ],
-                                    Text(
-                                      projectName!,
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: AppColors.textSecondary(context),
+                              InkWell(
+                                onTap: onProjectBadgeTap,
+                                borderRadius: BorderRadius.circular(6),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: badgeColor != null
+                                        ? badgeColor.withOpacity(isDark ? 0.22 : 0.12)
+                                        : (isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.04)),
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: badgeColor != null
+                                        ? Border.all(color: badgeColor.withOpacity(isDark ? 0.6 : 0.45), width: 0.9)
+                                        : null,
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (projectEmoji != null) ...[
+                                        Text(projectEmoji!, style: const TextStyle(fontSize: 11)),
+                                        const SizedBox(width: 4),
+                                      ],
+                                      Text(
+                                        projectName!,
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: badgeColor != null
+                                              ? AppColors.adaptiveCustomColor(badgeColor, isDark)
+                                              : AppColors.textSecondary(context),
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                      if (onProjectBadgeTap != null) ...[
+                                        const SizedBox(width: 3),
+                                        Icon(
+                                          Icons.open_in_new,
+                                          size: 10,
+                                          color: badgeColor != null
+                                              ? AppColors.adaptiveCustomColor(badgeColor, isDark)
+                                              : AppColors.textMuted(context),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
                                 ),
                               ),
 

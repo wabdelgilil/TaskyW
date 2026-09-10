@@ -19,7 +19,9 @@
 10. 📝 [10_GENERAL_NOTES_AND_KNOWLEDGE_VAULT.md](file:///d:/programming/Tasky3.0/project_management/10_GENERAL_NOTES_AND_KNOWLEDGE_VAULT.md): مواصفات وتفاصيل وحدة الملاحظات العامة والأفكار والمستودع المعرفي.
 11. 🗄️ [11_ARCHIVE_AND_TRASH_SYSTEM.md](file:///d:/programming/Tasky3.0/project_management/11_ARCHIVE_AND_TRASH_SYSTEM.md): مواصفات نظام الأرشفة، وسلة المهملات، والحذف الناعم/النهائي للمهام.
 12. 🧹 [12_REFACTORING_AND_ARCHITECTURE_PLAN.md](file:///d:/programming/Tasky3.0/project_management/12_REFACTORING_AND_ARCHITECTURE_PLAN.md): خطة إعادة الهيكلة الشاملة، تفكيك الواجهات المتضخمة، ربط المتحكمات، وتوزيع الأدوار بين الوكيل الرئيسي والفرعي.
-13. ✅ [COMPLETED_WORK.md](file:///d:/programming/Tasky3.0/project_management/COMPLETED_WORK.md): السجل الرسمي لتتبع الأعمال والإنجازات المكتملة.
+13. 📱 [13_MOBILE_UX_NOTIFICATIONS_AND_SETTINGS_PLAN.md](file:///d:/programming/Tasky3.0/project_management/13_MOBILE_UX_NOTIFICATIONS_AND_SETTINGS_PLAN.md): خطة تجربة الموبايل، نظام التنبيهات المخصص لكل مشروع، والإعدادات الشاملة (تقسيم مهام الوكيل الرئيسي والفرعي).
+14. 🔮 [14_FUTURE_MODULES_AND_ANALYTICS_DASHBOARD_PLAN.md](file:///d:/programming/Tasky3.0/project_management/14_FUTURE_MODULES_AND_ANALYTICS_DASHBOARD_PLAN.md): خطة الوحدات المؤجلة: لوحة التحليلات المتقدمة، وضع التركيز البومودورو، مستودع المراجع، والتقويم الخارجي.
+15. ✅ [COMPLETED_WORK.md](file:///d:/programming/Tasky3.0/project_management/COMPLETED_WORK.md): السجل الرسمي لتتبع الأعمال والإنجازات المكتملة.
 
 ---
 
@@ -220,3 +222,35 @@
   - فصل واجهات `INoteRepository` و `IAttachmentRepository` في مجلدات `domain/repositories/` النقية.
   - تطهير وتوحيد عناصر العرض بين شاشتي الأرشيف وسلة المهملات (`EmptyStateView`, `ArchiveItemCard`, `TrashItemCard`).
   - إعادة توزيع خدمات المهام المتخصصة (`attachment_service.dart`, `recurrence_service.dart`) إلى `features/tasks/services/`.
+
+### 9. تجربة الموبايل المتكاملة، التنبيهات الذكية المخصصة، ونظام الإعدادات الشامل (Mobile UX, Smart Notifications & Full Settings)
+*(التفاصيل الكاملة ومصفوفة توزيع المهام بين الوكيل الرئيسي والفرعي متوفرة في: [13_MOBILE_UX_NOTIFICATIONS_AND_SETTINGS_PLAN.md](file:///d:/programming/Tasky3.0/project_management/13_MOBILE_UX_NOTIFICATIONS_AND_SETTINGS_PLAN.md))*
+- [x] **المرحلة 1: الباك إند والمنطق (Sub Agent — Backend Specialist)**:
+  - [x] ترقية سكيما قاعدة البيانات المحلية SQLite وإضافة عمود `notifications_enabled` لجدول المشاريع `projects`.
+  - [x] تحديث `ProjectModel` و `ProjectRepositoryImpl` لدعم كتم/تفعيل إشعارات المشروع.
+  - [x] بناء وحدة الإعدادات `AppSettingsModel` وخدمة `SettingsService` ومتحكم `SettingsController` مع دعم تبديل لغة التطبيق (عربي/إنجليزي/لغة الجهاز افتراضياً).
+  - [x] ترقية `NotificationService` لدعم طلب الصلاحيات الصريحة (`requestPermissions`) والفلترة الذكية قبل جدولة التنبيهات (فحص الإعداد العام وحالة المشروع).
+  - [x] إنشاء ملف الثوابت المركزي لرقم الإصدار `AppVersion` وتحديث `pubspec.yaml` وتوفير دالة `updateDisplayName` في `AuthController`.
+  - [x] كتابة اختبارات الوحدة للخدمات والمستودعات والتأكد من نجاحها 100%.
+- [x] **المرحلة 2: الفرونت إند وتجربة المستخدم (Main Agent — Frontend Specialist)**:
+  - [x] تفعيل فتح تفاصيل المهمة على الموبايل عبر نافذة سفلية قابلة للتمرير (`TaskDetailBottomSheet`) بنسبة 90% من الشاشة.
+  - [x] تصميم وبناء شاشة الإعدادات الشاملة `SettingsScreen` وربطها بالقائمة الجانبية والشريط السفلي (التنبيهات، العملة، تبديل اللغة والاتجاه RTL/LTR، الثيم، ورقم الإصدار).
+  - [x] تصميم وبناء صفحة بروفايل المستخدم المستقلة `ProfileScreen` وربطها ببطاقة الحساب في الـ Sidebar وقسم الإعدادات.
+  - [x] إضافة زر تفعيل/كتم التنبيهات لكل مشروع في شاشة تفاصيل المشروع `ProjectDetailScreen` وحوارات الإنشاء والتعديل.
+  - [x] ربط العملة الافتراضية المختارة تلقائياً بحوار إضافة السجلات المالية `RecordDialog`.
+  - [x] تمييز المشروع في عروض "جميع المهام": ربط شارة المشروع التفاعلية (`Smart Project Badge`) في كروت المهام بوضعي القائمة والكانبان مع خيار التجميع حسب المشروع.
+  - [x] تحسينات الموبايل المتكاملة: تطوير الشريط السفلي الذكي وإخفاؤه من الديسكتوب، تفعيل إيماءات السحب للمهام (Swipe to Complete/Delete)، وشريط الإضافة السريعة.
+  - [x] التحقق والتكامل الشامل لضمان `flutter analyze` نظيف و 100% نجاح في الاختبارات.
+
+### 10. الوحدات المؤجلة والتوسعات المستقبلية (Postponed Modules & Long-Term Roadmap)
+*(المواصفات التفصيلية وتوزيع طبقات الفرونت إند والباك إند متوفرة في: [14_FUTURE_MODULES_AND_ANALYTICS_DASHBOARD_PLAN.md](file:///d:/programming/Tasky3.0/project_management/14_FUTURE_MODULES_AND_ANALYTICS_DASHBOARD_PLAN.md))*
+- [ ] **الوحدة الأولى: لوحة التحليلات ومؤشرات الإنتاجية (Analytics Dashboard)**:
+  - بناء واجهة الرسوم البيانية التفاعلية `AnalyticsDashboardScreen` وربطها بالمتحكم الجاهز `AnalyticsController` (بطاقات KPI، رسم معدل الإنجاز الشريطي، ساعات الذروة، ونسب إنجاز المشاريع).
+- [ ] **الوحدة الثانية: وضع التركيز ومؤقت البومودورو (Zen Focus Mode & Pomodoro)**:
+  - شاشة التركيز المنعزلة `FocusModeScreen`، الحلقة الزمنية المتحركة، وأزرار التحكم بالدورات وربط الدقائق بالمهمة.
+- [ ] **الوحدة الثالثة: مستودع المراجع وجهات الاتصال (Bookmarks & Contacts Vault)**:
+  - توسيع مستودع المعرفة لدعم تبويبات الروابط `bookmarks` وجهات الاتصال `contacts` ببطاقات تفاعلية مع الاتصال السريع وفتح الروابط.
+- [ ] **الوحدة الرابعة: تصدير التقويم الخارجي ومزامنة المواعيد (iCal / .ics Sync)**:
+  - خدمة توليد تقويم RFC 5545 وحوار `ExportCalendarDialog` لتنزيل أو نسخ المواعيد لـ Google Calendar و Apple Calendar.
+
+

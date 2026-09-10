@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tasky/features/tags/data/models/tag_model.dart';
+import '../../../../core/services/notification_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/color_picker_dialog.dart';
 import '../../../../core/widgets/confirm_delete_dialog.dart';
@@ -59,6 +60,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
     String emoji = widget.project.iconEmoji;
     String colorHex = widget.project.colorHex;
     String status = widget.project.status;
+    bool notificationsEnabled = widget.project.notificationsEnabled;
 
     showDialog(
       context: context,
@@ -140,6 +142,13 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                       if (val != null) setDialogState(() => status = val);
                     },
                   ),
+                  const SizedBox(height: 12),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('إشعارات هذا المشروع'),
+                    value: notificationsEnabled,
+                    onChanged: (val) => setDialogState(() => notificationsEnabled = val),
+                  ),
                 ],
               ),
             ),
@@ -154,6 +163,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                       iconEmoji: emoji,
                       colorHex: colorHex,
                       status: status,
+                      notificationsEnabled: notificationsEnabled,
                     );
                     widget.onUpdateProject(updated);
                     Navigator.of(ctx).pop();
@@ -256,6 +266,44 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                         ],
                       ),
                     ),
+                    // زر كتم/تفعيل إشعارات المشروع
+                    IconButton(
+                      icon: Icon(
+                        widget.project.notificationsEnabled
+                            ? Icons.notifications_active_outlined
+                            : Icons.notifications_off_outlined,
+                        size: 20,
+                        color: widget.project.notificationsEnabled
+                            ? AppColors.statusInProgress
+                            : AppColors.textMuted(context),
+                      ),
+                      tooltip: widget.project.notificationsEnabled
+                          ? 'كتم إشعارات هذا المشروع'
+                          : 'تفعيل إشعارات هذا Projekt',
+                      onPressed: () {
+                        final newEnabled = !widget.project.notificationsEnabled;
+                        final updated = widget.project.copyWith(
+                          notificationsEnabled: newEnabled,
+                          updatedAt: DateTime.now().toUtc(),
+                        );
+                        widget.onUpdateProject(updated);
+                        if (!newEnabled) {
+                          final taskIds = widget.projectTasks
+                              .where((t) => t.reminderTime != null && t.status != 'completed')
+                              .map((t) => t.id);
+                          NotificationService.instance.cancelRemindersForTasks(taskIds);
+                        }
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              newEnabled ? 'تم تفعيل إشعارات المشروع' : 'تم كتم إشعارات المشروع',
+                            ),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                    ),
+
                     // زر مشاركة المشروع
                     IconButton(
                       icon: const Icon(Icons.share_outlined, size: 20),

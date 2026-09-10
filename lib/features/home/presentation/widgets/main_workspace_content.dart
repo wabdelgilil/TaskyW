@@ -42,6 +42,8 @@ class MainWorkspaceContent extends StatelessWidget {
   final Function(String areaId)? onAddNewProject;
   final Function(String? defaultStatus)? onAddNewTask;
   final Function(String projectId)? onSelectProjectId;
+  final Function(String taskId)? onDeleteTask;
+  final Function(String taskId)? onRestoreTask;
 
   const MainWorkspaceContent({
     super.key,
@@ -70,6 +72,8 @@ class MainWorkspaceContent extends StatelessWidget {
     this.onAddNewProject,
     this.onAddNewTask,
     this.onSelectProjectId,
+    this.onDeleteTask,
+    this.onRestoreTask,
   });
 
   @override
@@ -151,6 +155,10 @@ class MainWorkspaceContent extends StatelessWidget {
         subtaskCounts: subtaskCounts,
         completedSubtaskCounts: completedSubtaskCounts,
         taskTags: taskTags,
+        projects: projects,
+        onProjectBadgeTap: (id) {
+          if (id != null) onSelectProjectId?.call(id);
+        },
         onTaskTap: (t) => onTaskTap?.call(t),
         onTaskStatusChanged: (task, status) => onTaskStatusChanged?.call(task, status),
         onAddTaskInColumn: (status) => onAddNewTask?.call(status),
@@ -178,12 +186,16 @@ class MainWorkspaceContent extends StatelessWidget {
       subtaskCounts: subtaskCounts,
       completedSubtaskCounts: completedSubtaskCounts,
       taskTags: taskTags,
+      projects: projects,
       emptyMessage: isSearchActive
           ? 'لم يتم العثور على أي نتائج تطابق "$searchText"'
           : 'لا توجد مهام في هذا القسم حالياً',
       onTaskTap: (t) => onTaskTap?.call(t),
       onToggleCompleted: onToggleTaskCompleted,
       onAddTask: () => onAddNewTask?.call(null),
+      onSelectProjectId: (id) => onSelectProjectId?.call(id),
+      onDeleteTask: (id) => onDeleteTask?.call(id),
+      onRestoreTask: (id) => onRestoreTask?.call(id),
     );
   }
 }

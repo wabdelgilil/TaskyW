@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../../../core/services/sharing_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/url_helper.dart';
 import '../../data/models/entity_share_model.dart';
@@ -88,6 +89,12 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
         entityId: widget.entityId,
         parentEntityIds: widget.parentEntityIds,
       );
+
+      // إصلاح ذاتي: إن وُجد رمز سابق غير محفوظ في السحابة، ننشئ صف الرابط
+      // العام في entity_shares حتى يبقى الرابط صالحاً بعد فتح النافذة.
+      if (_shareToken != null && _shareToken!.isNotEmpty) {
+        _syncPublicLink();
+      }
     }
   }
 
@@ -134,13 +141,58 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
       _showBlockedSnackBar();
       return;
     }
+    final sharingService = SharingService.instance;
     if (enable) {
-      final newToken = DateTime.now().millisecondsSinceEpoch.toRadixString(36);
+      final newToken = await sharingService.generatePublicLink(
+        entityType: _shareEntityType(),
+        entityId: widget.entityId,
+      );
+      if (!mounted) return;
+      if (newToken == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('تعذر إنشاء الرابط العام، تأكد من تسجيل الدخول والمزامنة.'),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
       setState(() => _shareToken = newToken);
       widget.onShareTokenChanged?.call(newToken);
     } else {
+      await sharingService.revokePublicLink(
+        entityType: _shareEntityType(),
+        entityId: widget.entityId,
+      );
+      if (!mounted) return;
       setState(() => _shareToken = null);
       widget.onShareTokenChanged?.call(null);
+    }
+  }
+
+  /// يحوّل نوع الكيان النصي إلى نوع المشاركة المستخدم في [SharingService].
+  ShareEntityType _shareEntityType() {
+    switch (widget.entityType) {
+      case 'area':
+        return ShareEntityType.area;
+      case 'project':
+        return ShareEntityType.project;
+      default:
+        return ShareEntityType.task;
+    }
+  }
+
+  /// يضمن وجود صف الرابط العام في السحابة (entity_shares) لرمز قديم غير محفوظ.
+  Future<void> _syncPublicLink() async {
+    final token = await SharingService.instance.generatePublicLink(
+      entityType: _shareEntityType(),
+      entityId: widget.entityId,
+    );
+    if (!mounted) return;
+    if (token != null && token != _shareToken) {
+      setState(() => _shareToken = token);
+      widget.onShareTokenChanged?.call(token);
     }
   }
 

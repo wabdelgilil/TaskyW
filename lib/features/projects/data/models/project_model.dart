@@ -7,6 +7,7 @@ class ProjectModel {
   final String colorHex;
   final String status;
   final DateTime? targetDate;
+  final bool notificationsEnabled;
   final int orderIndex;
   final String syncStatus;
   final DateTime createdAt;
@@ -22,6 +23,7 @@ class ProjectModel {
     this.colorHex = '#10B981',
     this.status = 'active',
     this.targetDate,
+    this.notificationsEnabled = true,
     this.orderIndex = 0,
     this.syncStatus = 'pending_insert',
     required this.createdAt,
@@ -44,6 +46,7 @@ class ProjectModel {
     'color_hex': colorHex,
     'status': status,
     'target_date': targetDate?.toUtc().toIso8601String(),
+    'notifications_enabled': notificationsEnabled ? 1 : 0,
     'order_index': orderIndex,
     'sync_status': syncStatus,
     'created_at': createdAt.toUtc().toIso8601String(),
@@ -60,12 +63,20 @@ class ProjectModel {
     colorHex: map['color_hex'] as String? ?? '#10B981',
     status: map['status'] as String? ?? 'active',
     targetDate: map['target_date'] != null ? DateTime.parse(map['target_date'] as String) : null,
+    notificationsEnabled: _parseNotificationFlag(map['notifications_enabled']),
     orderIndex: map['order_index'] as int? ?? 0,
     syncStatus: map['sync_status'] as String? ?? 'pending_insert',
     createdAt: DateTime.parse(map['created_at'] as String),
     updatedAt: DateTime.parse(map['updated_at'] as String),
     deletedAt: map['deleted_at'] != null ? DateTime.parse(map['deleted_at'] as String) : null,
   );
+
+  static bool _parseNotificationFlag(dynamic value) {
+    if (value == null) return true;
+    if (value is bool) return value;
+    if (value is num) return value != 0;
+    return value.toString() != '0' && value.toString().toLowerCase() != 'false';
+  }
 
   ProjectModel copyWith({
     String? id,
@@ -76,6 +87,7 @@ class ProjectModel {
     String? colorHex,
     String? status,
     DateTime? targetDate,
+    bool? notificationsEnabled,
     int? orderIndex,
     String? syncStatus,
     DateTime? createdAt,
@@ -90,6 +102,7 @@ class ProjectModel {
     colorHex: colorHex ?? this.colorHex,
     status: status ?? this.status,
     targetDate: targetDate ?? this.targetDate,
+    notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
     orderIndex: orderIndex ?? this.orderIndex,
     syncStatus: syncStatus ?? this.syncStatus,
     createdAt: createdAt ?? this.createdAt,

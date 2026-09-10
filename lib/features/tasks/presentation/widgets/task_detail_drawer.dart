@@ -34,6 +34,7 @@ class TaskDetailDrawer extends StatefulWidget {
   final Function(String subtaskId) onDeleteSubtask;
   final VoidCallback? onClose;
   final AttachmentService? attachmentService;
+  final double width;
 
   const TaskDetailDrawer({
     super.key,
@@ -53,6 +54,7 @@ class TaskDetailDrawer extends StatefulWidget {
     required this.onDeleteSubtask,
     this.onClose,
     this.attachmentService,
+    this.width = 420,
   });
 
   @override
@@ -138,10 +140,18 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
       recurrenceEndDate: _isRecurring ? _recurrenceEndDate : null,
     );
     if (_reminderTime != null && _status != 'completed') {
+      ProjectModel? project;
+      if (_projectId != null) {
+        project = widget.projects.cast<ProjectModel?>().firstWhere(
+          (p) => p?.id == _projectId,
+          orElse: () => null,
+        );
+      }
       NotificationService.instance.scheduleTaskReminder(
         taskId: updated.id,
         title: updated.title,
         scheduledDate: _reminderTime!,
+        project: project,
       );
     } else {
       NotificationService.instance.cancelTaskReminder(updated.id);
@@ -156,7 +166,7 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
     final customColor = rawColor != null ? AppColors.adaptiveCustomColor(rawColor, isDark) : null;
 
     return Container(
-      width: 420,
+      width: widget.width,
       decoration: BoxDecoration(
         color: AppColors.surface(context),
         border: BorderDirectional(

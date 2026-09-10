@@ -152,6 +152,7 @@ class SharingService {
       'id': _uuid.v4(),
       'entity_type': entityType.value,
       'entity_id': entityId,
+      'owner_id': SupabaseService.currentUserId,
       'email': null,
       'permission': SharePermission.viewer.value,
       'share_token': token,
@@ -178,14 +179,14 @@ class SharingService {
     final client = _client;
     if (client == null) return false;
 
-    final deleted = await client
-        .from(entitySharesTable)
-        .delete()
-        .eq('entity_type', entityType.value)
-        .eq('entity_id', entityId)
-        .eq('is_public', true);
+    try {
+      await client
+          .from(entitySharesTable)
+          .delete()
+          .eq('entity_type', entityType.value)
+          .eq('entity_id', entityId)
+          .eq('is_public', true);
 
-    if (deleted.error == null) {
       // إزالة share_token من صف المهمة إن وُجد
       if (entityType == ShareEntityType.task) {
         await client
@@ -194,8 +195,10 @@ class SharingService {
             .eq('id', entityId);
       }
       return true;
+    } catch (e) {
+      debugPrint('[SharingService] revokePublicLink error: $e');
+      return false;
     }
-    return false;
   }
 
   /// دعوة متعاون بريد إلكتروني مع صلاحية محددة.
@@ -236,12 +239,16 @@ class SharingService {
     final client = _client;
     if (client == null) return false;
 
-    final result = await client
-        .from(entitySharesTable)
-        .update({'permission': permission.value})
-        .eq('id', shareId);
-
-    return result.error == null;
+    try {
+      await client
+          .from(entitySharesTable)
+          .update({'permission': permission.value})
+          .eq('id', shareId);
+      return true;
+    } catch (e) {
+      debugPrint('[SharingService] updatePermission error: $e');
+      return false;
+    }
   }
 
   /// إزالة مشاركة (تعاون أو عمومية).
@@ -249,12 +256,16 @@ class SharingService {
     final client = _client;
     if (client == null) return false;
 
-    final result = await client
-        .from(entitySharesTable)
-        .delete()
-        .eq('id', shareId);
-
-    return result.error == null;
+    try {
+      await client
+          .from(entitySharesTable)
+          .delete()
+          .eq('id', shareId);
+      return true;
+    } catch (e) {
+      debugPrint('[SharingService] removeShare error: $e');
+      return false;
+    }
   }
 
   /// جلب كل المشاركات الخاصة بكيان.

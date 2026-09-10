@@ -232,6 +232,37 @@ class AuthController extends ChangeNotifier {
     }
   }
 
+  /// تحديث الاسم المعروض (يعرض اسماً هادفاً في الواجهات).
+  Future<bool> updateDisplayName(String newName) async {
+    final name = newName.trim();
+    if (name.isEmpty || _currentUser == null) return false;
+
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final response = await SupabaseService.client.auth.updateUser(
+        UserAttributes(data: {'display_name': name}),
+      );
+      _currentUser = response.user;
+      _isLoading = false;
+      _successMessage = 'تم تحديث الاسم المعروض بنجاح';
+      notifyListeners();
+      return true;
+    } on AuthException catch (e) {
+      _isLoading = false;
+      _errorMessage = translateAuthError(e.message, e.statusCode);
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = 'تعذر تحديث الاسم، يرجى المحاولة لاحقاً';
+      notifyListeners();
+      return false;
+    }
+  }
+
   /// تسجيل الخروج
   Future<void> signOut() async {
     try {

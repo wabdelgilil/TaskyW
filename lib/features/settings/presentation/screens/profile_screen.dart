@@ -1,0 +1,207 @@
+import 'package:flutter/material.dart';
+import 'package:tasky/core/constants/app_version.dart';
+import 'package:tasky/core/services/sync_controller.dart';
+import 'package:tasky/core/theme/app_colors.dart';
+import 'package:tasky/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:tasky/features/auth/presentation/screens/auth_screen.dart';
+
+/// شاشة البروفايل المستقلة للعرض وتعديل الاسم المعروض.
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  late final TextEditingController _nameCtrl;
+  bool _editing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameCtrl = TextEditingController(text: AuthController.instance.displayName ?? '');
+  }
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = AuthController.instance;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('البروفايل'),
+        actions: [
+          if (auth.isAuthenticated)
+            IconButton(
+              icon: Icon(_editing ? Icons.close : Icons.edit_outlined, size: 20),
+              tooltip: _editing ? 'إلغاء' : 'تعديل الاسم',
+              onPressed: () {
+                setState(() {
+                  _editing = !_editing;
+                  if (!_editing) {
+                    _nameCtrl.text = auth.displayName ?? '';
+                  }
+                });
+              },
+            ),
+        ],
+      ),
+      body: ListenableBuilder(
+        listenable: auth,
+        builder: (context, _) {
+          if (!auth.isAuthenticated) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.cloud_off, size: 56, color: AppColors.textMuted(context)),
+                  const SizedBox(height: 12),
+                  Text('غير مسجل الدخول', style: TextStyle(color: AppColors.textSecondary(context), fontSize: 15)),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: () => Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (_) => const AuthScreen()),
+                    ),
+                    icon: const Icon(Icons.login, size: 18),
+                    label: const Text('تسجيل الدخول'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+              Center(
+                child: CircleAvatar(
+                  radius: 40,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  child: Text(
+                    (auth.displayName?.isNotEmpty == true ? auth.displayName![0] : 'U').toUpperCase(),
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 28),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // الاسم المعروض
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text('الاسم المعروض', style: TextStyle(fontSize: 12, color: AppColors.textMuted(context))),
+                      const SizedBox(height: 6),
+                      if (_editing)
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _nameCtrl,
+                                autofocus: true,
+                                decoration: const InputDecoration(hintText: 'أدخل اسمك الجديد'),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              icon: const Icon(Icons.check_circle, color: Colors.green),
+                              onPressed: () async {
+                                final success = await auth.updateDisplayName(_nameCtrl.text);
+                                if (success && mounted && context.mounted) {
+                                  setState(() => _editing = false);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('تم تحديث الاسم بنجاح')),
+                                  );
+                                }
+                              },
+                            ),
+                          ],
+                        )
+                      else
+                        Text(
+                          auth.displayName ?? 'مستخدم Tasky',
+                          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              // البريد الإلكتروني
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.email_outlined),
+                  title: const Text('البريد الإلكتروني'),
+                  subtitle: Text(auth.userEmail ?? 'غير محدد'),
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              // حالة المزامنة السحابية
+              Card(
+                child: ListenableBuilder(
+                  listenable: SyncController.instance,
+                  builder: (context, _) {
+                    final sync = SyncController.instance;
+                    return ListTile(
+                      leading: Icon(
+                        Icons.cloud_done_outlined,
+                        color: sync.isSyncing
+                            ? Colors.blueAccent
+                            : sync.hasPending
+                                ? Colors.amber
+                                : Colors.green,
+                      ),
+                      title: const Text('حالة السحابة'),
+                      subtitle: Text(
+                        sync.isSyncing
+                            ? 'جاري المزامنة...'
+                            : sync.hasPending
+                                ? '${sync.pendingCount} تعديل معلق'
+                                : 'متزامن بالكامل',
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              // إصدار التطبيق
+              Card(
+                child: ListTile(
+                  leading: Icon(Icons.info_outline, color: AppColors.textMuted(context)),
+                  title: const Text('إصدار التطبيق'),
+                  subtitle: Text('Tasky ${AppVersion.shortVersion} (${AppVersion.version})'),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // تسجيل الخروج
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.redAccent,
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: () async {
+                  await auth.signOut();
+                  if (mounted && context.mounted) Navigator.of(context).pop();
+                },
+                icon: const Icon(Icons.logout, size: 18),
+                label: const Text('تسجيل الخروج'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}

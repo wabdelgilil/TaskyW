@@ -74,7 +74,7 @@ class SyncService {
     ]),
     _SyncTable(DatabaseTables.projectTable, [
       'id', 'area_id', 'name', 'description', 'icon_emoji', 'color_hex',
-      'status', 'target_date', 'order_index',
+      'status', 'target_date', 'notifications_enabled', 'order_index',
       'sync_status', 'created_at', 'updated_at', 'deleted_at',
     ]),
     _SyncTable(DatabaseTables.taskTable, [
@@ -350,6 +350,11 @@ class SyncService {
   ]) {
     final payload = Map<String, dynamic>.from(row);
     payload.remove('sync_status');
+    if (payload.containsKey('notifications_enabled') &&
+        payload['notifications_enabled'] is num) {
+      payload['notifications_enabled'] =
+          (payload['notifications_enabled'] as num) != 0;
+    }
     if (userId != null && !payload.containsKey('user_id')) {
       payload['user_id'] = userId;
     }
@@ -367,7 +372,11 @@ class SyncService {
       for (final col in validColumns) {
         if (cloudRow.containsKey(col)) {
           var val = cloudRow[col];
-          if ((col == 'is_completed' || col == 'is_pinned' || col == 'is_archived') && val is bool) {
+          if ((col == 'is_completed' ||
+                  col == 'is_pinned' ||
+                  col == 'is_archived' ||
+                  col == 'notifications_enabled') &&
+              val is bool) {
             val = val ? 1 : 0;
           }
           row[col] = val;
@@ -378,7 +387,9 @@ class SyncService {
       row.remove('user_id');
       if ((row.containsKey('is_completed') && row['is_completed'] is bool) ||
           (row.containsKey('is_pinned') && row['is_pinned'] is bool) ||
-          (row.containsKey('is_archived') && row['is_archived'] is bool)) {
+          (row.containsKey('is_archived') && row['is_archived'] is bool) ||
+          (row.containsKey('notifications_enabled') &&
+              row['notifications_enabled'] is bool)) {
         if (row['is_completed'] is bool) {
           row['is_completed'] = (row['is_completed'] as bool) ? 1 : 0;
         }
@@ -387,6 +398,10 @@ class SyncService {
         }
         if (row['is_archived'] is bool) {
           row['is_archived'] = (row['is_archived'] as bool) ? 1 : 0;
+        }
+        if (row['notifications_enabled'] is bool) {
+          row['notifications_enabled'] =
+              (row['notifications_enabled'] as bool) ? 1 : 0;
         }
       }
     }
