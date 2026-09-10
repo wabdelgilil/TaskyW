@@ -946,5 +946,18 @@
         "example": "Example"
       }
     }
-  }
+  },
+  "authConnectionError": "حدث خطأ في الاتصال، يرجى المحاولة لاحقاً",
+  "authSignUpError": "حدث خطأ في إنشاء الحساب، يرجى المحاولة لاحقاً",
+  "authEnterEmailForResend": "يرجى إدخال البريد الإلكتروني لإعادة إرسال الرابط",
+  "authResendActivationError": "تعذر إعادة إرسال رابط التفعيل، يرجى المحاولة لاحقاً",
+  "authResetPasswordError": "تعذر إرسال رابط الاستعادة",
+  "authDisplayNameUpdated": "تم تحديث الاسم المعروض بنجاح",
+  "authUpdateNameError": "تعذر تحديث الاسم، يرجى المحاولة لاحقاً",
+  "authEmailNotConfirmed": "لم يتم تأكيد بريدك الإلكتروني بعد. يرجى فتح الرسالة المرسلة إلى بريدك والنقر على رابط التفعيل لتسجيل الدخول.",
+  "authInvalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+  "authUserAlreadyRegistered": "هذا البريد الإلكتروني مسجل بالفعل",
+  "authPasswordTooShort": "كلمة المرور يجب ألا تقل عن 6 أحرف",
+  "authInvalidEmail": "صيغة البريد الإلكتروني غير صالحة",
+  "authRateLimit": "يرجى الانتظار دقيقة قبل طلب إرسال رابط جديد"
 }

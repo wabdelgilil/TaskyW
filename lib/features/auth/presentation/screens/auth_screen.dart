@@ -54,7 +54,7 @@ class _AuthScreenState extends State<AuthScreen> {
     final auth = AuthController.instance;
 
     if (_mode == AuthMode.signIn) {
-      final success = await auth.signInWithEmail(email: email, password: password);
+      final success = await auth.signInWithEmail(email: email, password: password, l10n: context.l10n);
       if (success && mounted) {
         if (widget.onAuthSuccess != null) {
           widget.onAuthSuccess!();
@@ -67,6 +67,7 @@ class _AuthScreenState extends State<AuthScreen> {
         email: email,
         password: password,
         displayName: name.isNotEmpty ? name : null,
+        l10n: context.l10n,
       );
       if (result.success && mounted) {
         if (result.needsEmailConfirmation) {
@@ -89,7 +90,7 @@ class _AuthScreenState extends State<AuthScreen> {
         }
       }
     } else if (_mode == AuthMode.forgotPassword) {
-      final success = await auth.resetPassword(email);
+      final success = await auth.resetPassword(email, context.l10n);
       if (success && mounted) {
         setState(() {
           _successMessage = context.l10n.authResetEmailSent;
@@ -336,7 +337,7 @@ class _AuthScreenState extends State<AuthScreen> {
           onPressed: auth.isLoading
               ? null
               : () async {
-                  final ok = await auth.resendConfirmationEmail(displayEmail);
+                  final ok = await auth.resendConfirmationEmail(displayEmail, context.l10n);
                   if (ok && mounted) {
                     setState(() {
                       _successMessage = l10n.authResendSuccess;
@@ -516,7 +517,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         : () async {
                             final email = _emailController.text.trim();
                             if (email.isEmpty) return;
-                            final ok = await auth.resendConfirmationEmail(email);
+                            final ok = await auth.resendConfirmationEmail(email, context.l10n);
                             if (ok && mounted) {
                               setState(() {
                                 _successMessage = context.l10n.authResendActivationSuccess(email);

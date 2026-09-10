@@ -946,5 +946,18 @@
         "example": "Example"
       }
     }
-  }
+  },
+  "authConnectionError": "Connection error, please try again later",
+  "authSignUpError": "Failed to create account, please try again later",
+  "authEnterEmailForResend": "Please enter your email to resend the link",
+  "authResendActivationError": "Failed to resend activation link, please try again later",
+  "authResetPasswordError": "Failed to send reset link",
+  "authDisplayNameUpdated": "Display name updated successfully",
+  "authUpdateNameError": "Failed to update name, please try again later",
+  "authEmailNotConfirmed": "Your email hasn't been confirmed yet. Please open the email and click the activation link to sign in.",
+  "authInvalidCredentials": "Invalid email or password",
+  "authUserAlreadyRegistered": "This email is already registered",
+  "authPasswordTooShort": "Password must be at least 6 characters",
+  "authInvalidEmail": "Invalid email format",
+  "authRateLimit": "Please wait a minute before requesting a new link"
 }

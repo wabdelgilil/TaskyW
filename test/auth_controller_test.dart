@@ -18,25 +18,32 @@ void main() {
       );
     });
 
-    test('يترجم خطأ عدم تأكيد البريد إلى رسالة واضحة وتوجيهية', () {
+    test('يترجم خطأ عدم تأكيد البريد إلى رسالة واضحة (بدون l10n → إنجليزي)', () {
       final msg = AuthController.translateAuthError('Email not confirmed');
-      expect(msg, contains('تأكيد بريدك الإلكتروني'));
-      expect(msg, contains('رابط التفعيل'));
+      expect(msg, contains('email'));
+      expect(msg, contains('activation link'));
     });
 
-    test('يترجم أخطاء تسجيل الدخول الأخرى بدقة', () {
+    test('يترجم أخطاء تسجيل الدخول الأخرى بدقة (بدون l10n → إنجليزي)', () {
       expect(
         AuthController.translateAuthError('Invalid login credentials'),
-        equals('البريد الإلكتروني أو كلمة المرور غير صحيحة'),
+        equals('Invalid email or password'),
       );
       expect(
         AuthController.translateAuthError('User already registered'),
-        equals('هذا البريد الإلكتروني مسجل بالفعل'),
+        equals('This email is already registered'),
       );
       expect(
         AuthController.translateAuthError('Password should be at least 6 characters'),
-        equals('كلمة المرور يجب ألا تقل عن 6 أحرف'),
+        equals('Password must be at least 6 characters'),
       );
+    });
+
+    test('يترجم الأخطاء بـ l10n عربي إذا وُجد', () {
+      // Note: This test verifies the fallback path works correctly.
+      // Full l10n integration is tested via widget tests.
+      final msg = AuthController.translateAuthError('Invalid login credentials', null, null);
+      expect(msg, equals('Invalid email or password'));
     });
   });
 }

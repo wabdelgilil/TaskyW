@@ -1716,4 +1716,49 @@ class AppLocalizationsEn extends AppLocalizations {
   String shareRevokeConfirmBody(String email) {
     return 'Are you sure you want to revoke sharing with $email?';
   }
+
+  @override
+  String get authConnectionError => 'Connection error, please try again later';
+
+  @override
+  String get authSignUpError =>
+      'Failed to create account, please try again later';
+
+  @override
+  String get authEnterEmailForResend =>
+      'Please enter your email to resend the link';
+
+  @override
+  String get authResendActivationError =>
+      'Failed to resend activation link, please try again later';
+
+  @override
+  String get authResetPasswordError => 'Failed to send reset link';
+
+  @override
+  String get authDisplayNameUpdated => 'Display name updated successfully';
+
+  @override
+  String get authUpdateNameError =>
+      'Failed to update name, please try again later';
+
+  @override
+  String get authEmailNotConfirmed =>
+      'Your email hasn\'t been confirmed yet. Please open the email and click the activation link to sign in.';
+
+  @override
+  String get authInvalidCredentials => 'Invalid email or password';
+
+  @override
+  String get authUserAlreadyRegistered => 'This email is already registered';
+
+  @override
+  String get authPasswordTooShort => 'Password must be at least 6 characters';
+
+  @override
+  String get authInvalidEmail => 'Invalid email format';
+
+  @override
+  String get authRateLimit =>
+      'Please wait a minute before requesting a new link';
 }

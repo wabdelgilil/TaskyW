@@ -3223,6 +3223,84 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'هل أنت متأكد من إلغاء مشاركة هذا العنصر مع {email}؟'**
   String shareRevokeConfirmBody(String email);
+
+  /// No description provided for @authConnectionError.
+  ///
+  /// In ar, this message translates to:
+  /// **'حدث خطأ في الاتصال، يرجى المحاولة لاحقاً'**
+  String get authConnectionError;
+
+  /// No description provided for @authSignUpError.
+  ///
+  /// In ar, this message translates to:
+  /// **'حدث خطأ في إنشاء الحساب، يرجى المحاولة لاحقاً'**
+  String get authSignUpError;
+
+  /// No description provided for @authEnterEmailForResend.
+  ///
+  /// In ar, this message translates to:
+  /// **'يرجى إدخال البريد الإلكتروني لإعادة إرسال الرابط'**
+  String get authEnterEmailForResend;
+
+  /// No description provided for @authResendActivationError.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذر إعادة إرسال رابط التفعيل، يرجى المحاولة لاحقاً'**
+  String get authResendActivationError;
+
+  /// No description provided for @authResetPasswordError.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذر إرسال رابط الاستعادة'**
+  String get authResetPasswordError;
+
+  /// No description provided for @authDisplayNameUpdated.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تحديث الاسم المعروض بنجاح'**
+  String get authDisplayNameUpdated;
+
+  /// No description provided for @authUpdateNameError.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذر تحديث الاسم، يرجى المحاولة لاحقاً'**
+  String get authUpdateNameError;
+
+  /// No description provided for @authEmailNotConfirmed.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يتم تأكيد بريدك الإلكتروني بعد. يرجى فتح الرسالة المرسلة إلى بريدك والنقر على رابط التفعيل لتسجيل الدخول.'**
+  String get authEmailNotConfirmed;
+
+  /// No description provided for @authInvalidCredentials.
+  ///
+  /// In ar, this message translates to:
+  /// **'البريد الإلكتروني أو كلمة المرور غير صحيحة'**
+  String get authInvalidCredentials;
+
+  /// No description provided for @authUserAlreadyRegistered.
+  ///
+  /// In ar, this message translates to:
+  /// **'هذا البريد الإلكتروني مسجل بالفعل'**
+  String get authUserAlreadyRegistered;
+
+  /// No description provided for @authPasswordTooShort.
+  ///
+  /// In ar, this message translates to:
+  /// **'كلمة المرور يجب ألا تقل عن 6 أحرف'**
+  String get authPasswordTooShort;
+
+  /// No description provided for @authInvalidEmail.
+  ///
+  /// In ar, this message translates to:
+  /// **'صيغة البريد الإلكتروني غير صالحة'**
+  String get authInvalidEmail;
+
+  /// No description provided for @authRateLimit.
+  ///
+  /// In ar, this message translates to:
+  /// **'يرجى الانتظار دقيقة قبل طلب إرسال رابط جديد'**
+  String get authRateLimit;
 }
 
 class _AppLocalizationsDelegate

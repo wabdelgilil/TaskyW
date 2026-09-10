@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/services/supabase_service.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// نتيجة محاولة إنشاء الحساب
 class SignUpResult {
@@ -66,6 +67,7 @@ class AuthController extends ChangeNotifier {
   Future<bool> signInWithEmail({
     required String email,
     required String password,
+    AppLocalizations? l10n,
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -88,12 +90,12 @@ class AuthController extends ChangeNotifier {
       if (_isEmailNotConfirmed) {
         _unconfirmedEmail = email.trim();
       }
-      _errorMessage = translateAuthError(e.message, e.statusCode);
+      _errorMessage = translateAuthError(e.message, e.statusCode, l10n);
       _isLoading = false;
       notifyListeners();
       return false;
     } catch (e) {
-      _errorMessage = 'حدث خطأ في الاتصال، يرجى المحاولة لاحقاً';
+      _errorMessage = l10n?.authConnectionError ?? 'Connection error, please try again later';
       _isLoading = false;
       notifyListeners();
       return false;
@@ -105,6 +107,7 @@ class AuthController extends ChangeNotifier {
     required String email,
     required String password,
     String? displayName,
+    AppLocalizations? l10n,
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -144,7 +147,7 @@ class AuthController extends ChangeNotifier {
       if (_isEmailNotConfirmed) {
         _unconfirmedEmail = email.trim();
       }
-      _errorMessage = translateAuthError(e.message, e.statusCode);
+      _errorMessage = translateAuthError(e.message, e.statusCode, l10n);
       _isLoading = false;
       notifyListeners();
       return SignUpResult(
@@ -152,7 +155,7 @@ class AuthController extends ChangeNotifier {
         errorMessage: _errorMessage,
       );
     } catch (e) {
-      _errorMessage = 'حدث خطأ في إنشاء الحساب، يرجى المحاولة لاحقاً';
+      _errorMessage = l10n?.authSignUpError ?? 'Failed to create account, please try again later';
       _isLoading = false;
       notifyListeners();
       return SignUpResult(
@@ -163,10 +166,10 @@ class AuthController extends ChangeNotifier {
   }
 
   /// إعادة إرسال رابط تأكيد البريد الإلكتروني
-  Future<bool> resendConfirmationEmail([String? email]) async {
+  Future<bool> resendConfirmationEmail([String? email, AppLocalizations? l10n]) async {
     final targetEmail = (email ?? _unconfirmedEmail)?.trim();
     if (targetEmail == null || targetEmail.isEmpty) {
-      _errorMessage = 'يرجى إدخال البريد الإلكتروني لإعادة إرسال الرابط';
+      _errorMessage = l10n?.authEnterEmailForResend ?? 'Please enter your email to resend the link';
       notifyListeners();
       return false;
     }
@@ -185,24 +188,24 @@ class AuthController extends ChangeNotifier {
         emailRedirectTo: redirectTo,
       );
       _isLoading = false;
-      _successMessage = 'تمت إعادة إرسال رابط التفعيل إلى $targetEmail بنجاح!';
+      _successMessage = l10n?.authResendActivationSuccess(targetEmail) ?? 'The activation link has been resent to $targetEmail! Check your email now.';
       notifyListeners();
       return true;
     } on AuthException catch (e) {
       _isLoading = false;
-      _errorMessage = translateAuthError(e.message, e.statusCode);
+      _errorMessage = translateAuthError(e.message, e.statusCode, l10n);
       notifyListeners();
       return false;
     } catch (e) {
       _isLoading = false;
-      _errorMessage = 'تعذر إعادة إرسال رابط التفعيل، يرجى المحاولة لاحقاً';
+      _errorMessage = l10n?.authResendActivationError ?? 'Failed to resend activation link, please try again later';
       notifyListeners();
       return false;
     }
   }
 
   /// استعادة كلمة المرور
-  Future<bool> resetPassword(String email) async {
+  Future<bool> resetPassword(String email, [AppLocalizations? l10n]) async {
     _isLoading = true;
     _errorMessage = null;
     _successMessage = null;
@@ -216,16 +219,16 @@ class AuthController extends ChangeNotifier {
         redirectTo: redirectTo,
       );
       _isLoading = false;
-      _successMessage = 'تم إرسال رابط استعادة كلمة المرور إلى بريدك.';
+      _successMessage = l10n?.authResetEmailSent ?? 'A password reset link has been sent to your email.';
       notifyListeners();
       return true;
     } on AuthException catch (e) {
-      _errorMessage = translateAuthError(e.message, e.statusCode);
+      _errorMessage = translateAuthError(e.message, e.statusCode, l10n);
       _isLoading = false;
       notifyListeners();
       return false;
     } catch (e) {
-      _errorMessage = 'تعذر إرسال رابط الاستعادة';
+      _errorMessage = l10n?.authResetPasswordError ?? 'Failed to send reset link';
       _isLoading = false;
       notifyListeners();
       return false;
@@ -233,7 +236,7 @@ class AuthController extends ChangeNotifier {
   }
 
   /// تحديث الاسم المعروض (يعرض اسماً هادفاً في الواجهات).
-  Future<bool> updateDisplayName(String newName) async {
+  Future<bool> updateDisplayName(String newName, [AppLocalizations? l10n]) async {
     final name = newName.trim();
     if (name.isEmpty || _currentUser == null) return false;
 
@@ -247,17 +250,17 @@ class AuthController extends ChangeNotifier {
       );
       _currentUser = response.user;
       _isLoading = false;
-      _successMessage = 'تم تحديث الاسم المعروض بنجاح';
+      _successMessage = l10n?.authDisplayNameUpdated ?? 'Display name updated successfully';
       notifyListeners();
       return true;
     } on AuthException catch (e) {
       _isLoading = false;
-      _errorMessage = translateAuthError(e.message, e.statusCode);
+      _errorMessage = translateAuthError(e.message, e.statusCode, l10n);
       notifyListeners();
       return false;
     } catch (e) {
       _isLoading = false;
-      _errorMessage = 'تعذر تحديث الاسم، يرجى المحاولة لاحقاً';
+      _errorMessage = l10n?.authUpdateNameError ?? 'Failed to update name, please try again later';
       notifyListeners();
       return false;
     }
@@ -294,25 +297,25 @@ class AuthController extends ChangeNotifier {
         lower.contains('email is not confirmed');
   }
 
-  static String translateAuthError(String message, [String? code]) {
+  static String translateAuthError(String message, [String? code, AppLocalizations? l10n]) {
     final lower = message.toLowerCase();
     final lowerCode = code?.toLowerCase();
 
     if (lowerCode == 'email_not_confirmed' ||
         lower.contains('email not confirmed') ||
         lower.contains('email is not confirmed')) {
-      return 'لم يتم تأكيد بريدك الإلكتروني بعد. يرجى فتح الرسالة المرسلة إلى بريدك والنقر على رابط التفعيل لتسجيل الدخول.';
+      return l10n?.authEmailNotConfirmed ?? 'Your email hasn\'t been confirmed yet. Please open the email and click the activation link to sign in.';
     } else if (lower.contains('invalid login credentials')) {
-      return 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
+      return l10n?.authInvalidCredentials ?? 'Invalid email or password';
     } else if (lower.contains('user already registered')) {
-      return 'هذا البريد الإلكتروني مسجل بالفعل';
+      return l10n?.authUserAlreadyRegistered ?? 'This email is already registered';
     } else if (lower.contains('password should be at least')) {
-      return 'كلمة المرور يجب ألا تقل عن 6 أحرف';
+      return l10n?.authPasswordTooShort ?? 'Password must be at least 6 characters';
     } else if (lower.contains('invalid email')) {
-      return 'صيغة البريد الإلكتروني غير صالحة';
+      return l10n?.authInvalidEmail ?? 'Invalid email format';
     } else if (lower.contains('rate limit') ||
         lower.contains('for security purposes')) {
-      return 'يرجى الانتظار دقيقة قبل طلب إرسال رابط جديد';
+      return l10n?.authRateLimit ?? 'Please wait a minute before requesting a new link';
     }
     return message;
   }

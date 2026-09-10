@@ -1700,4 +1700,47 @@ class AppLocalizationsAr extends AppLocalizations {
   String shareRevokeConfirmBody(String email) {
     return 'هل أنت متأكد من إلغاء مشاركة هذا العنصر مع $email؟';
   }
+
+  @override
+  String get authConnectionError => 'حدث خطأ في الاتصال، يرجى المحاولة لاحقاً';
+
+  @override
+  String get authSignUpError => 'حدث خطأ في إنشاء الحساب، يرجى المحاولة لاحقاً';
+
+  @override
+  String get authEnterEmailForResend =>
+      'يرجى إدخال البريد الإلكتروني لإعادة إرسال الرابط';
+
+  @override
+  String get authResendActivationError =>
+      'تعذر إعادة إرسال رابط التفعيل، يرجى المحاولة لاحقاً';
+
+  @override
+  String get authResetPasswordError => 'تعذر إرسال رابط الاستعادة';
+
+  @override
+  String get authDisplayNameUpdated => 'تم تحديث الاسم المعروض بنجاح';
+
+  @override
+  String get authUpdateNameError => 'تعذر تحديث الاسم، يرجى المحاولة لاحقاً';
+
+  @override
+  String get authEmailNotConfirmed =>
+      'لم يتم تأكيد بريدك الإلكتروني بعد. يرجى فتح الرسالة المرسلة إلى بريدك والنقر على رابط التفعيل لتسجيل الدخول.';
+
+  @override
+  String get authInvalidCredentials =>
+      'البريد الإلكتروني أو كلمة المرور غير صحيحة';
+
+  @override
+  String get authUserAlreadyRegistered => 'هذا البريد الإلكتروني مسجل بالفعل';
+
+  @override
+  String get authPasswordTooShort => 'كلمة المرور يجب ألا تقل عن 6 أحرف';
+
+  @override
+  String get authInvalidEmail => 'صيغة البريد الإلكتروني غير صالحة';
+
+  @override
+  String get authRateLimit => 'يرجى الانتظار دقيقة قبل طلب إرسال رابط جديد';
 }

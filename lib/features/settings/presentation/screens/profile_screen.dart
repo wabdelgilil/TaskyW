@@ -115,7 +115,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             IconButton(
                               icon: const Icon(Icons.check_circle, color: Colors.green),
                               onPressed: () async {
-                                final success = await auth.updateDisplayName(_nameCtrl.text);
+                                final success = await auth.updateDisplayName(_nameCtrl.text, context.l10n);
                                 if (success && mounted && context.mounted) {
                                   setState(() => _editing = false);
                                   ScaffoldMessenger.of(context).showSnackBar(
