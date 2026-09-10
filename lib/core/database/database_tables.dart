@@ -226,6 +226,7 @@ class DatabaseTables {
   ''';
 
   static const String financialRecordTable = 'financial_records';
+  static const String userSettingsTable = 'user_settings';
 
   static const String createFinancialRecordTable = '''
     CREATE TABLE IF NOT EXISTS financial_records (
@@ -267,6 +268,24 @@ class DatabaseTables {
     CREATE INDEX IF NOT EXISTS idx_financial_deleted ON financial_records (deleted_at);
   ''';
 
+  /// جدول إعدادات المستخدم (سطر واحد ثابت المعرّف) — يُزامَن سحابياً لكل مستخدم.
+  static const String createUserSettingsTable = '''
+    CREATE TABLE IF NOT EXISTS user_settings (
+      id TEXT PRIMARY KEY,
+      notifications_enabled INTEGER NOT NULL DEFAULT 1,
+      default_reminder_minutes INTEGER NOT NULL DEFAULT 15,
+      default_currency TEXT NOT NULL DEFAULT 'SAR',
+      default_view_mode TEXT NOT NULL DEFAULT 'list',
+      theme_mode TEXT NOT NULL DEFAULT 'light',
+      language_code TEXT NOT NULL DEFAULT 'system',
+      layout_direction TEXT NOT NULL DEFAULT 'ltr',
+      sync_status TEXT NOT NULL DEFAULT 'synced',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      deleted_at TEXT
+    );
+  ''';
+
   static List<String> get allCreateStatements => [
     createAreaTable,
     createProjectTable,
@@ -297,5 +316,6 @@ class DatabaseTables {
     createFinancialSettlementIndex,
     createFinancialDateIndex,
     createFinancialDeletedIndex,
+    createUserSettingsTable,
   ];
 }

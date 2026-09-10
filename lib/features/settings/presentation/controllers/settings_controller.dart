@@ -29,6 +29,12 @@ class SettingsController extends ChangeNotifier {
   String get themeMode => _settings.themeMode;
   String get languageCode => _settings.languageCode;
 
+  /// اتجاه تخطيط الواجهة: ltr (سايد بار يسار دائماً) أو auto (يتبع اللغة).
+  String get layoutDirection => _settings.layoutDirection;
+
+  /// هل الواجهة مُجبرة على الاتجاه الأيسر (LTR) بغض النظر عن اللغة؟
+  bool get isForcedLtr => _settings.layoutDirection == 'ltr';
+
   /// اللغة النشطة: null = تلقائي (لغة الجهاز)، أو `Locale('ar')` / `Locale('en')`.
   Locale? get activeLocale {
     switch (_settings.languageCode) {
@@ -113,6 +119,16 @@ class SettingsController extends ChangeNotifier {
   Future<void> updateLanguage(String code) async {
     if (!AppSettingsModel.supportedLanguages.contains(code)) return;
     _settings = _settings.copyWith(languageCode: code);
+    await _service.save(_settings);
+    notifyListeners();
+  }
+
+  /// تغيير اتجاه تخطيط الواجهة (ltr / auto) — مستقل تماماً عن اللغة.
+  Future<void> setLayoutDirection(String direction) async {
+    if (!AppSettingsModel.supportedLayoutDirections.contains(direction)) {
+      return;
+    }
+    _settings = _settings.copyWith(layoutDirection: direction);
     await _service.save(_settings);
     notifyListeners();
   }

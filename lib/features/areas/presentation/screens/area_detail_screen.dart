@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/features/tags/data/models/tag_model.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/color_picker_dialog.dart';
@@ -64,7 +65,7 @@ class AreaDetailScreen extends StatelessWidget {
         builder: (context, setDialogState) {
           final aColor = AppColors.fromHex(colorHex);
           return AlertDialog(
-            title: const Text('تعديل بيانات المجال', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            title: Text(context.l10n.editAreaData, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             content: SizedBox(
               width: 360,
               child: Column(
@@ -105,7 +106,7 @@ class AreaDetailScreen extends StatelessWidget {
                             children: [
                               Container(width: 16, height: 16, decoration: BoxDecoration(color: aColor, shape: BoxShape.circle)),
                               const SizedBox(width: 6),
-                              const Text('اللون', style: TextStyle(fontSize: 12)),
+                              Text(context.l10n.colorLabel, style: const TextStyle(fontSize: 12)),
                             ],
                           ),
                         ),
@@ -115,13 +116,13 @@ class AreaDetailScreen extends StatelessWidget {
                   const SizedBox(height: 14),
                   TextField(
                     controller: nameCtrl,
-                    decoration: const InputDecoration(labelText: 'اسم المجال'),
+                    decoration: InputDecoration(labelText: context.l10n.areaName),
                   ),
                 ],
               ),
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('إلغاء')),
+              TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(context.l10n.commonCancel)),
               ElevatedButton(
                 onPressed: () {
                   if (nameCtrl.text.trim().isNotEmpty) {
@@ -134,7 +135,7 @@ class AreaDetailScreen extends StatelessWidget {
                     Navigator.of(ctx).pop();
                   }
                 },
-                child: const Text('حفظ التعديلات'),
+                child: Text(context.l10n.saveChanges),
               ),
             ],
           );
@@ -149,6 +150,7 @@ class AreaDetailScreen extends StatelessWidget {
     final rawAreaColor = AppColors.fromHex(area.colorHex);
     final areaColor = AppColors.adaptiveCustomColor(rawAreaColor, isDark);
     final standaloneTasks = areaTasks.where((t) => t.projectId == null).toList();
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -199,7 +201,7 @@ class AreaDetailScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'مجال مسؤولية يضم ${areaProjects.length} مشاريع و ${areaTasks.length} مهام',
+                            context.l10n.areaStats(areaProjects.length, areaTasks.length),
                             style: TextStyle(
                               fontSize: 13,
                               color: AppColors.textSecondary(context),
@@ -211,7 +213,7 @@ class AreaDetailScreen extends StatelessWidget {
                     // زر مشاركة المجال
                     IconButton(
                       icon: const Icon(Icons.share_outlined, size: 20),
-                      tooltip: 'مشاركة المجال مع الفريق',
+                      tooltip: l10n.shareAreaWithTeam,
                       onPressed: () {
                         UniversalShareDialog.show(
                           context,
@@ -223,19 +225,19 @@ class AreaDetailScreen extends StatelessWidget {
                     ),
                     IconButton(
                       icon: const Icon(Icons.edit_outlined, size: 20),
-                      tooltip: 'تعديل المجال',
+                      tooltip: l10n.editArea,
                       onPressed: () => _showEditAreaDialog(context),
                     ),
 
                     IconButton(
                       icon: const Icon(Icons.delete_outline, size: 20, color: Colors.redAccent),
-                      tooltip: 'حذف المجال',
+                      tooltip: l10n.deleteArea,
                       onPressed: () async {
                         final confirmed = await ConfirmDeleteDialog.show(
                           context,
-                          title: 'حذف المجال',
-                          message: 'هل أنت متأكد من رغبتك في حذف مجال "${area.name}" وجميع المشاريع والمهام التابعة له؟ لا يمكن التراجع عن هذا الإجراء.',
-                          confirmLabel: 'حذف المجال بالكامل',
+                          title: l10n.deleteArea,
+                          message: context.l10n.deleteAreaConfirm(area.name),
+                          confirmLabel: l10n.deleteAreaFully,
                         );
                         if (confirmed) {
                           onDeleteArea(area.id);
@@ -257,7 +259,7 @@ class AreaDetailScreen extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('معدل إنجاز المجال العام:', style: TextStyle(fontSize: 12.5, color: Colors.grey)),
+                              Text(l10n.areaCompletionRate, style: const TextStyle(fontSize: 12.5, color: Colors.grey)),
                               Text(
                                 '${(_overallProgress * 100).toInt()}%',
                                 style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: areaColor),
@@ -287,7 +289,7 @@ class AreaDetailScreen extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Text('المشاريع التابعة للمجال', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text(l10n.areaProjects, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -309,7 +311,7 @@ class AreaDetailScreen extends StatelessWidget {
                 ),
                 onPressed: onAddNewProject,
                 icon: const Icon(Icons.add, size: 16),
-                label: const Text('مشروع جديد'),
+                label: Text(l10n.newProject),
               ),
             ],
           ),
@@ -325,7 +327,7 @@ class AreaDetailScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.border(context)),
               ),
-              child: const Text('لا توجد مشاريع مضافة تحت هذا المجال بعد', style: TextStyle(color: Colors.grey, fontSize: 13)),
+              child: Text(l10n.areaNoProjects, style: const TextStyle(color: Colors.grey, fontSize: 13)),
             )
           else
             Wrap(
@@ -379,7 +381,7 @@ class AreaDetailScreen extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('$pDone/${pTasks.length} مهام', style: const TextStyle(fontSize: 11.5, color: Colors.grey)),
+                            Text(context.l10n.taskCounter(pDone, pTasks.length), style: const TextStyle(fontSize: 11.5, color: Colors.grey)),
                             Text('${(pProg * 100).toInt()}%', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: pColor)),
                           ],
                         ),
@@ -398,7 +400,7 @@ class AreaDetailScreen extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Text('مهام عامة تابعة للمجال', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text(l10n.areaGeneralTasks, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -416,7 +418,7 @@ class AreaDetailScreen extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: onAddNewTask,
                 icon: const Icon(Icons.add, size: 16),
-                label: const Text('إضافة مهمة عامة'),
+                label: Text(l10n.addGeneralTask),
               ),
             ],
           ),
@@ -432,7 +434,7 @@ class AreaDetailScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.border(context)),
               ),
-              child: const Text('لا توجد مهام عامة خارج المشاريع لهذا المجال', style: TextStyle(color: Colors.grey, fontSize: 13)),
+              child: Text(l10n.areaNoGeneralTasks, style: const TextStyle(color: Colors.grey, fontSize: 13)),
             )
           else if (viewMode == 'kanban')
             KanbanBoardView(

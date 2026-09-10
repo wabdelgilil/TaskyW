@@ -55,7 +55,7 @@ class SidebarUserFooter extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                auth.displayName ?? 'المستخدم',
+                                auth.displayName ?? context.l10n.taskyUser,
                                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -80,10 +80,10 @@ class SidebarUserFooter extends StatelessWidget {
                                       const SizedBox(width: 4),
                                       Text(
                                         sync.isSyncing
-                                            ? 'جاري المزامنة...'
+                                            ? context.l10n.syncSyncing
                                             : sync.hasPending
-                                                ? '${sync.pendingCount} معلق'
-                                                : 'متزامن',
+                                                ? context.l10n.syncPending(sync.pendingCount)
+                                                : context.l10n.syncSynced,
                                         style: TextStyle(
                                           fontSize: 10,
                                           color: AppColors.textSecondary(context),
@@ -123,7 +123,7 @@ class SidebarUserFooter extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'تسجيل الدخول للسحابة',
+                          context.l10n.signInToCloud,
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
@@ -190,7 +190,7 @@ class SidebarUserFooter extends StatelessWidget {
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          'تبديل',
+                          context.l10n.toggleThemeShort,
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,

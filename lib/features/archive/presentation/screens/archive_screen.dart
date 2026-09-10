@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/localization_x.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/empty_state_view.dart';
 import '../../../notes/presentation/controllers/notes_controller.dart';
@@ -139,7 +140,7 @@ class _ArchiveScreenState extends State<ArchiveScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'الأرشيف العام (Global Archive)',
+                  context.l10n.archiveGlobalTitle,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -148,7 +149,7 @@ class _ArchiveScreenState extends State<ArchiveScreen>
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'المهام والمشاريع والملاحظات المنتهية المحفوظة للرجوع إليها دون تشويش مساحات العمل اليومية',
+                  context.l10n.archiveGlobalSubtitle,
                   style: TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary(context),
@@ -160,7 +161,7 @@ class _ArchiveScreenState extends State<ArchiveScreen>
           ),
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
-            tooltip: 'تحديث الأرشيف',
+            tooltip: context.l10n.archiveRefresh,
             onPressed: _loadData,
           ),
         ],
@@ -179,7 +180,7 @@ class _ArchiveScreenState extends State<ArchiveScreen>
             controller: _searchCtrl,
             onChanged: (val) => setState(() => _searchQuery = val.trim().toLowerCase()),
             decoration: InputDecoration(
-              hintText: 'البحث في عناصر الأرشيف...',
+              hintText: context.l10n.archiveSearchHint,
               prefixIcon: const Icon(Icons.search, size: 20),
               suffixIcon: _searchQuery.isNotEmpty
                   ? IconButton(
@@ -215,7 +216,7 @@ class _ArchiveScreenState extends State<ArchiveScreen>
                     children: [
                       const Icon(Icons.task_alt, size: 18),
                       const SizedBox(width: 6),
-                      Text('المهام (${_tasksController.archivedCount})'),
+                      Text(context.l10n.tabsTasks(_tasksController.archivedCount)),
                     ],
                   ),
                 ),
@@ -228,7 +229,7 @@ class _ArchiveScreenState extends State<ArchiveScreen>
                     children: [
                       const Icon(Icons.folder_special_outlined, size: 18),
                       const SizedBox(width: 6),
-                      Text('المشاريع (${_projectsController.archivedCount})'),
+                      Text(context.l10n.tabsProjects(_projectsController.archivedCount)),
                     ],
                   ),
                 ),
@@ -244,7 +245,7 @@ class _ArchiveScreenState extends State<ArchiveScreen>
                       children: [
                         const Icon(Icons.note_alt_outlined, size: 18),
                         const SizedBox(width: 6),
-                        Text('الملاحظات ($archivedNotesCount)'),
+                        Text(context.l10n.tabsNotes(archivedNotesCount)),
                       ],
                     );
                   },
@@ -275,10 +276,10 @@ class _ArchiveScreenState extends State<ArchiveScreen>
         if (tasks.isEmpty) {
           return EmptyStateView(
             icon: Icons.archive_outlined,
-            title: _searchQuery.isEmpty ? 'لا توجد مهام مؤرشفة' : 'لا توجد نتائج مطابقة',
+            title: _searchQuery.isEmpty ? context.l10n.archiveEmptyTasks : context.l10n.noMatchingResults,
             subtitle: _searchQuery.isEmpty
-                ? 'عند أرشفة أي مهمة ستظهر هنا للرجوع إليها مستقبلاً.'
-                : 'جرّب البحث بكلمات أخرى.',
+                ? context.l10n.archiveTasksEmptyDesc
+                : context.l10n.tryOtherKeywords,
           );
         }
 
@@ -296,14 +297,15 @@ class _ArchiveScreenState extends State<ArchiveScreen>
               ),
               title: task.title,
               subtitle: task.description,
-              actionLabel: 'استعادة للأعمال النشطة',
+              actionLabel: context.l10n.archiveRestoreToActive,
               onAction: () async {
                 final messenger = ScaffoldMessenger.of(context);
+                final restoredMsg = context.l10n.restoredTaskToast(task.title);
                 final success = await _tasksController.unarchiveTask(task.id);
                 if (mounted && success) {
                   messenger.showSnackBar(
                     SnackBar(
-                      content: Text('تمت استعادة المهمة "${task.title}" بنجاح'),
+                      content: Text(restoredMsg),
                       duration: const Duration(seconds: 2),
                     ),
                   );
@@ -334,10 +336,10 @@ class _ArchiveScreenState extends State<ArchiveScreen>
         if (projects.isEmpty) {
           return EmptyStateView(
             icon: Icons.folder_special_outlined,
-            title: _searchQuery.isEmpty ? 'لا توجد مشاريع مؤرشفة' : 'لا توجد نتائج مطابقة',
+            title: _searchQuery.isEmpty ? context.l10n.archiveEmptyProjects : context.l10n.noMatchingResults,
             subtitle: _searchQuery.isEmpty
-                ? 'المشاريع المنتهية أو المؤرشفة ستظهر هنا للحفظ المرجعي.'
-                : 'جرّب البحث بكلمات أخرى.',
+                ? context.l10n.archiveProjectsEmptyDesc
+                : context.l10n.tryOtherKeywords,
           );
         }
 
@@ -351,14 +353,15 @@ class _ArchiveScreenState extends State<ArchiveScreen>
               leading: Text(project.iconEmoji, style: const TextStyle(fontSize: 22)),
               title: project.name,
               subtitle: project.description,
-              actionLabel: 'استعادة المشروع',
+              actionLabel: context.l10n.restoreProject,
               onAction: () async {
                 final messenger = ScaffoldMessenger.of(context);
+                final restoredMsg = context.l10n.restoredProjectToast(project.name);
                 final success = await _projectsController.unarchiveProject(project.id);
                 if (mounted && success) {
                   messenger.showSnackBar(
                     SnackBar(
-                      content: Text('تمت استعادة المشروع "${project.name}" بنجاح'),
+                      content: Text(restoredMsg),
                       duration: const Duration(seconds: 2),
                     ),
                   );
@@ -390,10 +393,10 @@ class _ArchiveScreenState extends State<ArchiveScreen>
         if (notes.isEmpty) {
           return EmptyStateView(
             icon: Icons.note_alt_outlined,
-            title: _searchQuery.isEmpty ? 'لا توجد ملاحظات مؤرشفة' : 'لا توجد نتائج مطابقة',
+            title: _searchQuery.isEmpty ? context.l10n.archiveEmptyNotes : context.l10n.noMatchingResults,
             subtitle: _searchQuery.isEmpty
-                ? 'ملاحظات المعرفة والتوثيق المؤرشفة تظهر هنا.'
-                : 'جرّب البحث بكلمات أخرى.',
+                ? context.l10n.archiveNotesEmptyDesc
+                : context.l10n.tryOtherKeywords,
           );
         }
 
@@ -407,14 +410,15 @@ class _ArchiveScreenState extends State<ArchiveScreen>
               leading: const Icon(Icons.sticky_note_2_outlined, color: Colors.amber, size: 22),
               title: note.title,
               subtitle: note.content,
-              actionLabel: 'إلغاء الأرشفة',
+              actionLabel: context.l10n.unarchive,
               onAction: () async {
                 final messenger = ScaffoldMessenger.of(context);
+                final restoredMsg = context.l10n.restoredNoteToast(note.title);
                 final success = await _notesController.setArchived(note.id, false);
                 if (mounted && success) {
                   messenger.showSnackBar(
                     SnackBar(
-                      content: Text('تمت استعادة الملاحظة "${note.title}" بنجاح'),
+                      content: Text(restoredMsg),
                       duration: const Duration(seconds: 2),
                     ),
                   );

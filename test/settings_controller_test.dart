@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tasky/core/database/app_database.dart';
 import 'package:tasky/core/theme/app_theme.dart';
 import 'package:tasky/features/settings/data/models/app_settings_model.dart';
 import 'package:tasky/features/settings/presentation/controllers/settings_controller.dart';
@@ -10,8 +11,14 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() async {
+    await AppDatabase.resetForTest();
+    AppDatabase.inMemory = true;
     SharedPreferences.setMockInitialValues({});
     await SettingsController.instance.load();
+  });
+
+  tearDown(() async {
+    await AppDatabase.resetForTest();
   });
 
   group('SettingsController - الافتراضيات', () {
@@ -44,6 +51,12 @@ void main() {
       expect(c.themeMode, 'oled');
       expect(c.languageCode, 'en');
       expect(c.activeLocale, const Locale('en'));
+    });
+
+    test('اتجاه الواجهة الافتراضي يسار دائماً (ltr)', () {
+      final c = SettingsController.instance;
+      expect(c.layoutDirection, 'ltr');
+      expect(c.isForcedLtr, isTrue);
     });
   });
 
@@ -140,6 +153,50 @@ void main() {
     });
   });
 
+  group('SettingsController - اتجاه الواجهة والسايد بار', () {
+    test('setLayoutDirection(\'auto\') يوقف التجبير على LTR ويُحفظ', () async {
+      await SettingsController.instance.setLayoutDirection('auto');
+
+      expect(SettingsController.instance.layoutDirection, 'auto');
+      expect(SettingsController.instance.isForcedLtr, isFalse);
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('settings.layout_direction'), 'auto');
+    });
+
+    test('setLayoutDirection(\'ltr\') يعيد تجبير الواجهة على اليسار', () async {
+      await SettingsController.instance.setLayoutDirection('auto');
+      await SettingsController.instance.setLayoutDirection('ltr');
+
+      expect(SettingsController.instance.layoutDirection, 'ltr');
+      expect(SettingsController.instance.isForcedLtr, isTrue);
+    });
+
+    test('تجاهل قيم الاتجاه غير المدعومة', () async {
+      await SettingsController.instance.setLayoutDirection('rtl');
+
+      expect(SettingsController.instance.layoutDirection, 'ltr');
+      expect(SettingsController.instance.isForcedLtr, isTrue);
+    });
+
+    test('الاتجاه المحفوظ يُسترجَع عبر load()', () async {
+      await SettingsController.instance.setLayoutDirection('auto');
+      await SettingsController.instance.load();
+
+      expect(SettingsController.instance.layoutDirection, 'auto');
+      expect(SettingsController.instance.isForcedLtr, isFalse);
+    });
+
+    test('الاتجاه مستقل تماماً عن اللغة', () async {
+      await SettingsController.instance.updateLanguage('ar');
+      await SettingsController.instance.setLayoutDirection('ltr');
+
+      expect(SettingsController.instance.activeLocale, const Locale('ar'));
+      expect(SettingsController.instance.layoutDirection, 'ltr');
+      expect(SettingsController.instance.isForcedLtr, isTrue);
+    });
+  });
+
   group('SettingsService - حدود القيم المدعومة', () {
     test('قوائم العملات وأوضاع العرض والثيم مدعومة وقابلة للاستخدام', () {
       expect(AppSettingsModel.supportedCurrencies, contains('SAR'));
@@ -147,6 +204,7 @@ void main() {
       expect(AppSettingsModel.supportedViewModes, ['list', 'kanban']);
       expect(AppSettingsModel.supportedThemeModes, ['light', 'dark', 'oled']);
       expect(AppSettingsModel.supportedLanguages, ['system', 'ar', 'en']);
+      expect(AppSettingsModel.supportedLayoutDirections, ['ltr', 'auto']);
     });
   });
 }

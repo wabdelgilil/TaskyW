@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/core/theme/app_colors.dart';
 
 /// نافذة إنشاء وسم جديد مع اختيار اللون من باليتة الألوان
@@ -43,8 +44,9 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AlertDialog(
-      title: const Text('إنشاء وسم جديد', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+      title: Text(l10n.createNewTag, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
       content: SizedBox(
         width: 340,
         child: Column(
@@ -54,13 +56,13 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
             TextField(
               controller: _nameCtrl,
               autofocus: true,
-              decoration: const InputDecoration(
-                labelText: 'اسم الوسم',
-                hintText: 'مثلاً: عاجل، قطع_غيار...',
+              decoration: InputDecoration(
+                labelText: l10n.tagName,
+                hintText: l10n.tagNameHint,
               ),
             ),
             const SizedBox(height: 14),
-            const Text('اختر لون الوسم:', style: TextStyle(fontSize: 12, color: Colors.grey)),
+            Text(l10n.chooseTagColor, style: const TextStyle(fontSize: 12, color: Colors.grey)),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -88,7 +90,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('إلغاء')),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.commonCancel)),
         ElevatedButton(
           onPressed: () {
             final name = _nameCtrl.text.trim();
@@ -97,7 +99,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
               Navigator.pop(context);
             }
           },
-          child: const Text('إنشاء'),
+          child: Text(l10n.createAction),
         ),
       ],
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:tasky/features/tags/data/models/tag_model.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/core/theme/app_colors.dart';
 import 'package:tasky/core/widgets/tasky_logo.dart';
 import 'package:tasky/features/areas/data/models/area_model.dart';
@@ -87,6 +88,7 @@ class HierarchicalTreeSidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = context.l10n;
 
     return Container(
       width: 280,
@@ -178,11 +180,11 @@ class HierarchicalTreeSidebar extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 // 4. قسم الملاحظات العامة (Resources & Knowledge Vault)
-                const SidebarSectionHeader('الملاحظات والمعرفة (Vault)'),
+                SidebarSectionHeader(l10n.sidebarNotesSection),
                 SidebarFilterTile(
                   icon: Icons.auto_stories_outlined,
                   iconColor: isDark ? const Color(0xFFFBBF24) : const Color(0xFFB45309),
-                  title: 'الملاحظات ومستودع المعرفة',
+                  title: l10n.sidebarNotesTitle,
                   count: null,
                   isSelected: notesSelected,
                   onTap: () => onSelectNotes?.call(),
@@ -191,11 +193,11 @@ class HierarchicalTreeSidebar extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 // 5. قسم السجل المالي والتسويات (Financial Logs & Settlements)
-                const SidebarSectionHeader('الماليات والتسويات'),
+                SidebarSectionHeader(l10n.sidebarFinanceSection),
                 SidebarFilterTile(
                   icon: Icons.account_balance_wallet_outlined,
                   iconColor: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
-                  title: 'السجل المالي والتسويات',
+                  title: l10n.sidebarFinanceTitle,
                   count: pendingInvoicesCount > 0 ? pendingInvoicesCount : null,
                   isSelected: financeSelected,
                   onTap: () => onSelectFinance?.call(),
@@ -209,11 +211,11 @@ class HierarchicalTreeSidebar extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 // 7. قسم الأرشيف وسلة المهملات (Archive & Trash Bin)
-                const SidebarSectionHeader('الأرشيف والمهملات'),
+                SidebarSectionHeader(l10n.sidebarArchiveSection),
                 SidebarFilterTile(
                   icon: Icons.archive_outlined,
                   iconColor: isDark ? const Color(0xFF818CF8) : const Color(0xFF6366F1),
-                  title: 'الأرشيف العام',
+                  title: l10n.sidebarArchiveTitle,
                   count: archivedCount > 0 ? archivedCount : null,
                   isSelected: archiveSelected,
                   onTap: () => onSelectArchive?.call(),
@@ -221,7 +223,7 @@ class HierarchicalTreeSidebar extends StatelessWidget {
                 SidebarFilterTile(
                   icon: Icons.delete_outline_rounded,
                   iconColor: Colors.redAccent,
-                  title: 'سلة المهملات',
+                  title: l10n.sidebarTrashTitle,
                   count: trashCount > 0 ? trashCount : null,
                   isSelected: trashSelected,
                   onTap: () => onSelectTrash?.call(),

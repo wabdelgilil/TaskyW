@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:tasky/features/tags/data/models/tag_model.dart';
 import 'package:tasky/core/services/sync_controller.dart';
 import 'package:tasky/core/services/sync_service.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/features/areas/data/models/area_model.dart';
 import 'package:tasky/features/areas/presentation/controllers/areas_controller.dart';
 import 'package:tasky/features/projects/data/models/project_model.dart';
@@ -151,7 +152,7 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
             await _reloadLocalDataOnly();
           }
         } else {
-          SyncController.instance.setError(result.message ?? 'تعذر إتمام المزامنة التلقائية');
+          SyncController.instance.setError(result.message ?? context.l10n.syncAutoFail);
         }
       } else {
         _updatePendingSyncStatus();
@@ -183,11 +184,11 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
       if (result.success) {
         SyncController.instance.setSynced();
       } else {
-        SyncController.instance.setError(result.message ?? 'اكتملت المزامنة مع بعض الأخطاء');
+        SyncController.instance.setError(result.message ?? context.l10n.syncPartialFail);
       }
       await _reloadLocalDataOnly();
     } else {
-      SyncController.instance.setError(result.message ?? 'يجب تسجيل الدخول لمزامنة البيانات');
+      SyncController.instance.setError(result.message ?? context.l10n.syncLoginRequired);
     }
   }
 

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
+import '../../l10n/app_localizations.dart';
 import '../theme/app_colors.dart';
 
 /// شارة أولوية المهمة بألوان ورموز واضحة
@@ -16,17 +18,17 @@ class PriorityBadge extends StatelessWidget {
     return AppColors.adaptivePriorityColor(priority, isDark);
   }
 
-  static String getPriorityLabel(String priority) {
+  static String getPriorityLabel(String priority, AppLocalizations l10n) {
     switch (priority.toLowerCase()) {
       case 'urgent':
-        return 'عاجل جداً';
+        return l10n.priorityCritical;
       case 'high':
-        return 'عالية';
+        return l10n.priorityHigh;
       case 'low':
-        return 'منخفضة';
+        return l10n.priorityLow;
       case 'medium':
       default:
-        return 'متوسطة';
+        return l10n.priorityMedium;
     }
   }
 
@@ -46,9 +48,10 @@ class PriorityBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final color = getPriorityColor(priority, isDark: isDark);
-    final label = getPriorityLabel(priority);
+    final label = getPriorityLabel(priority, l10n);
     final icon = getPriorityIcon(priority);
 
     final widget = Container(

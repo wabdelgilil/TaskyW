@@ -69,6 +69,30 @@ class SettingsScreen extends StatelessWidget {
                           ),
                         ],
                       ),
+                      const Divider(height: 24),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(l10n.directionTitle),
+                        subtitle: Text(l10n.directionDesc),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          _ChoiceCard(
+                            label: l10n.directionLtr,
+                            icon: Icons.horizontal_split,
+                            selected: settings.layoutDirection == 'ltr',
+                            onTap: () => settings.setLayoutDirection('ltr'),
+                          ),
+                          const SizedBox(width: 8),
+                          _ChoiceCard(
+                            label: l10n.directionAuto,
+                            icon: Icons.compare_arrows,
+                            selected: settings.layoutDirection == 'auto',
+                            onTap: () => settings.setLayoutDirection('auto'),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),

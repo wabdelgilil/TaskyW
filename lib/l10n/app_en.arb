@@ -1,9 +1,7 @@
 {
   "@@locale": "en",
   "@@info": "English dictionary for Tasky (Flutter official l10n).",
-
   "appTitle": "TaskyW",
-
   "commonCancel": "Cancel",
   "commonSave": "Save",
   "commonDelete": "Delete",
@@ -12,29 +10,31 @@
   "commonSettings": "Settings",
   "commonSearch": "Search",
   "commonToday": "Today's Tasks",
-
   "taskCountRemaining": "{count} tasks remaining",
   "@taskCountRemaining": {
     "description": "Number of remaining tasks in a group.",
     "placeholders": {
-      "count": { "type": "int", "example": "5" }
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
     }
   },
-
   "welcomeUser": "Welcome, {name}",
   "@welcomeUser": {
     "description": "Friendly greeting by user name.",
     "placeholders": {
-      "name": { "type": "String", "example": "Ahmed" }
+      "name": {
+        "type": "String",
+        "example": "Ahmed"
+      }
     }
   },
-
   "sectionNotifications": "Notifications & Alerts",
   "sectionLanguage": "Language & Region",
   "sectionFinance": "Finance & Currencies",
   "sectionAppearance": "Appearance & Theme",
   "sectionData": "App Data",
-
   "settingsNotifications": "App Notifications",
   "settingsNotificationsDesc": "Turn all local notifications (task reminders) on or off",
   "settingsReminderTime": "Default reminder time",
@@ -42,7 +42,10 @@
   "@settingsReminderMinutes": {
     "description": "Default reminder lead time in minutes.",
     "placeholders": {
-      "minutes": { "type": "int", "example": "15" }
+      "minutes": {
+        "type": "int",
+        "example": "15"
+      }
     }
   },
   "settingsRequestPermission": "Request notification permission",
@@ -50,27 +53,44 @@
   "settingsPermissionGranted": "Notification permission enabled successfully",
   "settingsPermissionDenied": "Notification permission was denied",
   "settingsEnable": "Enable",
-
   "settingsLanguage": "App language",
   "settingsLanguageDesc": "Choose the interface language (default: device language)",
   "settingsLanguageSystem": "System default",
   "settingsLanguageSystemShort": "System",
   "languageArabic": "العربية (RTL)",
   "languageEnglish": "English (LTR)",
-
+  "syncSyncing": "Syncing...",
+  "syncPending": "{count} pending",
+  "@syncPending": {
+    "description": "Number of local unsynced changes.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "syncSynced": "Synced",
+  "signInToCloud": "Sign in to cloud",
+  "toggleThemeShort": "Switch",
+  "directionTitle": "Layout & sidebar direction",
+  "directionDesc": "Keep the sidebar on the left regardless of language",
+  "directionLtr": "Always left",
+  "directionAuto": "Auto (follow language)",
   "settingsCurrency": "Default currency",
   "settingsCurrencyDesc": "Currency used for new financial records: {currency}",
   "@settingsCurrencyDesc": {
     "description": "Description of the current default currency.",
     "placeholders": {
-      "currency": { "type": "String", "example": "SAR" }
+      "currency": {
+        "type": "String",
+        "example": "SAR"
+      }
     }
   },
-
   "settingsViewMode": "View mode",
   "viewModeList": "List",
   "viewModeKanban": "Kanban",
-
   "themeModeLabel": "Theme mode",
   "themeLight": "Light",
   "themeDark": "Dark",
@@ -78,33 +98,853 @@
   "themeLightFull": "Light mode",
   "themeDarkFull": "Dark mode",
   "themeOledFull": "Deep black (OLED)",
-
   "appVersion": "App version",
   "versionLabel": "Version {version}",
   "@versionLabel": {
     "description": "Current app version.",
     "placeholders": {
-      "version": { "type": "String", "example": "3.0.0" }
+      "version": {
+        "type": "String",
+        "example": "3.0.0"
+      }
     }
   },
-
   "accountStatus": "Account status",
   "signedInAs": "Signed in: {email}",
   "@signedInAs": {
     "description": "Sign-in status with email.",
     "placeholders": {
-      "email": { "type": "String", "example": "user@tasky.app" }
+      "email": {
+        "type": "String",
+        "example": "user@tasky.app"
+      }
     }
   },
   "signedOut": "Not signed in",
-
   "profileTitle": "Profile",
   "profileDisplayName": "Display name",
   "profileEmail": "Email address",
-
   "navHome": "Today",
   "navProjects": "Projects",
   "navNotes": "Notes",
   "navFinance": "Finance",
-  "navSettings": "Settings"
+  "navSettings": "Settings",
+  "newTask": "New Task",
+  "preview": "Preview",
+  "signIn": "Sign In",
+  "signOut": "Sign Out",
+  "taskyUser": "Tasky User",
+  "closeSearch": "Close search",
+  "sidebarMenu": "Sidebar",
+  "viewList": "List View",
+  "viewKanban": "Kanban View",
+  "viewTable": "Table View",
+  "exportCsvTooltip": "Export tasks to CSV / Excel",
+  "exportCsvCurrentTooltip": "Export current tasks to CSV / Excel",
+  "globalSearch": "Search all",
+  "globalSearchInApp": "Search across the whole app",
+  "cancelGlobalSearch": "Cancel global search",
+  "cancelGlobalShort": "Cancel global",
+  "filterToday": "☀️ Today's Tasks",
+  "filterUpcoming": "📅 Upcoming Tasks",
+  "filterWaiting": "⏳ Waiting Tasks",
+  "filterUrgent": "🔥 Urgent Tasks",
+  "filterAll": "📋 All Tasks",
+  "contextTitleNotes": "📚 Notes & Knowledge Vault",
+  "contextTitleFinance": "💰 Financial Logs & Settlements",
+  "contextTitleArchive": "🗄️ Global Archive",
+  "contextTitleTrash": "🗑️ Trash Bin",
+  "contextTitleSharedProject": "💼 Shared project",
+  "contextTitleSharedArea": "📁 Shared area",
+  "contextTitleTag": "🏷️ Tag: {name}",
+  "@contextTitleTag": {
+    "description": "Header title when filtering tasks by a tag.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Design"
+      }
+    }
+  },
+  "searchHintTasks": "Search tasks...",
+  "searchHintGlobal": "Search across all areas and projects...",
+  "searchHintProject": "Search in project ({title})...",
+  "@searchHintProject": {
+    "description": "Search hint inside a specific project.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Task App"
+      }
+    }
+  },
+  "searchHintArea": "Search in area ({title})...",
+  "@searchHintArea": {
+    "description": "Search hint inside a specific area.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Work"
+      }
+    }
+  },
+  "exportEmptyToast": "No tasks to export in the current view",
+  "exportSuccessToast": "Exported {count} tasks and copied CSV to clipboard!",
+  "@exportSuccessToast": {
+    "description": "Success message after exporting tasks to clipboard.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "quickAddHint": "Quick add a task...",
+  "smartFiltersHeader": "Smart Filters",
+  "smartFilterToday": "Today",
+  "smartFilterUpcoming": "Upcoming",
+  "smartFilterWaiting": "Waiting",
+  "smartFilterUrgent": "Urgent",
+  "smartFilterAll": "All Tasks",
+  "areasProjectsSection": "Areas & Projects",
+  "addNewAreaTooltip": "Add new area",
+  "newProjectEllipsis": "New project...",
+  "tagsSection": "Tags & Labels",
+  "createTagTooltip": "Create new tag",
+  "noTagsAdded": "No tags added yet",
+  "sharedWithMeHeader": "Shared with me",
+  "refreshSharedTooltip": "Refresh shared entities",
+  "sharedEntityDefault": "Shared item",
+  "permissionAdmin": "Admin",
+  "permissionEditor": "Editor",
+  "permissionViewer": "Viewer",
+  "sidebarNotesSection": "Notes & Knowledge Vault",
+  "sidebarNotesTitle": "Notes & Knowledge Vault",
+  "sidebarFinanceSection": "Finance & Settlements",
+  "sidebarFinanceTitle": "Financial Logs & Settlements",
+  "sidebarArchiveSection": "Archive & Trash",
+  "sidebarArchiveTitle": "Global Archive",
+  "sidebarTrashTitle": "Trash Bin",
+  "attachmentSyncing": "⏳ Syncing",
+  "reminderNote": "⚠️ (reminder)",
+  "chipPendingInvoice": "⚠️ Awaiting invoice",
+  "invoicePendingTap": "⚠️ Awaiting invoice (tap to receive)",
+  "attachmentSynced": "✓ Synced",
+  "paidPersonalFromWork": "🏠 Paid personal from work account (I owe work)",
+  "chipPaidToWork": "🏠 Paid to work",
+  "paidFromPocket": "💼 Paid work from my pocket (work owes me)",
+  "chipDueFromWork": "💼 Due from work",
+  "chipTransfers": "🔄 Transfers",
+  "sharedPublicTitle": "TaskyW — Public share",
+  "enterNewName": "Enter your new name",
+  "descriptionNotesHint": "Enter details, notes, or spare part numbers...",
+  "archiveAction": "Archive",
+  "recurrenceWeekly": "Weekly",
+  "pasteEmojiHint": "Paste an emoji (e.g. 🤖) or its code (U+1F680)",
+  "enterHexCode": "Or enter a custom HEX code:",
+  "orCreateTag": "Or create a new tag:",
+  "trashTasksEmptyDesc": "Any deleted task is kept here and can be restored anytime.",
+  "quickEmojis": "Quick suggested icons:",
+  "customEmojiInput": "Custom input (paste emoji or a U+... code):",
+  "projectNotifications": "Notifications for this project",
+  "createTask": "Add task",
+  "addStepHint": "Add a new subtask step...",
+  "addNewAreaTitle": "Add a new responsibility area",
+  "addAttachment": "Add attachment",
+  "addNewProjectTitle": "Add new project",
+  "addNewTaskTitle": "Add new task",
+  "addGeneralTask": "Add general task",
+  "addTaskInProject": "Add task in project",
+  "kanbanAddInColumn": "Add task in this column",
+  "addTag": "Add tag",
+  "addTagForTask": "Add a tag to the task",
+  "retryAction": "Retry",
+  "emptyTrash": "Empty trash",
+  "emptyTrashConfirmAction": "Empty trash permanently",
+  "emptyTrashConfirmTitle": "Empty the trash entirely?",
+  "unarchive": "Unarchive",
+  "unpinNote": "Unpin",
+  "toAccount": "To account",
+  "markDone": "Mark done",
+  "createAction": "Create",
+  "createArea": "Create area",
+  "createProject": "Create project",
+  "createAndAttachTag": "Create & attach the tag",
+  "createNewTag": "Create new tag",
+  "startAddingTasks": "Start by adding a new task to track your daily progress",
+  "chooseIconTitle": "Choose an expressive icon",
+  "chooseTagColor": "Choose the tag color:",
+  "chooseCustomColor": "Choose a custom color",
+  "choose": "Select",
+  "restoreAction": "Restore",
+  "restoreProject": "Restore project",
+  "restoreNote": "Restore note",
+  "restoreTask": "Restore task",
+  "archiveRestoreToActive": "Restore to active work",
+  "kanbanDropHint": "Drag tasks here or add a new task",
+  "areaName": "Area name",
+  "projectName": "Project name",
+  "tagName": "Tag name",
+  "newTagNameHint": "Tag name (e.g. urgent, spare_parts...)",
+  "notesEmptyHint": "Tap + to add your first note...",
+  "noteContentHint": "Write your thoughts and references here...",
+  "archiveGlobalTitle": "Global Archive",
+  "suggestedColors": "Suggested colors:",
+  "priorityLabel": "Priority",
+  "priorityColon": "Priority:",
+  "trashSearchHint": "Search in the trash...",
+  "archiveSearchHint": "Search archive items...",
+  "bankOption": "Bank",
+  "toAccountHint": "Bank, wallet...",
+  "descriptionLabel": "Description *",
+  "recurrenceColon": "Recurrence:",
+  "reminderColon": "Reminder:",
+  "emojiCategoryStatus": "Status & Alerts",
+  "statusLabel": "Status",
+  "statusColon": "Status:",
+  "deadlineColon": "Deadline:",
+  "invalidShareLink": "The link is invalid or the share has expired.",
+  "linkUnavailable": "Link unavailable",
+  "emojiCategoryPersonal": "Personal & Home",
+  "emojiCategoryWork": "Work & Projects",
+  "trashSubtitle": "Items deleted temporarily; restore them or delete permanently to free up space",
+  "noteTitle": "Title",
+  "allFilter": "All",
+  "colorLabel": "Color",
+  "colorColon": "Color:",
+  "amountLabel": "Amount (SAR) *",
+  "pinnedNotes": "Pinned",
+  "areaLabel": "Area",
+  "areaProjectColumn": "Area / project",
+  "areaColon": "Area:",
+  "noteContent": "Content",
+  "notesScreenSubtitle": "The knowledge vault and calm space for ideas, references, links, and contacts without task deadlines or constraints.",
+  "areaProjects": "Area projects",
+  "trashProjectsEmptyDesc": "Deleted projects appear here until restored or permanently deleted.",
+  "archiveProjectsEmptyDesc": "Completed or archived projects appear here for reference.",
+  "projectLabel": "Project",
+  "projectColon": "Project:",
+  "trashNotesEmptyDesc": "Soft-deleted notes appear here.",
+  "notesScreenTitle": "Notes & Knowledge Vault",
+  "attachmentNotSynced": "File not uploaded yet; download will be available after sync",
+  "subtasksColumn": "Subtasks",
+  "subtasksTitle": "Subtasks (Checklist)",
+  "completedTasksSection": "Completed Tasks",
+  "archiveGlobalSubtitle": "Completed tasks, projects, and notes kept for reference without cluttering daily workspaces",
+  "patternColon": "Pattern:",
+  "emojiCategoryTools": "Tools & Engineering",
+  "tagsColumn": "Tags",
+  "availableTags": "Available tags:",
+  "tagsTitle": "Tags & categories",
+  "descriptionNotesLabel": "Description & notes:",
+  "financeSearchHint": "Search transactions, accounts, notes...",
+  "notesSearchHint": "Instant search in titles and content...",
+  "noEndDate": "No end date (ongoing)",
+  "untitled": "Untitled",
+  "noProject": "No project",
+  "noProjectGeneral": "No project (general task)",
+  "exportedCsvData": "Exported CSV data",
+  "confirmChoice": "Confirm selection",
+  "dueDateColumn": "Due date",
+  "dueDateLabel": "Due date",
+  "pinNote": "Pin",
+  "groupByProject": "Group by project",
+  "archiveRefresh": "Refresh archive",
+  "refreshTrash": "Refresh trash",
+  "transferOption": "Transfer",
+  "customizeTaskColor": "Customize task color",
+  "undoAction": "Undo",
+  "registerTransaction": "Register transaction",
+  "newTransactionTitle": "Register a new financial transaction",
+  "settlementLabel": "Settle work vs personal account:",
+  "exportStatement": "Export statement to Excel / CSV",
+  "pendingInvoiceReminder": "Stays pending until you receive the invoice so you remember to claim it",
+  "editLabel": "Edit",
+  "editName": "Edit name",
+  "editTransactionTitle": "Edit financial transaction",
+  "editArea": "Edit area",
+  "editProject": "Edit project",
+  "editNote": "Edit note",
+  "editAreaData": "Edit area details",
+  "editProjectData": "Edit project details",
+  "syncFailedTapRetry": "Couldn't connect to the cloud. Tap to retry.",
+  "invalidEmojiCode": "Couldn't recognize the emoji code",
+  "attachSaveError": "Couldn't save the attachment",
+  "openFileError": "Couldn't open the file",
+  "setDateHint": "Set date...",
+  "taskDetails": "Task details",
+  "enableProjectNotifications": "Enable notifications for this project",
+  "projectNotificationsDesc": "Enable local reminders for this project's tasks",
+  "trashEmptiedToast": "Trash emptied successfully",
+  "allDoneSection": "All tasks in this section done 🎉",
+  "invoiceReceivedToast": "Invoice received; status updated to complete ✅",
+  "nameUpdatedToast": "Name updated successfully",
+  "projectNotifEnabledToast": "Project notifications enabled",
+  "projectDeletedPermanentToast": "Project deleted permanently",
+  "taskDeletedPermanentToast": "Task deleted permanently",
+  "projectNotifMutedToast": "Project notifications muted",
+  "settledToast": "Settlement completed ✔️",
+  "statusInProgress": "In progress",
+  "syncInProgressNow": "Syncing with the cloud now...",
+  "syncingNow": "Syncing...",
+  "loadingSharedItem": "Loading the shared item...",
+  "syncUploading": "Uploading cloud changes...",
+  "syncChecking": "Checking and updating data with the cloud...",
+  "tryOtherKeywords": "Try searching with other words.",
+  "syncAllSynced": "All your data is synced with the cloud",
+  "cloudStatus": "Cloud status",
+  "projectStatus": "Project status",
+  "shareLoadError": "An error occurred while loading the data. Please try again.",
+  "deleteStep": "Delete step",
+  "deleteTransaction": "Delete transaction",
+  "deleteArea": "Delete area",
+  "deleteAreaFully": "Delete area completely",
+  "deleteAttachment": "Delete attachment",
+  "deleteProject": "Delete project",
+  "deleteProjectPermanentConfirm": "Delete the project permanently?",
+  "deleteNote": "Delete note",
+  "deleteTask": "Delete task",
+  "deleteSubtask": "Delete subtask",
+  "deleteTaskPermanentConfirm": "Delete the task permanently?",
+  "deletePermanent": "Delete permanently",
+  "saveEdit": "Save edit",
+  "saveChanges": "Save changes",
+  "incomeRefundOption": "Income / refund",
+  "notesHint": "Receipt number, supplier name, details...",
+  "trashProjectsEmpty": "Project trash is empty",
+  "trashNotesEmpty": "Note trash is empty",
+  "trashTasksEmpty": "Task trash is empty",
+  "trashTitle": "Trash Bin",
+  "emptyTrashConfirmBody": "All tasks and projects in the trash will be permanently and irreversibly deleted. Continue?",
+  "recurrenceMonthly": "Monthly",
+  "setReminderHint": "Set reminder...",
+  "priorityCritical": "Very urgent",
+  "priorityHigh": "High",
+  "netYouOwe": "You owe (net)",
+  "newTransaction": "New transaction",
+  "normalTransaction": "Normal transaction (no settlement needed)",
+  "archiveTasksEmptyDesc": "Any archived task will appear here for future reference.",
+  "noteTitleHint": "Note title...",
+  "columnTitle": "Title",
+  "taskTitleLabel": "Task title *",
+  "taskTitleEditHint": "Task title...",
+  "notSpecified": "Not specified",
+  "notSignedIn": "Not signed in",
+  "openAttachment": "Open / download the attachment",
+  "pendingInvoices": "Pending invoices",
+  "statusWaiting": "Waiting",
+  "cashOption": "Cash",
+  "paymentMethodHint": "Cash, CIB, Vodafone Cash...",
+  "muteProjectNotifications": "Mute this project's notifications",
+  "exportedStatementCsv": "Exported statement (CSV)",
+  "financeEmpty": "No financial transactions recorded yet",
+  "attachmentsEmpty": "No attachments yet — you can attach documents, images, and files.",
+  "archiveEmptyProjects": "No archived projects",
+  "areaNoProjects": "No projects added under this area yet",
+  "notesEmpty": "No notes yet",
+  "archiveEmptyNotes": "No archived notes",
+  "areaNoGeneralTasks": "No general tasks outside projects in this area",
+  "noTasksInSection": "No tasks in this section right now",
+  "tableEmpty": "No tasks to show in the table",
+  "archiveEmptyTasks": "No archived tasks",
+  "noTasksRegistered": "No tasks recorded currently",
+  "projectNoTasks": "No tasks added to this project yet",
+  "noMatchingResults": "No matching results",
+  "financeNoFilterMatch": "No results match the selected filter",
+  "noTagsForTask": "No tags linked to this task. Tap \"Add tag\" to categorize it.",
+  "paste": "Paste",
+  "pasteFromClipboard": "Paste from clipboard",
+  "netOwedToYou": "Owed to you (net)",
+  "readOnlyBadge": "Read-only",
+  "notReceivedInvoice": "I haven't received the invoice yet",
+  "noFileSelected": "No file selected",
+  "noteColor": "Note color",
+  "customTaskColor": "Custom task color",
+  "taskTitleHint": "What do you want to accomplish?",
+  "fullySynced": "Fully synced",
+  "recurrenceRecurring": "Recurring",
+  "priorityMedium": "Medium",
+  "descriptionHint": "E.g. buying spare parts, business lunch, cash advance...",
+  "tagNameHint": "E.g. urgent, spare_parts...",
+  "entityArea": "Area",
+  "statusReview": "Review",
+  "syncNowButton": "Sync...",
+  "owedByYou": "⏳ Owed by you to work",
+  "shareAreaWithTeam": "Share area with the team",
+  "shareProjectWithTeam": "Share project with the team",
+  "shareTaskWithTeam": "Share the task with the team via link or account",
+  "entityProject": "Project",
+  "newProject": "New project",
+  "expenseOption": "Expense",
+  "reimbursementRequired": "⏳ Reimbursement required from work",
+  "generalTransaction": "General transaction",
+  "areaCompletionRate": "Overall area completion rate:",
+  "disabled": "Disabled",
+  "projectStatusOnHold": "On Hold",
+  "statusOnHold": "On hold",
+  "enabled": "Enabled",
+  "projectStatusCompleted": "Completed",
+  "statusCompleted": "Completed",
+  "notesListTitle": "Notes",
+  "taskNotesLabel": "Notes or description (optional)",
+  "additionalNotes": "Additional notes (optional)",
+  "archiveNotesEmptyDesc": "Archived knowledge and documentation notes appear here.",
+  "newNote": "New note",
+  "chooseIconSubtitle": "From the list or by pasting an emoji or Unicode code",
+  "fromAccount": "From account",
+  "priorityLow": "Low",
+  "areaGeneralTasks": "General tasks in this area",
+  "entityTask": "Task",
+  "projectCompletionRate": "Project completion rate:",
+  "projectStatusActive": "Active",
+  "yesDelete": "Yes, delete",
+  "paymentMethodLabel": "Payment method / account",
+  "projectDescription": "Project description (optional)",
+  "syncOffline": "Offline mode. The app works fully locally.",
+  "requireAreaFirst": "You must create an area before adding tasks.",
+  "invalidTransactionMsg": "Please enter a description and a valid amount",
+  "endsAtColon": "Ends at:",
+  "recurrenceDaily": "Daily",
+  "syncPendingTooltip": "{count} local changes are waiting to upload. Tap to sync.",
+  "taskDeletedToast": "Task \"{title}\" deleted",
+  "deleteFileConfirm": "Are you sure you want to delete the file \"{fileName}\"?",
+  "fileSavedLocal": "File saved locally: {url}",
+  "attachmentsCount": "Attachments ({count})",
+  "deleteTaskConfirm": "Are you sure you want to delete the task \"{title}\"?",
+  "deleteStepConfirm": "Are you sure you want to delete the step \"{title}\"?",
+  "tabsTasks": "Tasks ({count})",
+  "tabsProjects": "Projects ({count})",
+  "tabsNotes": "Notes ({count})",
+  "restoredTaskToast": "Task \"{title}\" restored successfully",
+  "restoredProjectToast": "Project \"{name}\" restored successfully",
+  "restoredNoteToast": "Note \"{title}\" restored successfully",
+  "cannotRestoreTaskMsg": "You won't be able to restore the task \"{title}\" after permanent deletion.",
+  "cannotRestoreProjectMsg": "You won't be able to restore the project \"{name}\" after permanent deletion.",
+  "deleteNoteConfirm": "Are you sure you want to delete \"{title}\"?",
+  "areaStats": "A responsibility area with {projects} projects and {tasks} tasks",
+  "taskCounter": "{done}/{total} tasks",
+  "urgentCount": "{count} urgent",
+  "projectProgress": "{percent}% ({done}/{total} completed)",
+  "pendingChangesCount": "{count} pending change(s)",
+  "dueDateBadge": "Due: {date}",
+  "financeExportToast": "{count} operations exported and CSV copied to clipboard!",
+  "transferFromTo": "From {from} ⬅️ to {to}",
+  "viaAccount": "Via: {account}",
+  "deleteTransactionConfirm": "Are you sure you want to delete the transaction \"{title}\"?",
+  "yesNow": "Yes, delete",
+  "@tabsTasks": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "@transferFromTo": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "from": {
+        "type": "String",
+        "example": "Example"
+      },
+      "to": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@cannotRestoreTaskMsg": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@viaAccount": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "account": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@areaStats": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "projects": {
+        "type": "int",
+        "example": "5"
+      },
+      "tasks": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "@syncPendingTooltip": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "@restoredProjectToast": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@deleteTaskConfirm": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@dueDateBadge": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@cannotRestoreProjectMsg": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@tabsNotes": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "@deleteTransactionConfirm": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@fileSavedLocal": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "url": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@financeExportToast": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "@restoredTaskToast": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@urgentCount": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "@restoredNoteToast": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@attachmentsCount": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "@deleteNoteConfirm": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@tabsProjects": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "@taskDeletedToast": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@deleteFileConfirm": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "fileName": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@projectProgress": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "percent": {
+        "type": "int",
+        "example": "5"
+      },
+      "done": {
+        "type": "int",
+        "example": "5"
+      },
+      "total": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "@deleteStepConfirm": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@pendingChangesCount": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "@taskCounter": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "done": {
+        "type": "int",
+        "example": "5"
+      },
+      "total": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "deleteAreaConfirm": "Are you sure you want to delete the area \"{name}\" and all its projects and tasks? This cannot be undone.",
+  "@deleteAreaConfirm": {
+    "description": "Confirm deleting an entity by name in Tasky.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "deleteProjectConfirm": "Are you sure you want to delete the project \"{name}\" and all its tasks? This cannot be undone.",
+  "@deleteProjectConfirm": {
+    "description": "Confirm deleting an entity by name in Tasky.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "syncPartialFail": "Sync completed with some errors",
+  "syncAutoFail": "Automatic sync could not be completed",
+  "syncLoginRequired": "Sign in is required to sync data",
+  "tagDefault": "Tag",
+  "currencySearchHint": "Search by country name, currency, or code (SAR, EGP...)",
+  "selectCurrencyTitle": "Select Default Currency",
+  "noCurrencyResult": "No matching currencies found",
+  "authResendActivation": "Resend activation link now",
+  "shareRestrictedNotice": "🔒 Your current role (view or edit) doesn't allow inviting members or changing permissions. These actions are available only to the owner or admin.",
+  "authResetEmailHint": "Enter your registered email to receive a reset link",
+  "authConfirmEmailResent": "We already sent the activation link. Check your inbox and spam / junk folder.",
+  "shareTeamMembers": "Team members (account)",
+  "authConfirmEmailAction": "I confirmed my email, sign in now",
+  "shareSecurityNote": "Secure: visitors via this link will only see this item and won't be able to edit or delete anything.",
+  "authSignUpSubtitle": "Create your account for cloud backup and sharing",
+  "authSendResetLink": "Send reset link",
+  "authCreateAccountAction": "Create account",
+  "authCreateAccount": "Create a new account",
+  "authGetStartedSubtitle": "Start managing your projects professionally",
+  "authResetPassword": "Reset password",
+  "authFullName": "Full name",
+  "authEmailLabel": "Email",
+  "shareInviteUnavailable": "Invitation is not available for your role",
+  "shareLinkDisabled": "The public link is currently disabled",
+  "shareEntityElement": "Item",
+  "authContinueOffline": "Continue without an account (offline)",
+  "shareEntityArea": "Area",
+  "sharePublicLinkTitle": "Share via public link",
+  "shareEntityProject": "Project",
+  "shareEntityTask": "Task",
+  "authEmailInvalid": "Invalid email address",
+  "authConfirmEmailTitle": "Confirm your email",
+  "authConfirmAccount": "Confirm account",
+  "authConfirmRequired": "Account confirmation is required to sign in",
+  "shareRevokeConfirmTitle": "Confirm revoke",
+  "shareFullAccessBadge": "Full access 🗑️",
+  "authSignIn": "Sign in",
+  "authChangeEmail": "Change email or try another account",
+  "shareInviteError": "Failed to send the invitation",
+  "shareLinkCreationError": "Failed to create the public link. Make sure you're signed in and synced.",
+  "sharePermissionUpdateError": "Failed to update permission. Please try again later.",
+  "shareRevokeError": "Failed to revoke access",
+  "sharePublicLinkToggleDesc": "Enabling or disabling the public link is available only to the owner or admin.",
+  "authResetEmailSent": "A password reset link has been sent to your email.",
+  "authAccountCreatedSuccessfully": "Your account has been created successfully!",
+  "authAccountCreatedBody": "Your account has been created! We sent a confirmation email to:",
+  "shareRevokeSuccess": "Access revoked successfully",
+  "shareCopyLinkSuccess": "Public share link copied to clipboard",
+  "authResendSuccess": "The activation link has been resent! Check your email.",
+  "shareLoading": "Loading...",
+  "shareInviteButton": "Invite",
+  "shareInviteNewMember": "Invite a new person and set their permission",
+  "sharePublicLink": "Public link (no account required)",
+  "authSignInSubtitle": "Sign in to sync and share your tasks with your team",
+  "shareRevokeAccess": "Revoke access",
+  "sharePermissionDenied": "You don't have permission to manage sharing for this item. These actions are available only to the owner or admin.",
+  "shareLinkToggleHint": "Toggle the switch above to generate a quick share link that can be sent to clients or colleagues.",
+  "authPasswordLabel": "Password",
+  "authPasswordMin": "Password must be at least 6 characters",
+  "authHasAccount": "Already have an account?",
+  "shareNotSharedYet": "This item hasn't been shared with anyone yet.",
+  "authResendLink": "Didn't receive the email? Resend",
+  "authNoAccount": "Don't have an account yet?",
+  "shareEditor": "Editor",
+  "shareEditorBadge": "Editor / edit ✏️",
+  "authWelcomeBack": "Welcome back to Tasky",
+  "shareAdmin": "Admin",
+  "shareUserWithoutEmail": "User without email",
+  "shareViewer": "View only",
+  "shareViewOnlyBadge": "View only 👁️",
+  "sharePending": "Pending (awaiting registration)",
+  "shareCopyLink": "Copy link",
+  "authForgotPassword": "Forgot password?",
+  "shareActive": "Active",
+  "authOfflineMode": "Offline mode",
+  "sharePublicLinkDesc": "Allows anyone with the link to view the content (read-only, no account needed)",
+  "shareInvalidEmail": "Please enter a valid email address",
+  "authConfirmEmailBody": "Please open the email and click the activation link. If you can't find it in your inbox, check the spam / junk folder.",
+  "authNameRequired": "Please enter your name",
+  "authEmailRequired": "Please enter your email",
+  "authPasswordRequired": "Please enter a password",
+  "sharePeopleWithAccess": "People with access ({count})",
+  "@sharePeopleWithAccess": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "sharePermissionUpdatedSuccess": "Permission updated to {permission} successfully",
+  "@sharePermissionUpdatedSuccess": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "permission": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "authResendActivationSuccess": "The activation link has been resent to {email}! Check your email now.",
+  "@authResendActivationSuccess": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "email": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "shareInviteSentSuccess": "{email} has been invited successfully",
+  "@shareInviteSentSuccess": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "email": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "shareDialogTitle": "Share {name}",
+  "@shareDialogTitle": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "shareRevokeConfirmBody": "Are you sure you want to revoke sharing with {email}?",
+  "@shareRevokeConfirmBody": {
+    "description": "Localized UI message for Tasky.",
+    "placeholders": {
+      "email": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  }
 }

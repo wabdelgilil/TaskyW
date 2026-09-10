@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/url_helper.dart';
 import '../../data/models/entity_share_model.dart';
 import '../controllers/collaboration_controller.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 
 
 /// نافذة موحدة لإدارة المشاركة والتعاون لجميع الكيانات (مجال / مشروع / مهمة).
@@ -106,16 +107,16 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
     super.dispose();
   }
 
-  String _getEntityTypeName() {
+  String _getEntityTypeName(BuildContext context) {
     switch (widget.entityType) {
       case 'area':
-        return 'المجال';
+        return context.l10n.shareEntityArea;
       case 'project':
-        return 'المشروع';
+        return context.l10n.shareEntityProject;
       case 'task':
-        return 'المهمة';
+        return context.l10n.shareEntityTask;
       default:
-        return 'العنصر';
+        return context.l10n.shareEntityElement;
     }
   }
 
@@ -128,8 +129,8 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
 
   void _showBlockedSnackBar() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('صلاحيتك على هذا العنصر لا تسمح بإدارة المشاركة. هذه الإجراءات متاحة فقط للمالك (Owner) أو المسؤول (Admin).'),
+      SnackBar(
+        content: Text(context.l10n.sharePermissionDenied),
         backgroundColor: Colors.orange,
         behavior: SnackBarBehavior.floating,
       ),
@@ -150,8 +151,8 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
       if (!mounted) return;
       if (newToken == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('تعذر إنشاء الرابط العام، تأكد من تسجيل الدخول والمزامنة.'),
+          SnackBar(
+            content: Text(context.l10n.shareLinkCreationError),
             backgroundColor: Colors.redAccent,
             behavior: SnackBarBehavior.floating,
           ),
@@ -204,7 +205,7 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
     final email = _emailController.text.trim();
     if (email.isEmpty || !email.contains('@')) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('يرجى إدخال بريد إلكتروني صالح')),
+        SnackBar(content: Text(context.l10n.shareInvalidEmail)),
       );
       return;
     }
@@ -223,14 +224,14 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
         _emailController.clear();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('تمت دعوة $email بنجاح'),
+            content: Text(context.l10n.shareInviteSentSuccess(email)),
             behavior: SnackBarBehavior.floating,
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(_collabController.errorMessage ?? 'تعذر إرسال الدعوة'),
+            content: Text(_collabController.errorMessage ?? context.l10n.shareInviteError),
             backgroundColor: Colors.redAccent,
             behavior: SnackBarBehavior.floating,
           ),
@@ -242,7 +243,8 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final entityTypeName = _getEntityTypeName();
+    final l10n = context.l10n;
+    final entityTypeName = _getEntityTypeName(context);
     final primaryColor = theme.colorScheme.primary;
 
     return Dialog(
@@ -274,7 +276,7 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'مشاركة $entityTypeName',
+                          context.l10n.shareDialogTitle(entityTypeName),
                           style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 2),
@@ -310,14 +312,14 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
                 labelColor: primaryColor,
                 unselectedLabelColor: AppColors.textSecondary(context),
                 labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
-                tabs: const [
+                tabs: [
                   Tab(
-                    icon: Icon(Icons.group_outlined, size: 18),
-                    text: 'أعضاء الفريق (بحساب)',
+                    icon: const Icon(Icons.group_outlined, size: 18),
+                    text: l10n.shareTeamMembers,
                   ),
                   Tab(
-                    icon: Icon(Icons.link_rounded, size: 18),
-                    text: 'رابط عام (بدون حساب)',
+                    icon: const Icon(Icons.link_rounded, size: 18),
+                    text: l10n.sharePublicLink,
                   ),
                 ],
               ),
@@ -340,6 +342,7 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
 
   // --- Tab 1: أعضاء الفريق بحساب ---
   Widget _buildTeamTab(BuildContext context, Color primaryColor) {
+    final l10n = context.l10n;
     return AnimatedBuilder(
       animation: _collabController,
       builder: (context, _) {
@@ -366,9 +369,9 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'دعوة شخص جديد وتحديد صلاحيته',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                    Text(
+                      l10n.shareInviteNewMember,
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
                     Row(
@@ -380,7 +383,7 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
                             enabled: canManage,
                             keyboardType: TextInputType.emailAddress,
                             decoration: InputDecoration(
-                              hintText: canManage ? 'user@example.com' : 'الدعوة غير متاحة لصلاحيتك',
+                              hintText: canManage ? 'user@example.com' : context.l10n.shareInviteUnavailable,
                               prefixIcon: const Icon(Icons.mail_outline, size: 18),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                               border: OutlineInputBorder(
@@ -407,18 +410,18 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
                               child: DropdownButton<String>(
                                 value: _selectedPermission,
                                 isExpanded: true,
-                                items: const [
+                                items: [
                                   DropdownMenuItem(
                                     value: 'viewer',
-                                    child: Text('مشاهدة فقط 👁️', style: TextStyle(fontSize: 12)),
+                                    child: Text(l10n.shareViewOnlyBadge, style: const TextStyle(fontSize: 12)),
                                   ),
                                   DropdownMenuItem(
                                     value: 'editor',
-                                    child: Text('محرر / تعديل ✏️', style: TextStyle(fontSize: 12)),
+                                    child: Text(l10n.shareEditorBadge, style: const TextStyle(fontSize: 12)),
                                   ),
                                   DropdownMenuItem(
                                     value: 'admin',
-                                    child: Text('تحكم كامل 🗑️', style: TextStyle(fontSize: 12)),
+                                    child: Text(l10n.shareFullAccessBadge, style: const TextStyle(fontSize: 12)),
                                   ),
                                 ],
                                 onChanged: canManage
@@ -445,7 +448,7 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
                                   height: 16,
                                   child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                                 )
-                              : const Text('دعوة', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold)),
+                              : Text(l10n.shareInviteButton, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold)),
                         ),
                       ],
                     ),
@@ -458,7 +461,7 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'الأشخاص الذين لديهم صلاحية وصول (${shares.length})',
+                    context.l10n.sharePeopleWithAccess(shares.length),
                     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                   ),
                   if (isLoading)
@@ -475,7 +478,7 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
                 child: shares.isEmpty
                     ? Center(
                         child: Text(
-                          isLoading ? 'جاري التحميل...' : 'لم تتم مشاركة هذا العنصر مع أي شخص بعد.',
+                          isLoading ? l10n.shareLoading : l10n.shareNotSharedYet,
                           style: TextStyle(color: AppColors.textSecondary(context), fontSize: 13),
                         ),
                       )
@@ -507,15 +510,15 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: Colors.orange.withOpacity(0.35)),
         ),
-        child: const Row(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.lock_outline_rounded, color: Colors.orange, size: 20),
-            SizedBox(width: 10),
+            const Icon(Icons.lock_outline_rounded, color: Colors.orange, size: 20),
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
-                '🔒 صلاحيتك الحالية (مشاهدة أو تحرير) لا تسمح بدعوة أعضاء أو تعديل صلاحياتهم. هذه الإجراءات متاحة فقط للمالك (Owner) أو المسؤول (Admin).',
-                style: TextStyle(fontSize: 12, color: Colors.orange),
+                context.l10n.shareRestrictedNotice,
+                style: const TextStyle(fontSize: 12, color: Colors.orange),
               ),
             ),
           ],
@@ -526,6 +529,7 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
 
   Widget _buildShareMemberTile(EntityShareModel share, {bool canManage = true}) {
     final primaryColor = Theme.of(context).colorScheme.primary;
+    final l10n = context.l10n;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -545,11 +549,11 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  share.collaboratorEmail ?? 'مستخدم بدون بريد',
+                  share.collaboratorEmail ?? l10n.shareUserWithoutEmail,
                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
                 ),
                 Text(
-                  share.status == 'active' ? 'نشط' : 'معلّق (في انتظار التسجيل)',
+                  share.status == 'active' ? l10n.shareActive : l10n.sharePending,
                   style: TextStyle(
                     fontSize: 11,
                     color: share.status == 'active' ? Colors.green : Colors.orange,
@@ -569,10 +573,10 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
                   value: share.permissionLevel,
-                  items: const [
-                    DropdownMenuItem(value: 'viewer', child: Text('مشاهدة فقط', style: TextStyle(fontSize: 11))),
-                    DropdownMenuItem(value: 'editor', child: Text('محرر', style: TextStyle(fontSize: 11))),
-                    DropdownMenuItem(value: 'admin', child: Text('مسؤول', style: TextStyle(fontSize: 11))),
+                  items: [
+                    DropdownMenuItem(value: 'viewer', child: Text(l10n.shareViewer, style: const TextStyle(fontSize: 11))),
+                    DropdownMenuItem(value: 'editor', child: Text(l10n.shareEditor, style: const TextStyle(fontSize: 11))),
+                    DropdownMenuItem(value: 'admin', child: Text(l10n.shareAdmin, style: const TextStyle(fontSize: 11))),
                   ],
                   onChanged: (newPerm) async {
                     if (newPerm != null && newPerm != share.permissionLevel) {
@@ -585,8 +589,14 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
                         SnackBar(
                           content: Text(
                             success
-                                ? 'تم تحديث الصلاحية إلى (${newPerm == 'admin' ? 'مسؤول' : newPerm == 'editor' ? 'محرر' : 'مشاهدة فقط'}) بنجاح'
-                                : 'تعذر تحديث الصلاحية، يرجى المحاولة لاحقاً',
+                                ? context.l10n.sharePermissionUpdatedSuccess(
+                                    newPerm == 'admin'
+                                        ? l10n.shareAdmin
+                                        : newPerm == 'editor'
+                                            ? l10n.shareEditor
+                                            : l10n.shareViewer,
+                                  )
+                                : l10n.sharePermissionUpdateError,
                           ),
                           backgroundColor: success ? Colors.green.shade700 : Colors.red.shade700,
                           duration: const Duration(seconds: 2),
@@ -617,8 +627,8 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
               ),
               child: Text(
                 share.permissionLevel == 'admin'
-                    ? 'مسؤول'
-                    : (share.permissionLevel == 'editor' ? 'محرر' : 'مشاهدة فقط'),
+                    ? l10n.shareAdmin
+                    : (share.permissionLevel == 'editor' ? l10n.shareEditor : l10n.shareViewer),
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
@@ -633,19 +643,19 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
           if (canManage)
             IconButton(
               icon: const Icon(Icons.delete_outline, size: 18, color: Colors.redAccent),
-              tooltip: 'سحب الصلاحية',
+              tooltip: context.l10n.shareRevokeAccess,
               onPressed: () async {
                 final confirm = await showDialog<bool>(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    title: const Text('سحب الصلاحية', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                    content: Text('هل أنت متأكد من إلغاء مشاركة هذا العنصر مع ${share.collaboratorEmail}؟'),
+                    title: Text(context.l10n.shareRevokeAccess, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                    content: Text(context.l10n.shareRevokeConfirmBody(share.collaboratorEmail ?? '')),
                     actions: [
-                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('إلغاء')),
+                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(context.l10n.commonCancel)),
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, true),
                         style: TextButton.styleFrom(foregroundColor: Colors.red),
-                        child: const Text('تأكيد السحب'),
+                        child: Text(context.l10n.shareRevokeConfirmTitle),
                       ),
                     ],
                   ),
@@ -656,7 +666,7 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
                   if (!mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(ok ? 'تم سحب الصلاحية بنجاح' : 'تعذر سحب الصلاحية'),
+                      content: Text(ok ? context.l10n.shareRevokeSuccess : context.l10n.shareRevokeError),
                       backgroundColor: ok ? Colors.green.shade700 : Colors.red.shade700,
                       duration: const Duration(seconds: 2),
                       behavior: SnackBarBehavior.floating,
@@ -672,6 +682,7 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
 
   // --- Tab 2: رابط عام بدون حساب ---
   Widget _buildPublicLinkTab(BuildContext context, Color primaryColor) {
+    final l10n = context.l10n;
     final hasLink = _shareToken != null && _shareToken!.isNotEmpty;
     final shareUrl = hasLink ? UrlHelper.buildShareUrl(_shareToken!) : '';
     final canManage = _canManageShares();
@@ -684,17 +695,17 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'المشاركة عبر رابط عام',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    l10n.sharePublicLinkTitle,
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
-                    'يتيح لأي شخص لديه الرابط الاطلاع على المحتوى (قراءة فقط بدون حساب)',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                    l10n.sharePublicLinkDesc,
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                 ],
               ),
@@ -714,14 +725,14 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: Colors.orange.withOpacity(0.35)),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.lock_outline_rounded, color: Colors.orange, size: 16),
-                  SizedBox(width: 8),
+                  const Icon(Icons.lock_outline_rounded, color: Colors.orange, size: 16),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'تفعيل أو إيقاف الرابط العام متاح فقط للمالك (Owner) أو المسؤول (Admin).',
-                      style: TextStyle(fontSize: 11.5, color: Colors.orange),
+                      l10n.sharePublicLinkToggleDesc,
+                      style: const TextStyle(fontSize: 11.5, color: Colors.orange),
                     ),
                   ),
                 ],
@@ -752,7 +763,7 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
                   const SizedBox(width: 8),
                   ElevatedButton.icon(
                     icon: const Icon(Icons.copy_rounded, size: 16),
-                    label: const Text('نسخ الرابط', style: TextStyle(fontSize: 12)),
+                    label: Text(l10n.shareCopyLink, style: const TextStyle(fontSize: 12)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryColor,
                       foregroundColor: Colors.white,
@@ -762,8 +773,8 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: shareUrl));
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('تم نسخ رابط المشاركة العام إلى الحافظة'),
+                        SnackBar(
+                          content: Text(l10n.shareCopyLinkSuccess),
                           behavior: SnackBarBehavior.floating,
                         ),
                       );
@@ -781,14 +792,14 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: Colors.blue.withOpacity(0.2)),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.shield_outlined, color: Colors.blue, size: 20),
-                  SizedBox(width: 10),
+                  const Icon(Icons.shield_outlined, color: Colors.blue, size: 20),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'أمان مضمون: الزائر عبر هذا الرابط لن يرى سوى هذا العنصر فقط، ولن يتمكن من تعديل أو حذف أي شيء إطلاقاً.',
-                      style: TextStyle(fontSize: 12, color: Colors.blue),
+                      l10n.shareSecurityNote,
+                      style: const TextStyle(fontSize: 12, color: Colors.blue),
                     ),
                   ),
                 ],
@@ -803,7 +814,7 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
                     Icon(Icons.link_off_rounded, size: 48, color: AppColors.textSecondary(context).withOpacity(0.5)),
                     const SizedBox(height: 12),
                     Text(
-                      'الرابط العام معطّل حالياً',
+                      l10n.shareLinkDisabled,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -812,7 +823,7 @@ class _UniversalShareDialogState extends State<UniversalShareDialog> with Single
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'قم بتفعيل المفتاح بالأعلى لتوليد رابط مشاركة سريع يمكن إرساله للعملاء أو الزملاء.',
+                      l10n.shareLinkToggleHint,
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 12, color: AppColors.textSecondary(context)),
                     ),

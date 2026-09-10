@@ -1,5 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
+import '../../l10n/app_localizations.dart';
 
 /// نافذة اختيار الإيموجي للمجالات والمشاريع
 /// تتيح الاختيار من القائمة أو الإدخال الحر باللصق أو كتابة الكود (Unicode/HEX/Name)
@@ -25,10 +27,10 @@ class _EmojiPickerDialogState extends State<EmojiPickerDialog> {
   String? _parseError;
 
   static const Map<String, List<String>> _emojiCategories = {
-    'العمل والمشاريع': ['💼', '📁', '📊', '📈', '📋', '🎯', '🚀', '📌', '📑', '🖋️', '📅', '💡'],
-    'الهندسة والأدوات': ['🏭', '⚙️', '🔧', '🔨', '⚡', '🏗️', '📐', '🔬', '💻', '🔌', '🛠️', '🧰'],
-    'الشخصية والمنزل': ['🏠', '🚗', '🛒', '💳', '📚', '🏋️', '🍎', '✈️', '🎮', '☕', '🧘', '🌿'],
-    'الحالات والتنبيه': ['🔥', '⭐', '⏳', '✅', '⚠️', '🚨', '💎', '🎉', '🔔', '🏷️', '📦', '🔑'],
+    'work': ['💼', '📁', '📊', '📈', '📋', '🎯', '🚀', '📌', '📑', '🖋️', '📅', '💡'],
+    'tools': ['🏭', '⚙️', '🔧', '🔨', '⚡', '🏗️', '📐', '🔬', '💻', '🔌', '🛠️', '🧰'],
+    'personal': ['🏠', '🚗', '🛒', '💳', '📚', '🏋️', '🍎', '✈️', '🎮', '☕', '🧘', '🌿'],
+    'status': ['🔥', '⭐', '⏳', '✅', '⚠️', '🚨', '💎', '🎉', '🔔', '🏷️', '📦', '🔑'],
   };
 
   @override
@@ -103,7 +105,7 @@ class _EmojiPickerDialogState extends State<EmojiPickerDialog> {
       });
     } else {
       setState(() {
-        _parseError = 'تعذر التعرف على كود الإيموجي';
+        _parseError = 'invalidEmojiCode';
       });
     }
   }
@@ -116,8 +118,24 @@ class _EmojiPickerDialogState extends State<EmojiPickerDialog> {
     }
   }
 
+  String _categoryLabel(String key, AppLocalizations l10n) {
+    switch (key) {
+      case 'work':
+        return l10n.emojiCategoryWork;
+      case 'tools':
+        return l10n.emojiCategoryTools;
+      case 'personal':
+        return l10n.emojiCategoryPersonal;
+      case 'status':
+        return l10n.emojiCategoryStatus;
+      default:
+        return key;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AlertDialog(
@@ -138,15 +156,15 @@ class _EmojiPickerDialogState extends State<EmojiPickerDialog> {
             ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('اختر أيقونة معبرة', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(l10n.chooseIconTitle, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 Text(
-                  'من القائمة أو بلصق الإيموجي أو كود Unicode',
-                  style: TextStyle(fontSize: 11, color: Colors.grey),
+                  l10n.chooseIconSubtitle,
+                  style: const TextStyle(fontSize: 11, color: Colors.grey),
                 ),
               ],
             ),
@@ -178,14 +196,14 @@ class _EmojiPickerDialogState extends State<EmojiPickerDialog> {
                     children: [
                       const Icon(Icons.edit_note_rounded, size: 18, color: Colors.grey),
                       const SizedBox(width: 6),
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          'إدخال مخصص (لصق إيموجي أو كود U+...):',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                          l10n.customEmojiInput,
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                         ),
                       ),
                       Tooltip(
-                        message: 'لصق من الحافظة',
+                        message: l10n.pasteFromClipboard,
                         child: InkWell(
                           onTap: _pasteFromClipboard,
                           borderRadius: BorderRadius.circular(6),
@@ -196,7 +214,7 @@ class _EmojiPickerDialogState extends State<EmojiPickerDialog> {
                                 Icon(Icons.paste_rounded, size: 14, color: Theme.of(context).colorScheme.primary),
                                 const SizedBox(width: 4),
                                 Text(
-                                  'لصق',
+                                  l10n.paste,
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.bold,
@@ -214,7 +232,7 @@ class _EmojiPickerDialogState extends State<EmojiPickerDialog> {
                   TextField(
                     controller: _customInputController,
                     decoration: InputDecoration(
-                      hintText: 'ألصق إيموجي (مثال: 🤖) أو كوده (U+1F680)',
+                      hintText: l10n.pasteEmojiHint,
                       hintStyle: const TextStyle(fontSize: 12),
                       isDense: true,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -235,7 +253,7 @@ class _EmojiPickerDialogState extends State<EmojiPickerDialog> {
                   if (_parseError != null) ...[
                     const SizedBox(height: 4),
                     Text(
-                      _parseError!,
+                      l10n.invalidEmojiCode,
                       style: const TextStyle(fontSize: 11, color: Colors.redAccent),
                     ),
                   ],
@@ -245,11 +263,11 @@ class _EmojiPickerDialogState extends State<EmojiPickerDialog> {
             const SizedBox(height: 12),
 
             // قائمة الإيموجيز المقترحة والمصنفة
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Text(
-                'أيقونات مقترحة سريعة:',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey),
+                l10n.quickEmojis,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey),
               ),
             ),
             const SizedBox(height: 6),
@@ -263,7 +281,7 @@ class _EmojiPickerDialogState extends State<EmojiPickerDialog> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 6),
                         child: Text(
-                          entry.key,
+                          _categoryLabel(entry.key, l10n),
                           style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey),
                         ),
                       ),
@@ -314,7 +332,7 @@ class _EmojiPickerDialogState extends State<EmojiPickerDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('إلغاء'),
+          child: Text(l10n.commonCancel),
         ),
         ElevatedButton(
           onPressed: () {
@@ -327,7 +345,7 @@ class _EmojiPickerDialogState extends State<EmojiPickerDialog> {
             }
             Navigator.of(context).pop(_selectedEmoji);
           },
-          child: const Text('اختيار'),
+          child: Text(l10n.choose),
         ),
       ],
     );

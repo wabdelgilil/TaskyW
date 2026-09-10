@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/features/tags/data/models/tag_model.dart';
 import '../../services/attachment_service.dart';
 import '../../../../core/services/notification_service.dart';
@@ -207,14 +208,14 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
                     margin: const EdgeInsets.only(left: 8),
                     decoration: BoxDecoration(color: customColor, shape: BoxShape.circle),
                   ),
-                const Text(
-                  'تفاصيل المهمة',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                Text(
+                  context.l10n.taskDetails,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 // زر مشاركة المهمة
                 IconButton(
                   icon: const Icon(Icons.share_outlined, size: 20),
-                  tooltip: 'مشاركة المهمة مع الفريق برابط أو حساب',
+                  tooltip: context.l10n.shareTaskWithTeam,
                   onPressed: () {
                     UniversalShareDialog.show(
                       context,
@@ -237,12 +238,12 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
                 // زر منتقي لون المهمة
                 IconButton(
                   icon: Icon(Icons.palette_outlined, size: 20, color: customColor ?? Colors.grey),
-                  tooltip: 'تخصيص لون للمهمة',
+                  tooltip: context.l10n.customizeTaskColor,
                   onPressed: () async {
                     final selected = await ColorPickerDialog.show(
                       context,
                       initialColorHex: _colorHex ?? '#3B82F6',
-                      title: 'لون مخصص للمهمة',
+                      title: context.l10n.customTaskColor,
                     );
                     if (selected != null) {
                       setState(() => _colorHex = selected);
@@ -254,13 +255,13 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
                 if (widget.onDeleteTask != null)
                   IconButton(
                     icon: const Icon(Icons.delete_outline, size: 20, color: Colors.redAccent),
-                    tooltip: 'حذف المهمة',
+                    tooltip: context.l10n.deleteTask,
                     onPressed: () async {
                       final confirmed = await ConfirmDeleteDialog.show(
                         context,
-                        title: 'حذف المهمة',
-                        message: 'هل أنت متأكد من رغبتك في حذف المهمة "${widget.task.title}"؟',
-                        confirmLabel: 'حذف المهمة',
+                        title: context.l10n.deleteTask,
+                        message: context.l10n.deleteTaskConfirm(widget.task.title),
+                        confirmLabel: context.l10n.deleteTask,
                       );
                       if (confirmed && mounted) {
                         widget.onDeleteTask?.call(widget.task.id);
@@ -272,7 +273,7 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
                 if (widget.onClose != null)
                   IconButton(
                     icon: const Icon(Icons.close, size: 20),
-                    tooltip: 'إغلاق',
+                    tooltip: context.l10n.commonClose,
                     onPressed: widget.onClose,
                   ),
               ],
@@ -288,8 +289,8 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
                 TextField(
                   controller: _titleController,
                   style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-                  decoration: const InputDecoration(
-                    hintText: 'عنوان المهمة...',
+                  decoration: InputDecoration(
+                    hintText: context.l10n.taskTitleEditHint,
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
@@ -369,17 +370,17 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
                 const SizedBox(height: 20),
 
                 // الوصف والملاحظات الفنية
-                const Text(
-                  'الوصف والملاحظات:',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.grey),
+                Text(
+                  context.l10n.descriptionNotesLabel,
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.grey),
                 ),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _descController,
                   maxLines: 4,
                   style: const TextStyle(fontSize: 13.5),
-                  decoration: const InputDecoration(
-                    hintText: 'أدخل تفاصيل وملاحظات أو أرقام قطع الغيار...',
+                  decoration: InputDecoration(
+                    hintText: context.l10n.descriptionNotesHint,
                   ),
                   onChanged: (_) => _triggerSave(),
                 ),

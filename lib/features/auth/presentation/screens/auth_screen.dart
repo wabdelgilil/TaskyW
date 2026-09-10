@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/validators.dart';
 import '../controllers/auth_controller.dart';
@@ -76,7 +77,7 @@ class _AuthScreenState extends State<AuthScreen> {
           });
         } else {
           setState(() {
-            _successMessage = 'تم إنشاء الحساب بنجاح!';
+            _successMessage = context.l10n.authAccountCreatedSuccessfully;
           });
           if (auth.isAuthenticated) {
             if (widget.onAuthSuccess != null) {
@@ -91,7 +92,7 @@ class _AuthScreenState extends State<AuthScreen> {
       final success = await auth.resetPassword(email);
       if (success && mounted) {
         setState(() {
-          _successMessage = 'تم إرسال رابط استعادة كلمة المرور إلى بريدك.';
+          _successMessage = context.l10n.authResetEmailSent;
         });
       }
     }
@@ -100,17 +101,18 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
           _mode == AuthMode.signIn
-              ? 'تسجيل الدخول'
+              ? l10n.authSignIn
               : _mode == AuthMode.signUp
-                  ? 'إنشاء حساب جديد'
+                  ? l10n.authCreateAccount
                   : _mode == AuthMode.emailConfirmationPending
-                      ? 'تأكيد الحساب'
-                      : 'استعادة كلمة المرور',
+                      ? l10n.authConfirmAccount
+                      : l10n.authResetPassword,
         ),
         centerTitle: true,
         actions: [
@@ -118,7 +120,7 @@ class _AuthScreenState extends State<AuthScreen> {
           TextButton.icon(
             onPressed: () => Navigator.of(context).pop(),
             icon: const Icon(Icons.offline_bolt_outlined, size: 16),
-            label: const Text('وضع الأوفلاين'),
+            label: Text(l10n.authOfflineMode),
           ),
           const SizedBox(width: 8),
         ],
@@ -158,6 +160,7 @@ class _AuthScreenState extends State<AuthScreen> {
   ) {
     final primaryColor = Theme.of(context).colorScheme.primary;
     final displayEmail = _pendingConfirmationEmail ?? _emailController.text.trim();
+    final l10n = context.l10n;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -182,9 +185,9 @@ class _AuthScreenState extends State<AuthScreen> {
         ),
         const SizedBox(height: 18),
 
-        const Center(
+        Center(
           child: Text(
-            'تأكيد البريد الإلكتروني',
+            l10n.authConfirmEmailTitle,
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ),
@@ -192,7 +195,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
         Center(
           child: Text(
-            'تم إنشاء حسابك بنجاح! أرسلنا رسالة تأكيد تحتوي على رابط التفعيل إلى:',
+            l10n.authAccountCreatedBody,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 13,
@@ -248,7 +251,7 @@ class _AuthScreenState extends State<AuthScreen> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'يرجى فتح الرسالة والنقر على رابط التفعيل. إذا لم تجد الرسالة في صندوق الوارد، تفقّد مجلد الرسائل غير المرغوب فيها (Spam / Junk).',
+                  l10n.authConfirmEmailBody,
                   style: TextStyle(
                     fontSize: 12,
                     height: 1.45,
@@ -320,8 +323,8 @@ class _AuthScreenState extends State<AuthScreen> {
               _emailController.text = displayEmail;
             },
             icon: const Icon(Icons.login_rounded, size: 18),
-            label: const Text(
-              'أكدت بريدي، تسجيل الدخول الآن',
+            label: Text(
+              l10n.authConfirmEmailAction,
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             ),
           ),
@@ -336,7 +339,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   final ok = await auth.resendConfirmationEmail(displayEmail);
                   if (ok && mounted) {
                     setState(() {
-                      _successMessage = 'تمت إعادة إرسال رابط التفعيل بنجاح! تفقد بريدك.';
+                      _successMessage = l10n.authResendSuccess;
                     });
                   }
                 },
@@ -347,14 +350,14 @@ class _AuthScreenState extends State<AuthScreen> {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
               : const Icon(Icons.refresh_rounded, size: 18),
-          label: const Text('لم تصلك الرسالة؟ إعادة الإرسال'),
+          label: Text(l10n.authResendLink),
         ),
         const SizedBox(height: 8),
 
         // زر تعديل البريد
         TextButton(
           onPressed: () => _switchMode(AuthMode.signUp),
-          child: const Text('تعديل البريد الإلكتروني أو المحاولة بحساب آخر', style: TextStyle(fontSize: 12)),
+          child: Text(l10n.authChangeEmail, style: TextStyle(fontSize: 12)),
         ),
       ],
     );
@@ -365,6 +368,7 @@ class _AuthScreenState extends State<AuthScreen> {
     bool isDark,
     AuthController auth,
   ) {
+    final l10n = context.l10n;
     return Form(
       key: _formKey,
       child: Column(
@@ -392,21 +396,21 @@ class _AuthScreenState extends State<AuthScreen> {
           Center(
             child: Text(
               _mode == AuthMode.signIn
-                  ? 'مرحباً بعودتك إلى Tasky'
+                  ? l10n.authWelcomeBack
                   : _mode == AuthMode.signUp
-                      ? 'ابدأ إدارة مشاريعك باحتراف'
-                      : 'استعادة كلمة المرور',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ? l10n.authGetStartedSubtitle
+                      : l10n.authResetPassword,
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
           const SizedBox(height: 6),
           Center(
             child: Text(
               _mode == AuthMode.signIn
-                  ? 'سجل دخولك لمزامنة مهامك ومشاركتها مع فريقك'
+                  ? l10n.authSignInSubtitle
                   : _mode == AuthMode.signUp
-                      ? 'أنشئ حسابك للنسخ الاحتياطي السحابي والمشاركة'
-                      : 'أدخل بريدك المسجل لإرسال رابط التعيين',
+                      ? l10n.authSignUpSubtitle
+                      : l10n.authResetEmailHint,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13,
@@ -483,9 +487,9 @@ class _AuthScreenState extends State<AuthScreen> {
                     children: [
                       const Icon(Icons.mark_email_unread_outlined, color: Colors.amber, size: 18),
                       const SizedBox(width: 8),
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          'تأكيد الحساب مطلوب لتسجيل الدخول',
+                          l10n.authConfirmRequired,
                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.amber),
                         ),
                       ),
@@ -493,7 +497,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'أرسلنا رابط التفعيل مسبقاً. تفقّد صندوق الوارد وكذلك مجلد الرسائل غير المرغوب فيها (Spam / Junk).',
+                    l10n.authConfirmEmailResent,
                     style: TextStyle(
                       fontSize: 12,
                       height: 1.4,
@@ -515,7 +519,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             final ok = await auth.resendConfirmationEmail(email);
                             if (ok && mounted) {
                               setState(() {
-                                _successMessage = 'تمت إعادة إرسال رابط التفعيل إلى $email بنجاح! تفقد بريدك الآن.';
+                                _successMessage = context.l10n.authResendActivationSuccess(email);
                               });
                             }
                           },
@@ -526,8 +530,8 @@ class _AuthScreenState extends State<AuthScreen> {
                             child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                           )
                         : const Icon(Icons.send_rounded, size: 15),
-                    label: const Text(
-                      'إعادة إرسال رابط التفعيل الآن',
+                    label: Text(
+                      l10n.authResendActivation,
                       style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -541,12 +545,12 @@ class _AuthScreenState extends State<AuthScreen> {
           if (_mode == AuthMode.signUp) ...[
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'الاسم الكامل',
+              decoration: InputDecoration(
+                labelText: l10n.authFullName,
                 prefixIcon: Icon(Icons.person_outline, size: 20),
               ),
               validator: (v) {
-                if (v == null || v.trim().isEmpty) return 'يرجى كتابة الاسم';
+                if (v == null || v.trim().isEmpty) return l10n.authNameRequired;
                 return null;
               },
             ),
@@ -557,14 +561,14 @@ class _AuthScreenState extends State<AuthScreen> {
           TextFormField(
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-              labelText: 'البريد الإلكتروني',
+            decoration: InputDecoration(
+              labelText: l10n.authEmailLabel,
               hintText: 'name@example.com',
               prefixIcon: Icon(Icons.email_outlined, size: 20),
             ),
             validator: (v) {
-              if (v == null || v.trim().isEmpty) return 'يرجى كتابة البريد الإلكتروني';
-              if (!Validators.isValidEmail(v.trim())) return 'بريد إلكتروني غير صحيح';
+              if (v == null || v.trim().isEmpty) return l10n.authEmailRequired;
+              if (!Validators.isValidEmail(v.trim())) return l10n.authEmailInvalid;
               return null;
             },
           ),
@@ -576,7 +580,7 @@ class _AuthScreenState extends State<AuthScreen> {
               controller: _passwordController,
               obscureText: _obscurePassword,
               decoration: InputDecoration(
-                labelText: 'كلمة المرور',
+                labelText: l10n.authPasswordLabel,
                 prefixIcon: const Icon(Icons.lock_outline, size: 20),
                 suffixIcon: IconButton(
                   icon: Icon(
@@ -587,8 +591,8 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
               ),
               validator: (v) {
-                if (v == null || v.isEmpty) return 'يرجى كتابة كلمة المرور';
-                if (v.length < 6) return 'كلمة المرور 6 خانات كحد أدنى';
+                if (v == null || v.isEmpty) return l10n.authPasswordRequired;
+                if (v.length < 6) return l10n.authPasswordMin;
                 return null;
               },
             ),
@@ -600,7 +604,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 alignment: Alignment.centerLeft,
                 child: TextButton(
                   onPressed: () => _switchMode(AuthMode.forgotPassword),
-                  child: const Text('نسيت كلمة المرور؟', style: TextStyle(fontSize: 12)),
+                  child: Text(l10n.authForgotPassword, style: TextStyle(fontSize: 12)),
                 ),
               ),
           ],
@@ -620,11 +624,11 @@ class _AuthScreenState extends State<AuthScreen> {
                     )
                   : Text(
                       _mode == AuthMode.signIn
-                          ? 'تسجيل الدخول'
+                          ? l10n.authSignIn
                           : _mode == AuthMode.signUp
-                              ? 'إنشاء الحساب'
-                              : 'إرسال رابط الاستعادة',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                              ? l10n.authCreateAccountAction
+                              : l10n.authSendResetLink,
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                     ),
             ),
           ),
@@ -635,10 +639,10 @@ class _AuthScreenState extends State<AuthScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('ليس لديك حساب بعد؟', style: TextStyle(fontSize: 13)),
+                Text(l10n.authNoAccount, style: TextStyle(fontSize: 13)),
                 TextButton(
                   onPressed: () => _switchMode(AuthMode.signUp),
-                  child: const Text('إنشاء حساب جديد', style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: Text(l10n.authCreateAccount, style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -646,10 +650,10 @@ class _AuthScreenState extends State<AuthScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('لديك حساب بالفعل؟', style: TextStyle(fontSize: 13)),
+                Text(l10n.authHasAccount, style: TextStyle(fontSize: 13)),
                 TextButton(
                   onPressed: () => _switchMode(AuthMode.signIn),
-                  child: const Text('تسجيل الدخول', style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: Text(l10n.authSignIn, style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -661,7 +665,7 @@ class _AuthScreenState extends State<AuthScreen> {
           OutlinedButton.icon(
             onPressed: () => Navigator.of(context).pop(),
             icon: const Icon(Icons.flash_on_outlined, size: 18),
-            label: const Text('المتابعة دون حساب (محلياً)'),
+            label: Text(l10n.authContinueOffline),
           ),
         ],
       ),

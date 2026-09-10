@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/core/theme/app_colors.dart';
 import 'package:tasky/core/widgets/color_picker_dialog.dart';
 import 'package:tasky/core/widgets/emoji_picker_dialog.dart';
@@ -56,10 +57,11 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final pColor = AppColors.fromHex(_colorHex);
 
     return AlertDialog(
-      title: const Text('إضافة مشروع جديد', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+      title: Text(l10n.addNewProjectTitle, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
       content: SizedBox(
         width: 380,
         child: Column(
@@ -91,7 +93,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                       children: [
                         Container(width: 16, height: 16, decoration: BoxDecoration(color: pColor, shape: BoxShape.circle)),
                         const SizedBox(width: 6),
-                        const Text('اللون', style: TextStyle(fontSize: 12)),
+                        Text(l10n.colorLabel, style: const TextStyle(fontSize: 12)),
                       ],
                     ),
                   ),
@@ -99,14 +101,14 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
               ],
             ),
             const SizedBox(height: 14),
-            TextField(controller: _nameCtrl, decoration: const InputDecoration(labelText: 'اسم المشروع')),
+            TextField(controller: _nameCtrl, decoration: InputDecoration(labelText: l10n.projectName)),
             const SizedBox(height: 10),
-            TextField(controller: _descCtrl, maxLines: 2, decoration: const InputDecoration(labelText: 'وصف المشروع (اختياري)')),
+            TextField(controller: _descCtrl, maxLines: 2, decoration: InputDecoration(labelText: l10n.projectDescription)),
             const SizedBox(height: 12),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('إشعارات هذا المشروع'),
-              subtitle: const Text('تفعيل التذكيرات المحلية لمهام هذا المشروع'),
+              title: Text(l10n.projectNotifications),
+              subtitle: Text(l10n.projectNotificationsDesc),
               value: _notificationsEnabled,
               onChanged: (val) => setState(() => _notificationsEnabled = val),
             ),
@@ -114,7 +116,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('إلغاء')),
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(l10n.commonCancel)),
         ElevatedButton(
           onPressed: () {
             if (_nameCtrl.text.trim().isNotEmpty) {
@@ -133,7 +135,7 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
               Navigator.of(context).pop();
             }
           },
-          child: const Text('إنشاء المشروع'),
+          child: Text(l10n.createProject),
         ),
       ],
     );

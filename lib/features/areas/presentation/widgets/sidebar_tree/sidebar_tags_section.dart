@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/features/tags/data/models/tag_model.dart';
 import 'package:tasky/core/theme/app_colors.dart';
 import 'package:tasky/features/areas/presentation/widgets/sidebar_tree/sidebar_smart_filters.dart';
@@ -24,6 +25,7 @@ class SidebarTagsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = context.l10n;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -31,11 +33,11 @@ class SidebarTagsSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const SidebarSectionHeader('الوسوم والتصنيفات'),
+            SidebarSectionHeader(l10n.tagsSection),
             if (onAddTag != null)
               IconButton(
                 icon: const Icon(Icons.add, size: 16),
-                tooltip: 'إنشاء وسم جديد',
+                tooltip: l10n.createTagTooltip,
                 splashRadius: 14,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
@@ -47,7 +49,7 @@ class SidebarTagsSection extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             child: Text(
-              'لا توجد وسوم مضافة',
+              l10n.noTagsAdded,
               style: TextStyle(fontSize: 11.5, color: AppColors.textMuted(context)),
             ),
           )

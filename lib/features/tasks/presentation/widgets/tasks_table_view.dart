@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/features/tags/data/models/tag_model.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/priority_badge.dart';
@@ -114,7 +115,7 @@ class _TasksTableViewState extends State<TasksTableView> {
             Icon(Icons.table_rows_outlined, size: 60, color: Theme.of(context).hintColor.withValues(alpha: 0.4)),
             const SizedBox(height: 12),
             Text(
-              'لا توجد مهام لعرضها في الجدول',
+              context.l10n.tableEmpty,
               style: TextStyle(fontSize: 15, color: AppColors.textSecondary(context)),
             ),
             if (widget.onAddTask != null) ...[
@@ -122,7 +123,7 @@ class _TasksTableViewState extends State<TasksTableView> {
               ElevatedButton.icon(
                 onPressed: widget.onAddTask,
                 icon: const Icon(Icons.add, size: 18),
-                label: const Text('إضافة مهمة جديدة'),
+                label: Text(context.l10n.addNewTaskTitle),
               ),
             ],
           ],
@@ -177,7 +178,7 @@ class _TasksTableViewState extends State<TasksTableView> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('عنوان المهمة', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(context.l10n.columnTitle, style: TextStyle(fontWeight: FontWeight.bold)),
                       if (_sortColumn == _SortColumn.title)
                         Icon(_sortAscending ? Icons.arrow_upward : Icons.arrow_downward, size: 14),
                     ],
@@ -190,7 +191,7 @@ class _TasksTableViewState extends State<TasksTableView> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('الحالة', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(context.l10n.statusLabel, style: TextStyle(fontWeight: FontWeight.bold)),
                       if (_sortColumn == _SortColumn.status)
                         Icon(_sortAscending ? Icons.arrow_upward : Icons.arrow_downward, size: 14),
                     ],
@@ -203,7 +204,7 @@ class _TasksTableViewState extends State<TasksTableView> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('الأولوية', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(context.l10n.priorityLabel, style: TextStyle(fontWeight: FontWeight.bold)),
                       if (_sortColumn == _SortColumn.priority)
                         Icon(_sortAscending ? Icons.arrow_upward : Icons.arrow_downward, size: 14),
                     ],
@@ -216,21 +217,21 @@ class _TasksTableViewState extends State<TasksTableView> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('تاريخ الاستحقاق', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(context.l10n.dueDateColumn, style: TextStyle(fontWeight: FontWeight.bold)),
                       if (_sortColumn == _SortColumn.dueDate)
                         Icon(_sortAscending ? Icons.arrow_upward : Icons.arrow_downward, size: 14),
                     ],
                   ),
                 ),
               ),
-              const DataColumn(
-                label: Text('المجال / المشروع', style: TextStyle(fontWeight: FontWeight.bold)),
+              DataColumn(
+                label: Text(context.l10n.areaProjectColumn, style: TextStyle(fontWeight: FontWeight.bold)),
               ),
-              const DataColumn(
-                label: Text('الوسوم', style: TextStyle(fontWeight: FontWeight.bold)),
+              DataColumn(
+                label: Text(context.l10n.tagsColumn, style: TextStyle(fontWeight: FontWeight.bold)),
               ),
-              const DataColumn(
-                label: Text('المهام الفرعية', style: TextStyle(fontWeight: FontWeight.bold)),
+              DataColumn(
+                label: Text(context.l10n.subtasksColumn, style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             ],
             rows: sorted.map((task) {

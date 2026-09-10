@@ -1,11 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../database/app_database.dart';
 import '../database/database_tables.dart';
 import '../../features/tasks/services/attachment_service.dart';
+import '../../features/settings/data/models/app_settings_model.dart';
+import '../../features/settings/data/services/settings_service.dart';
 import 'supabase_service.dart';
 
 /// نتيجة عملية المزامنة.
@@ -307,6 +310,21 @@ class SyncService {
       }
     }
 
+    // ─── المرحلة ٣: مزامنة إعدادات المستخدم (سطر واحد لكل مستخدم) ────────
+    try {
+      await _pushUserSettings(db, client, userId);
+    } catch (e) {
+      errors++;
+      debugPrint('[SyncService] Error pushing user_settings: $e');
+    }
+    try {
+      final applied = await _pullUserSettings(db, client, userId);
+      if (applied) fetched++;
+    } catch (e) {
+      errors++;
+      debugPrint('[SyncService] Error fetching user_settings: $e');
+    }
+
     debugPrint(
       '[SyncService] Sync complete: '
       'pushed ${inserts + updates + deletes} | '
@@ -322,6 +340,101 @@ class SyncService {
       errors: errors,
       message: errors > 0 ? 'اكتملت المزامنة مع $errors أخطاء' : null,
     );
+  }
+
+  // ─── مزامنة إعدادات المستخدم (سطر واحد لكل مستخدم) ─────────────────────
+
+  /// رفع الإعدادات المحلية إلى سحابة المستخدم إن كانت أحدث أو غير موجودة.
+  static Future<void> _pushUserSettings(
+    Database db,
+    SupabaseClient client,
+    String userId,
+  ) async {
+    final table = DatabaseTables.userSettingsTable;
+    final localRows = await db.query(
+      table,
+      where: 'id = ?',
+      whereArgs: ['default'],
+      limit: 1,
+    );
+    if (localRows.isEmpty) return;
+    final local = localRows.first;
+
+    final localUpdated = DateTime.tryParse(local['updated_at'] as String? ?? '');
+    final cloudRow = await client
+        .from(table)
+        .select('updated_at')
+        .eq('user_id', userId)
+        .maybeSingle();
+    if (cloudRow != null) {
+      final cloudUpdated =
+          DateTime.tryParse(cloudRow['updated_at'] as String? ?? '');
+      if (cloudUpdated != null &&
+          localUpdated != null &&
+          cloudUpdated.isAfter(localUpdated)) {
+        return; // السحابة أحدث → لا نستبدلها.
+      }
+    }
+
+    await client.from(table).upsert({
+      'user_id': userId,
+      'notifications_enabled':
+          ((local['notifications_enabled'] as int?) ?? 1) != 0,
+      'default_reminder_minutes':
+          (local['default_reminder_minutes'] as int?) ?? 15,
+      'default_currency':
+          (local['default_currency'] as String?) ?? 'SAR',
+      'default_view_mode': (local['default_view_mode'] as String?) ?? 'list',
+      'theme_mode': (local['theme_mode'] as String?) ?? 'light',
+      'language_code': (local['language_code'] as String?) ?? 'system',
+      'layout_direction': (local['layout_direction'] as String?) ?? 'ltr',
+      'updated_at': local['updated_at'] ?? '',
+    }, onConflict: 'user_id');
+  }
+
+  /// تنزيل إعدادات المستخدم من السحابة وتطبيقها محلياً إن كانت أحدث.
+  static Future<bool> _pullUserSettings(
+    Database db,
+    SupabaseClient client,
+    String userId,
+  ) async {
+    final table = DatabaseTables.userSettingsTable;
+    final cloud = await client
+        .from(table)
+        .select()
+        .eq('user_id', userId)
+        .maybeSingle();
+    if (cloud == null) return false;
+
+    final cloudUpdated = DateTime.tryParse(cloud['updated_at'] as String? ?? '');
+    if (cloudUpdated == null) return false;
+
+    final localRows = await db.query(
+      table,
+      where: 'id = ?',
+      whereArgs: ['default'],
+      limit: 1,
+    );
+    if (localRows.isNotEmpty) {
+      final localUpdated =
+          DateTime.tryParse(localRows.first['updated_at'] as String? ?? '');
+      if (localUpdated != null && localUpdated.isAfter(cloudUpdated)) {
+        return false; // المحلي أحدث → لا نستبدله.
+      }
+    }
+
+    final model = AppSettingsModel(
+      notificationsEnabled: (cloud['notifications_enabled'] as bool?) ?? true,
+      defaultReminderMinutes:
+          (cloud['default_reminder_minutes'] as int?) ?? 15,
+      defaultCurrency: (cloud['default_currency'] as String?) ?? 'SAR',
+      defaultViewMode: (cloud['default_view_mode'] as String?) ?? 'list',
+      themeMode: (cloud['theme_mode'] as String?) ?? 'light',
+      languageCode: (cloud['language_code'] as String?) ?? 'system',
+      layoutDirection: (cloud['layout_direction'] as String?) ?? 'ltr',
+    );
+    await SettingsService().save(model);
+    return true;
   }
 
   // ─── مساعدات داخلية ──────────────────────────────────────────────────

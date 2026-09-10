@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import '../services/sync_controller.dart';
 
 /// زر ذكي وتفاعلي في الهيدر يعرض حالة المزامنة ويتيح طلبها بضغطة زر
@@ -39,6 +40,7 @@ class _SyncStatusButtonState extends State<SyncStatusButton> with SingleTickerPr
     return ListenableBuilder(
       listenable: SyncController.instance,
       builder: (context, _) {
+        final l10n = context.l10n;
         final sync = SyncController.instance;
 
         if (sync.isSyncing) {
@@ -55,13 +57,13 @@ class _SyncStatusButtonState extends State<SyncStatusButton> with SingleTickerPr
         // تحديد اللون والأيقونة والنص التوضيحي بقيم أولية آمنة
         Color color = Colors.green;
         Widget iconWidget = const Icon(Icons.cloud_done_rounded, size: 18, color: Colors.green);
-        String tooltip = 'جميع بياناتك متزامنة مع السحابة';
+        String tooltip = l10n.syncAllSynced;
 
         switch (sync.state) {
           case SyncStatusState.synced:
             color = Colors.green;
             iconWidget = const Icon(Icons.cloud_done_rounded, size: 18, color: Colors.green);
-            tooltip = 'جميع بياناتك متزامنة مع السحابة';
+            tooltip = l10n.syncAllSynced;
             break;
 
           case SyncStatusState.syncing:
@@ -70,7 +72,7 @@ class _SyncStatusButtonState extends State<SyncStatusButton> with SingleTickerPr
               turns: _rotationController,
               child: const Icon(Icons.sync_rounded, size: 18, color: Colors.blueAccent),
             );
-            tooltip = 'جاري المزامنة مع السحابة الآن...';
+            tooltip = l10n.syncInProgressNow;
             break;
 
           case SyncStatusState.pending:
@@ -96,19 +98,19 @@ class _SyncStatusButtonState extends State<SyncStatusButton> with SingleTickerPr
                   ),
               ],
             );
-            tooltip = 'توجد ${sync.pendingCount} تعديلات محلية بانتظار الرفع. اضغط للمزامنة.';
+            tooltip = l10n.syncPendingTooltip(sync.pendingCount);
             break;
 
           case SyncStatusState.offline:
             color = Colors.grey;
             iconWidget = const Icon(Icons.cloud_off_rounded, size: 18, color: Colors.grey);
-            tooltip = 'وضع أوفلاين. يعمل التطبيق محلياً بالكامل.';
+            tooltip = l10n.syncOffline;
             break;
 
           case SyncStatusState.error:
             color = Colors.redAccent;
             iconWidget = const Icon(Icons.sync_problem_rounded, size: 18, color: Colors.redAccent);
-            tooltip = sync.errorMessage ?? 'تعذر الاتصال بالسحابة. اضغط للمحاولة مجدداً.';
+            tooltip = sync.errorMessage ?? l10n.syncFailedTapRetry;
             break;
         }
 
@@ -123,8 +125,8 @@ class _SyncStatusButtonState extends State<SyncStatusButton> with SingleTickerPr
                 SnackBar(
                   content: Text(
                     sync.hasPending
-                        ? 'جاري رفع التعديلات السحابية...'
-                        : 'جاري فحص وتحديث البيانات مع السحابة...',
+                        ? l10n.syncUploading
+                        : l10n.syncChecking,
                   ),
                   duration: const Duration(seconds: 2),
                   behavior: SnackBarBehavior.floating,
@@ -151,10 +153,10 @@ class _SyncStatusButtonState extends State<SyncStatusButton> with SingleTickerPr
                         const SizedBox(width: 6),
                         Text(
                           sync.isSyncing
-                              ? 'مزامنة...'
+                              ? l10n.syncNowButton
                               : sync.hasPending
-                                  ? '${sync.pendingCount} معلق'
-                                  : 'متزامن',
+                                  ? l10n.syncPending(sync.pendingCount)
+                                  : l10n.syncSynced,
                           style: TextStyle(
                             color: color,
                             fontSize: 12,

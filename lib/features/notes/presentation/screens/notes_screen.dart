@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/localization_x.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/confirm_delete_dialog.dart';
 import '../../data/models/note_model.dart';
@@ -59,8 +60,8 @@ class _NotesScreenState extends State<NotesScreen> {
                 : Colors.white;
             return AlertDialog(
               title: Text(note == null
-                  ? 'ملاحظة جديدة'
-                  : 'تعديل الملاحظة'),
+                  ? context.l10n.newNote
+                  : context.l10n.editNote),
               content: SizedBox(
                 width: 420,
                 child: SingleChildScrollView(
@@ -71,9 +72,9 @@ class _NotesScreenState extends State<NotesScreen> {
                       TextField(
                         controller: titleController,
                         autofocus: note == null,
-                        decoration: const InputDecoration(
-                          labelText: 'العنوان',
-                          hintText: 'عنوان الملاحظة...',
+                        decoration: InputDecoration(
+                          labelText: context.l10n.noteTitle,
+                          hintText: context.l10n.noteTitleHint,
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -81,15 +82,15 @@ class _NotesScreenState extends State<NotesScreen> {
                         controller: contentController,
                         minLines: 3,
                         maxLines: 8,
-                        decoration: const InputDecoration(
-                          labelText: 'المحتوى',
-                          hintText: 'اكتب أفكارك ومراجعك هنا...',
+                        decoration: InputDecoration(
+                          labelText: context.l10n.noteContent,
+                          hintText: context.l10n.noteContentHint,
                           alignLabelWithHint: true,
                         ),
                       ),
                       const SizedBox(height: 14),
                       Text(
-                        'لون الملاحظة',
+                        context.l10n.noteColor,
                         style: TextStyle(
                           fontSize: 12.5,
                           color: AppColors.textSecondary(context),
@@ -140,7 +141,7 @@ class _NotesScreenState extends State<NotesScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: const Text('إلغاء'),
+                  child: Text(context.l10n.commonCancel),
                 ),
                 FilledButton(
                   onPressed: () {
@@ -161,7 +162,7 @@ class _NotesScreenState extends State<NotesScreen> {
                     }
                     Navigator.of(dialogContext).pop();
                   },
-                  child: Text(note == null ? 'إضافة' : 'حفظ'),
+                  child: Text(note == null ? context.l10n.commonAdd : context.l10n.commonSave),
                 ),
               ],
             );
@@ -174,9 +175,9 @@ class _NotesScreenState extends State<NotesScreen> {
   Future<void> _confirmDelete(NoteModel note) async {
     final confirmed = await ConfirmDeleteDialog.show(
       context,
-      title: 'حذف الملاحظة',
-      message: 'هل أنت متأكد من حذف "${note.title}"؟',
-      confirmLabel: 'نعم، احذف',
+      title: context.l10n.deleteNote,
+      message: context.l10n.deleteNoteConfirm(note.title),
+      confirmLabel: context.l10n.yesDelete,
     );
     if (confirmed == true && mounted) {
       await _controller.remove(note.id);
@@ -202,10 +203,10 @@ class _NotesScreenState extends State<NotesScreen> {
                     Icon(Icons.auto_stories_rounded,
                         color: Theme.of(context).colorScheme.primary),
                     const SizedBox(width: 8),
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        'الملاحظات ومستودع المعرفة (Knowledge Vault)',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        context.l10n.notesScreenTitle,
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -213,7 +214,7 @@ class _NotesScreenState extends State<NotesScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'المستودع المعرفي والمساحة الهادئة للأفكار، المراجع، الروابط وجهات الاتصال دون مواعيد أو قيود مهام.',
+                  context.l10n.notesScreenSubtitle,
                   style: TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary(context),
@@ -223,7 +224,7 @@ class _NotesScreenState extends State<NotesScreen> {
                 TextField(
                   onChanged: _controller.setQuery,
                   decoration: InputDecoration(
-                    hintText: 'بحث لحظي في العناوين والمحتوى...',
+                    hintText: context.l10n.notesSearchHint,
                     prefixIcon: const Icon(Icons.search, size: 18),
                     isDense: true,
                     filled: true,
@@ -260,14 +261,14 @@ class _NotesScreenState extends State<NotesScreen> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'لا توجد ملاحظات بعد',
+                          context.l10n.notesEmpty,
                           style: TextStyle(
                             fontSize: 14,
                             color: AppColors.textSecondary(context),
                           ),
                         ),
                         Text(
-                          'اضغط + لإضافة أول ملاحظة...',
+                          context.l10n.notesEmptyHint,
                           style: TextStyle(
                             fontSize: 12,
                             color: AppColors.textMuted(context),
@@ -281,13 +282,13 @@ class _NotesScreenState extends State<NotesScreen> {
                   padding: const EdgeInsets.fromLTRB(20, 4, 20, 90),
                   children: [
                     if (pinned.isNotEmpty) ...[
-                      _buildSectionLabel('المثبتة', Icons.push_pin_rounded),
+                      _buildSectionLabel(context.l10n.pinnedNotes, Icons.push_pin_rounded),
                       const SizedBox(height: 8),
                       _buildNoteCards(pinned),
                       const SizedBox(height: 18),
                     ],
                     if (normal.isNotEmpty) ...[
-                      _buildSectionLabel('ملاحظات', Icons.notes_rounded),
+                      _buildSectionLabel(context.l10n.notesListTitle, Icons.notes_rounded),
                       const SizedBox(height: 8),
                       _buildNoteCards(normal),
                     ],
@@ -300,7 +301,7 @@ class _NotesScreenState extends State<NotesScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _openEditor,
-        tooltip: 'ملاحظة جديدة',
+        tooltip: context.l10n.newNote,
         child: const Icon(Icons.add),
       ),
     );
@@ -428,27 +429,27 @@ class _NoteCard extends StatelessWidget {
                                 ? Icons.push_pin_outlined
                                 : Icons.push_pin_rounded, size: 16),
                             const SizedBox(width: 8),
-                            Text(note.isPinned ? 'إلغاء التثبيت' : 'تثبيت'),
+                            Text(note.isPinned ? context.l10n.unpinNote : context.l10n.pinNote),
                           ],
                         ),
                       ),
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'archive',
                         child: Row(
                           children: [
                             Icon(Icons.archive_outlined, size: 16),
                             SizedBox(width: 8),
-                            Text('أرشفة'),
+                            Text(context.l10n.archiveAction),
                           ],
                         ),
                       ),
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'delete',
                         child: Row(
                           children: [
                             Icon(Icons.delete_outline, size: 16, color: Colors.redAccent),
                             SizedBox(width: 8),
-                            Text('حذف', style: TextStyle(color: Colors.redAccent)),
+                            Text(context.l10n.commonDelete, style: TextStyle(color: Colors.redAccent)),
                           ],
                         ),
                       ),

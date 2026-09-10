@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/localization_x.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/confirm_delete_dialog.dart';
 import '../../../../core/widgets/empty_state_view.dart';
@@ -111,10 +112,9 @@ class _TrashScreenState extends State<TrashScreen>
     final messenger = ScaffoldMessenger.of(context);
     final confirmed = await ConfirmDeleteDialog.show(
       context,
-      title: 'إفراغ سلة المهملات بالكامل؟',
-      message:
-          'سيتم حذف جميع المهام والمشاريع الموجودة في سلة المهملات نهائياً وبلا رجعة. هل تريد الاستمرار؟',
-      confirmLabel: 'إفراغ السلة نهائياً',
+      title: context.l10n.emptyTrashConfirmTitle,
+      message: context.l10n.emptyTrashConfirmBody,
+      confirmLabel: context.l10n.emptyTrashConfirmAction,
     );
 
     if (confirmed == true) {
@@ -123,7 +123,7 @@ class _TrashScreenState extends State<TrashScreen>
       await _loadData();
       if (mounted) {
         messenger.showSnackBar(
-          const SnackBar(content: Text('تم إفراغ سلة المهملات بنجاح')),
+          SnackBar(content: Text(context.l10n.trashEmptiedToast)),
         );
       }
     }
@@ -193,7 +193,7 @@ class _TrashScreenState extends State<TrashScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'سلة المهملات (Trash Bin)',
+                  context.l10n.trashTitle,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -202,7 +202,7 @@ class _TrashScreenState extends State<TrashScreen>
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'العناصر المحذوفة مؤقتاً، يمكنك استعادتها أو حذفها نهائياً لتفريغ المساحة',
+                  context.l10n.trashSubtitle,
                   style: TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary(context),
@@ -215,7 +215,7 @@ class _TrashScreenState extends State<TrashScreen>
           // زر إفراغ السلة بالكامل
           OutlinedButton.icon(
             icon: const Icon(Icons.delete_forever_rounded, size: 18, color: Colors.red),
-            label: const Text('إفراغ السلة', style: TextStyle(color: Colors.red)),
+            label: Text(context.l10n.emptyTrash, style: const TextStyle(color: Colors.red)),
             style: OutlinedButton.styleFrom(
               side: const BorderSide(color: Colors.redAccent),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -225,7 +225,7 @@ class _TrashScreenState extends State<TrashScreen>
           const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
-            tooltip: 'تحديث السلة',
+            tooltip: context.l10n.refreshTrash,
             onPressed: _loadData,
           ),
         ],
@@ -244,7 +244,7 @@ class _TrashScreenState extends State<TrashScreen>
             controller: _searchCtrl,
             onChanged: (val) => setState(() => _searchQuery = val.trim().toLowerCase()),
             decoration: InputDecoration(
-              hintText: 'البحث في سلة المهملات...',
+              hintText: context.l10n.trashSearchHint,
               prefixIcon: const Icon(Icons.search, size: 20),
               suffixIcon: _searchQuery.isNotEmpty
                   ? IconButton(
@@ -280,7 +280,7 @@ class _TrashScreenState extends State<TrashScreen>
                     children: [
                       const Icon(Icons.task_alt, size: 18),
                       const SizedBox(width: 6),
-                      Text('المهام (${_tasksController.trashCount})'),
+                      Text(context.l10n.tabsTasks(_tasksController.trashCount)),
                     ],
                   ),
                 ),
@@ -293,7 +293,7 @@ class _TrashScreenState extends State<TrashScreen>
                     children: [
                       const Icon(Icons.folder_outlined, size: 18),
                       const SizedBox(width: 6),
-                      Text('المشاريع (${_projectsController.trashCount})'),
+                      Text(context.l10n.tabsProjects(_projectsController.trashCount)),
                     ],
                   ),
                 ),
@@ -304,7 +304,7 @@ class _TrashScreenState extends State<TrashScreen>
                   children: [
                     const Icon(Icons.note_alt_outlined, size: 18),
                     const SizedBox(width: 6),
-                    Text('الملاحظات (${_trashNotes.length})'),
+                    Text(context.l10n.tabsNotes(_trashNotes.length)),
                   ],
                 ),
               ),
@@ -333,10 +333,10 @@ class _TrashScreenState extends State<TrashScreen>
         if (tasks.isEmpty) {
           return EmptyStateView(
             icon: Icons.delete_outline_rounded,
-            title: _searchQuery.isEmpty ? 'سلة المهام فارغة' : 'لا توجد نتائج مطابقة',
+            title: _searchQuery.isEmpty ? context.l10n.trashTasksEmpty : context.l10n.noMatchingResults,
             subtitle: _searchQuery.isEmpty
-                ? 'أي مهمة يتم حذفها ستُحفظ هنا ويمكن استعادتها بأي وقت.'
-                : 'جرّب البحث بكلمات أخرى.',
+                ? context.l10n.trashTasksEmptyDesc
+                : context.l10n.tryOtherKeywords,
           );
         }
 
@@ -350,15 +350,16 @@ class _TrashScreenState extends State<TrashScreen>
               leading: const Icon(Icons.delete_sweep_outlined, color: Colors.redAccent, size: 22),
               title: task.title,
               subtitle: task.description,
-              restoreTooltip: 'استعادة المهمة',
-              deleteTooltip: 'حذف نهائي',
+              restoreTooltip: context.l10n.restoreTask,
+              deleteTooltip: context.l10n.deletePermanent,
               onRestore: () async {
                 final messenger = ScaffoldMessenger.of(context);
+                final restoredMsg = context.l10n.restoredTaskToast(task.title);
                 final success = await _tasksController.restoreTask(task.id);
                 if (mounted && success) {
                   messenger.showSnackBar(
                     SnackBar(
-                      content: Text('تمت استعادة المهمة "${task.title}" بنجاح'),
+                      content: Text(restoredMsg),
                       duration: const Duration(seconds: 2),
                     ),
                   );
@@ -366,16 +367,17 @@ class _TrashScreenState extends State<TrashScreen>
               },
               onPermanentDelete: () async {
                 final messenger = ScaffoldMessenger.of(context);
+                final deletedToast = context.l10n.taskDeletedPermanentToast;
                 final confirmed = await ConfirmDeleteDialog.show(
                   context,
-                  title: 'حذف المهمة نهائياً؟',
-                  message: 'لن تتمكن من استعادة المهمة "${task.title}" بعد الحذف النهائي.',
+                  title: context.l10n.deleteTaskPermanentConfirm,
+                  message: context.l10n.cannotRestoreTaskMsg(task.title),
                 );
                 if (confirmed == true) {
                   await _tasksController.permanentlyDeleteTask(task.id);
                   if (mounted) {
                     messenger.showSnackBar(
-                      const SnackBar(content: Text('تم حذف المهمة نهائياً')),
+                      SnackBar(content: Text(deletedToast)),
                     );
                   }
                 }
@@ -405,10 +407,10 @@ class _TrashScreenState extends State<TrashScreen>
         if (projects.isEmpty) {
           return EmptyStateView(
             icon: Icons.folder_delete_outlined,
-            title: _searchQuery.isEmpty ? 'سلة المشاريع فارغة' : 'لا توجد نتائج مطابقة',
+            title: _searchQuery.isEmpty ? context.l10n.trashProjectsEmpty : context.l10n.noMatchingResults,
             subtitle: _searchQuery.isEmpty
-                ? 'المشاريع المحذوفة تظهر هنا لحين استعادتها أو مسحها نهائياً.'
-                : 'جرّب البحث بكلمات أخرى.',
+                ? context.l10n.trashProjectsEmptyDesc
+                : context.l10n.tryOtherKeywords,
           );
         }
 
@@ -422,15 +424,16 @@ class _TrashScreenState extends State<TrashScreen>
               leading: Text(project.iconEmoji, style: const TextStyle(fontSize: 22)),
               title: project.name,
               subtitle: project.description,
-              restoreTooltip: 'استعادة المشروع',
-              deleteTooltip: 'حذف نهائي',
+              restoreTooltip: context.l10n.restoreProject,
+              deleteTooltip: context.l10n.deletePermanent,
               onRestore: () async {
                 final messenger = ScaffoldMessenger.of(context);
+                final restoredMsg = context.l10n.restoredProjectToast(project.name);
                 final success = await _projectsController.restoreProject(project.id);
                 if (mounted && success) {
                   messenger.showSnackBar(
                     SnackBar(
-                      content: Text('تمت استعادة المشروع "${project.name}" بنجاح'),
+                      content: Text(restoredMsg),
                       duration: const Duration(seconds: 2),
                     ),
                   );
@@ -438,16 +441,17 @@ class _TrashScreenState extends State<TrashScreen>
               },
               onPermanentDelete: () async {
                 final messenger = ScaffoldMessenger.of(context);
+                final deletedToast = context.l10n.projectDeletedPermanentToast;
                 final confirmed = await ConfirmDeleteDialog.show(
                   context,
-                  title: 'حذف المشروع نهائياً؟',
-                  message: 'لن تتمكن من استعادة المشروع "${project.name}" بعد الحذف النهائي.',
+                  title: context.l10n.deleteProjectPermanentConfirm,
+                  message: context.l10n.cannotRestoreProjectMsg(project.name),
                 );
                 if (confirmed == true) {
                   await _projectsController.permanentlyDeleteProject(project.id);
                   if (mounted) {
                     messenger.showSnackBar(
-                      const SnackBar(content: Text('تم حذف المشروع نهائياً')),
+                      SnackBar(content: Text(deletedToast)),
                     );
                   }
                 }
@@ -474,10 +478,10 @@ class _TrashScreenState extends State<TrashScreen>
     if (notes.isEmpty) {
       return EmptyStateView(
         icon: Icons.note_alt_outlined,
-        title: _searchQuery.isEmpty ? 'سلة الملاحظات فارغة' : 'لا توجد نتائج مطابقة',
+        title: _searchQuery.isEmpty ? context.l10n.trashNotesEmpty : context.l10n.noMatchingResults,
         subtitle: _searchQuery.isEmpty
-            ? 'الملاحظات المحذوفة ناعماً تظهر هنا.'
-            : 'جرّب البحث بكلمات أخرى.',
+            ? context.l10n.trashNotesEmptyDesc
+            : context.l10n.tryOtherKeywords,
       );
     }
 
@@ -491,9 +495,10 @@ class _TrashScreenState extends State<TrashScreen>
           leading: const Icon(Icons.sticky_note_2_outlined, color: Colors.grey, size: 22),
           title: note.title,
           subtitle: note.content,
-          restoreTooltip: 'استعادة الملاحظة',
+          restoreTooltip: context.l10n.restoreNote,
           onRestore: () async {
             final messenger = ScaffoldMessenger.of(context);
+            final restoredMsg = context.l10n.restoredNoteToast(note.title);
             final restored = note.copyWith(
               deletedAt: null,
               syncStatus: 'pending_update',
@@ -504,7 +509,7 @@ class _TrashScreenState extends State<TrashScreen>
             if (mounted) {
               messenger.showSnackBar(
                 SnackBar(
-                  content: Text('تمت استعادة الملاحظة "${note.title}" بنجاح'),
+                  content: Text(restoredMsg),
                   duration: const Duration(seconds: 2),
                 ),
               );

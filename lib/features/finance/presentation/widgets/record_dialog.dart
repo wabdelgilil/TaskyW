@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../settings/presentation/controllers/settings_controller.dart';
 import '../../data/models/financial_record_model.dart';
@@ -10,12 +11,13 @@ class RecordDialog {
     required FinancialController controller,
     FinancialRecordModel? record,
   }) async {
+    final l10n = context.l10n;
     final titleCtrl = TextEditingController(text: record?.title ?? '');
     final amountCtrl = TextEditingController(
       text: record != null ? record.amount.toString() : '',
     );
     final categoryCtrl = TextEditingController(text: record?.category ?? '');
-    final fromAccountCtrl = TextEditingController(text: record?.fromAccount ?? 'كاش');
+    final fromAccountCtrl = TextEditingController(text: record?.fromAccount ?? l10n.cashOption);
     final toAccountCtrl = TextEditingController(text: record?.toAccount ?? '');
     final notesCtrl = TextEditingController(text: record?.notes ?? '');
 
@@ -36,7 +38,7 @@ class RecordDialog {
             return AlertDialog(
               backgroundColor: AppColors.card(context),
               title: Text(
-                record == null ? 'تسجيل عملية مالية جديدة' : 'تعديل العملية المالية',
+                record == null ? l10n.newTransactionTitle : l10n.editTransactionTitle,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -51,20 +53,20 @@ class RecordDialog {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       SegmentedButton<String>(
-                        segments: const [
+                        segments: [
                           ButtonSegment(
                             value: 'expense',
-                            label: Text('مصروف', style: TextStyle(fontSize: 12)),
+                            label: Text(l10n.expenseOption, style: TextStyle(fontSize: 12)),
                             icon: Icon(Icons.arrow_upward_rounded, size: 14, color: Colors.redAccent),
                           ),
                           ButtonSegment(
                             value: 'income',
-                            label: Text('دخل/استرداد', style: TextStyle(fontSize: 12)),
+                            label: Text(l10n.incomeRefundOption, style: TextStyle(fontSize: 12)),
                             icon: Icon(Icons.arrow_downward_rounded, size: 14, color: Colors.green),
                           ),
                           ButtonSegment(
                             value: 'transfer',
-                            label: Text('تحويل', style: TextStyle(fontSize: 12)),
+                            label: Text(l10n.transferOption, style: TextStyle(fontSize: 12)),
                             icon: Icon(Icons.swap_horiz_rounded, size: 14, color: Colors.blueAccent),
                           ),
                         ],
@@ -73,7 +75,7 @@ class RecordDialog {
                           setDialogState(() {
                             type = set.first;
                             if (type == 'transfer' && toAccountCtrl.text.isEmpty) {
-                              toAccountCtrl.text = 'البنك';
+                              toAccountCtrl.text = context.l10n.bankOption;
                             }
                           });
                         },
@@ -82,8 +84,8 @@ class RecordDialog {
                       TextField(
                         controller: amountCtrl,
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        decoration: const InputDecoration(
-                          labelText: 'المبلغ (SAR) *',
+                        decoration: InputDecoration(
+                          labelText: l10n.amountLabel,
                           hintText: '0.00',
                           suffixText: 'SAR',
                           prefixIcon: Icon(Icons.attach_money_rounded, size: 18),
@@ -92,9 +94,9 @@ class RecordDialog {
                       const SizedBox(height: 12),
                       TextField(
                         controller: titleCtrl,
-                        decoration: const InputDecoration(
-                          labelText: 'البيان *',
-                          hintText: 'مثلاً: شراء قطع غيار، غداء عمل، تحويل عهدة...',
+                        decoration: InputDecoration(
+                          labelText: l10n.descriptionLabel,
+                          hintText: l10n.descriptionHint,
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -104,8 +106,8 @@ class RecordDialog {
                             child: TextField(
                               controller: fromAccountCtrl,
                               decoration: InputDecoration(
-                                labelText: type == 'transfer' ? 'من حساب' : 'وسيلة الدفع / الحساب',
-                                hintText: 'كاش، CIB، فودافون كاش...',
+                                labelText: type == 'transfer' ? l10n.fromAccount : l10n.paymentMethodLabel,
+                                hintText: l10n.paymentMethodHint,
                               ),
                             ),
                           ),
@@ -114,9 +116,9 @@ class RecordDialog {
                             Expanded(
                               child: TextField(
                                 controller: toAccountCtrl,
-                                decoration: const InputDecoration(
-                                  labelText: 'إلى حساب',
-                                  hintText: 'البنك، المحفظة...',
+                                decoration: InputDecoration(
+                                  labelText: l10n.toAccount,
+                                  hintText: l10n.toAccountHint,
                                 ),
                               ),
                             ),
@@ -138,8 +140,8 @@ class RecordDialog {
                               children: [
                                 Icon(Icons.handshake_outlined, size: 16, color: Theme.of(context).colorScheme.primary),
                                 const SizedBox(width: 6),
-                                const Text(
-                                  'تسوية حساب الشغل والشخصي:',
+                                Text(
+                                  l10n.settlementLabel,
                                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                                 ),
                               ],
@@ -151,18 +153,18 @@ class RecordDialog {
                               decoration: const InputDecoration(
                                 contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                               ),
-                              items: const [
+                              items: [
                                 DropdownMenuItem(
                                   value: 'none',
-                                  child: Text('عملية عادية (لا تتطلب تسوية)', style: TextStyle(fontSize: 12)),
+                                  child: Text(l10n.normalTransaction, style: TextStyle(fontSize: 12)),
                                 ),
                                 DropdownMenuItem(
                                   value: 'claim_from_work',
-                                  child: Text('💼 دفعت للشغل من جيبي (لي عند الشغل)', style: TextStyle(fontSize: 12, color: Colors.green)),
+                                  child: Text(l10n.paidFromPocket, style: TextStyle(fontSize: 12, color: Colors.green)),
                                 ),
                                 DropdownMenuItem(
                                   value: 'owe_to_work',
-                                  child: Text('🏠 دفعت شخصي من حساب الشغل (عليّ للشغل)', style: TextStyle(fontSize: 12, color: Colors.redAccent)),
+                                  child: Text(l10n.paidPersonalFromWork, style: TextStyle(fontSize: 12, color: Colors.redAccent)),
                                 ),
                               ],
                               onChanged: (val) {
@@ -176,15 +178,15 @@ class RecordDialog {
                       if (type == 'expense')
                         CheckboxListTile(
                           contentPadding: EdgeInsets.zero,
-                          title: const Row(
+                          title: Row(
                             children: [
-                              Text('لم أستلم الفاتورة بعد', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-                              SizedBox(width: 6),
-                              Text('⚠️ (تذكير)', style: TextStyle(fontSize: 11, color: Colors.orange)),
+                              Text(l10n.notReceivedInvoice, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                              const SizedBox(width: 6),
+                              Text(l10n.reminderNote, style: TextStyle(fontSize: 11, color: Colors.orange)),
                             ],
                           ),
-                          subtitle: const Text(
-                            'تظل معلقة حتى تستلم الفاتورة لتتذكر المطالبة بها',
+                          subtitle: Text(
+                            l10n.pendingInvoiceReminder,
                             style: TextStyle(fontSize: 11),
                           ),
                           value: isPendingInvoice,
@@ -196,9 +198,9 @@ class RecordDialog {
                       TextField(
                         controller: notesCtrl,
                         maxLines: 2,
-                        decoration: const InputDecoration(
-                          labelText: 'ملاحظات إضافية (اختياري)',
-                          hintText: 'رقم الإيصال، اسم المورد، تفاصيل...',
+                        decoration: InputDecoration(
+                          labelText: l10n.additionalNotes,
+                          hintText: l10n.notesHint,
                         ),
                       ),
                     ],
@@ -208,7 +210,7 @@ class RecordDialog {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(dialogContext),
-                  child: const Text('إلغاء'),
+                  child: Text(l10n.commonCancel),
                 ),
                 ElevatedButton(
                   onPressed: () async {
@@ -216,7 +218,7 @@ class RecordDialog {
                     final amount = double.tryParse(amountCtrl.text.trim()) ?? 0.0;
                     if (title.isEmpty || amount <= 0) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('يرجى كتابة البيان وتحديد مبلغ صحيح')),
+                        SnackBar(content: Text(l10n.invalidTransactionMsg)),
                       );
                       return;
                     }
@@ -260,7 +262,7 @@ class RecordDialog {
 
                     if (context.mounted) Navigator.pop(dialogContext);
                   },
-                  child: Text(record == null ? 'تسجيل العملية' : 'حفظ التعديل'),
+                  child: Text(record == null ? l10n.registerTransaction : l10n.saveEdit),
                 ),
               ],
             );

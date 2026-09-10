@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 
 /// نافذة معاينة بيانات المهام المُصدّرة بصيغة CSV
 class ExportTasksDialog extends StatelessWidget {
@@ -15,8 +16,9 @@ class ExportTasksDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AlertDialog(
-      title: const Text('بيانات CSV المُصدّرة'),
+      title: Text(l10n.exportedCsvData),
       content: SizedBox(
         width: 500,
         height: 300,
@@ -30,7 +32,7 @@ class ExportTasksDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('إغلاق'),
+          child: Text(l10n.commonClose),
         ),
       ],
     );

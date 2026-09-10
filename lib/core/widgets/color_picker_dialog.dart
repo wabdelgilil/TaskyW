@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import '../theme/app_colors.dart';
 
 /// نافذة منبثقة تفاعلية لاختيار لون مخصص للمجال، المشروع، أو المهمة
 class ColorPickerDialog extends StatefulWidget {
   final String initialColorHex;
-  final String title;
+  final String? title;
 
   const ColorPickerDialog({
     super.key,
     required this.initialColorHex,
-    this.title = 'اختر لوناً مخصصاً',
+    this.title,
   });
 
   static Future<String?> show(BuildContext context, {required String initialColorHex, String? title}) {
+    final l10n = context.l10n;
     return showDialog<String>(
       context: context,
       builder: (ctx) => ColorPickerDialog(
         initialColorHex: initialColorHex,
-        title: title ?? 'اختر لوناً مخصصاً',
+        title: title ?? l10n.chooseCustomColor,
       ),
     );
   }
@@ -45,7 +47,9 @@ class _ColorPickerDialogState extends State<ColorPickerDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final titleText = widget.title ?? l10n.chooseCustomColor;
 
     return AlertDialog(
       title: Row(
@@ -60,7 +64,7 @@ class _ColorPickerDialogState extends State<ColorPickerDialog> {
             ),
           ),
           const SizedBox(width: 10),
-          Text(widget.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(titleText, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         ],
       ),
       content: SizedBox(
@@ -69,9 +73,9 @@ class _ColorPickerDialogState extends State<ColorPickerDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'الألوان المقترحة:',
-              style: TextStyle(fontSize: 13, color: Colors.grey),
+            Text(
+              l10n.suggestedColors,
+              style: const TextStyle(fontSize: 13, color: Colors.grey),
             ),
             const SizedBox(height: 12),
             Wrap(
@@ -110,9 +114,9 @@ class _ColorPickerDialogState extends State<ColorPickerDialog> {
               }).toList(),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'أو أدخل كود HEX مخصص:',
-              style: TextStyle(fontSize: 13, color: Colors.grey),
+            Text(
+              l10n.enterHexCode,
+              style: const TextStyle(fontSize: 13, color: Colors.grey),
             ),
             const SizedBox(height: 8),
             TextField(
@@ -142,7 +146,7 @@ class _ColorPickerDialogState extends State<ColorPickerDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text('إلغاء', style: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[700])),
+          child: Text(l10n.commonCancel, style: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[700])),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
@@ -150,7 +154,7 @@ class _ColorPickerDialogState extends State<ColorPickerDialog> {
             foregroundColor: Colors.white,
           ),
           onPressed: () => Navigator.of(context).pop(_selectedHex),
-          child: const Text('تأكيد الاختيار'),
+          child: Text(l10n.confirmChoice),
         ),
       ],
     );

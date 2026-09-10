@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tasky/core/database/app_database.dart';
 import 'package:tasky/core/services/notification_service.dart';
 import 'package:tasky/features/projects/data/models/project_model.dart';
 import 'package:tasky/features/settings/presentation/controllers/settings_controller.dart';
@@ -8,8 +9,14 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() async {
+    await AppDatabase.resetForTest();
+    AppDatabase.inMemory = true;
     SharedPreferences.setMockInitialValues({});
     await SettingsController.instance.load();
+  });
+
+  tearDown(() async {
+    await AppDatabase.resetForTest();
   });
 
   ProjectModel enabledProject() => ProjectModel(

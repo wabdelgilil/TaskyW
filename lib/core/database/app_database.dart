@@ -35,7 +35,7 @@ class AppDatabase {
       return await databaseFactoryFfiWeb.openDatabase(
         path,
         options: OpenDatabaseOptions(
-          version: 8,
+          version: 9,
           onCreate: (db, version) async {
             await _createTables(db);
             await _seeder.seedInitialData(db);
@@ -67,7 +67,7 @@ class AppDatabase {
 
     return await openDatabase(
       path,
-      version: 8,
+      version: 9,
       onCreate: (db, version) async {
         await _createTables(db);
         await _seeder.seedInitialData(db);

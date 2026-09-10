@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/core/theme/app_colors.dart';
 import 'package:tasky/features/settings/data/models/app_currency.dart';
 
@@ -100,14 +101,14 @@ class _CurrencyPickerSheetState extends State<CurrencyPickerSheet> {
               children: [
                 Expanded(
                   child: Text(
-                    isAr ? 'اختيار العملة الافتراضية' : 'Select Default Currency',
+                    context.l10n.selectCurrencyTitle,
                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
                 IconButton(
                   onPressed: () => Navigator.of(context).pop(),
                   icon: const Icon(Icons.close, size: 20),
-                  tooltip: isAr ? 'إغلاق' : 'Close',
+                    tooltip: context.l10n.commonClose,
                 ),
               ],
             ),
@@ -120,9 +121,7 @@ class _CurrencyPickerSheetState extends State<CurrencyPickerSheet> {
               controller: _searchController,
               autofocus: false,
               decoration: InputDecoration(
-                hintText: isAr
-                    ? 'ابحث باسم الدولة، العملة، أو الرمز (SAR, EGP...)'
-                    : 'Search by country, currency name or code...',
+                hintText: context.l10n.currencySearchHint,
                 prefixIcon: const Icon(Icons.search, size: 20),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
@@ -155,7 +154,7 @@ class _CurrencyPickerSheetState extends State<CurrencyPickerSheet> {
                           Icon(Icons.search_off, size: 48, color: AppColors.textMuted(context)),
                           const SizedBox(height: 12),
                           Text(
-                            isAr ? 'لا توجد عملة تطابق بحثك' : 'No matching currencies found',
+                              context.l10n.noCurrencyResult,
                             style: TextStyle(
                               color: AppColors.textMuted(context),
                               fontSize: 14,

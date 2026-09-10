@@ -21,6 +21,12 @@ class AppSettingsModel {
   /// كود اللغة المفضل: system / ar / en (`system` = لغة الجهاز تلقائياً).
   final String languageCode;
 
+  /// اتجاه تخطيط الواجهة: ltr (السايد بار يسار دائماً) أو auto (يتبع اللغة).
+  ///
+  /// مفصول عن اللغة كلياً: `ltr` يُبقي القائمة الجانبية والشريط العلوي والمحتوى
+  /// بترتيب اليسار→يمين حتى لو كانت اللغة العربية، بينما `auto` يتبعه لاتجاه اللغة.
+  final String layoutDirection;
+
   const AppSettingsModel({
     this.notificationsEnabled = true,
     this.defaultReminderMinutes = 15,
@@ -28,6 +34,7 @@ class AppSettingsModel {
     this.defaultViewMode = 'list',
     this.themeMode = 'light',
     this.languageCode = 'system',
+    this.layoutDirection = 'ltr',
   });
 
   AppSettingsModel copyWith({
@@ -37,6 +44,7 @@ class AppSettingsModel {
     String? defaultViewMode,
     String? themeMode,
     String? languageCode,
+    String? layoutDirection,
   }) {
     return AppSettingsModel(
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
@@ -46,6 +54,7 @@ class AppSettingsModel {
       defaultViewMode: defaultViewMode ?? this.defaultViewMode,
       themeMode: themeMode ?? this.themeMode,
       languageCode: languageCode ?? this.languageCode,
+      layoutDirection: layoutDirection ?? this.layoutDirection,
     );
   }
 
@@ -68,4 +77,7 @@ class AppSettingsModel {
 
   /// أكواد اللغات المدعومة: الافتراضي يستخدم لغة الجهاز تلقائياً.
   static const List<String> supportedLanguages = ['system', 'ar', 'en'];
+
+  /// اتجاهات تخطيط الواجهة المدعومة (مفصولة عن اللغة).
+  static const List<String> supportedLayoutDirections = ['ltr', 'auto'];
 }

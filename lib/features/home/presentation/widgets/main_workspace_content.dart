@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/features/archive/presentation/screens/archive_screen.dart';
 import 'package:tasky/features/areas/data/models/area_model.dart';
 import 'package:tasky/features/areas/presentation/screens/area_detail_screen.dart';
@@ -188,8 +189,8 @@ class MainWorkspaceContent extends StatelessWidget {
       taskTags: taskTags,
       projects: projects,
       emptyMessage: isSearchActive
-          ? 'لم يتم العثور على أي نتائج تطابق "$searchText"'
-          : 'لا توجد مهام في هذا القسم حالياً',
+          ? context.l10n.noMatchingResults
+          : context.l10n.noTasksInSection,
       onTaskTap: (t) => onTaskTap?.call(t),
       onToggleCompleted: onToggleTaskCompleted,
       onAddTask: () => onAddNewTask?.call(null),

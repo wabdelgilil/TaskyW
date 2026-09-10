@@ -1,9 +1,7 @@
 {
   "@@locale": "ar",
   "@@info": "القاموس العربي الأساسي لتطبيق Tasky (ملف القالب الرسمي لـ Flutter l10n).",
-
   "appTitle": "TaskyW",
-
   "commonCancel": "إلغاء",
   "commonSave": "حفظ",
   "commonDelete": "حذف",
@@ -12,29 +10,31 @@
   "commonSettings": "الإعدادات",
   "commonSearch": "بحث",
   "commonToday": "مهام اليوم",
-
   "taskCountRemaining": "متبقي {count} مهام",
   "@taskCountRemaining": {
     "description": "عدد المهام المتبقية في مجموعة ما.",
     "placeholders": {
-      "count": { "type": "int", "example": "5" }
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
     }
   },
-
   "welcomeUser": "مرحباً {name}",
   "@welcomeUser": {
     "description": "ترحيب ترحيبي بالمستخدم باسمه.",
     "placeholders": {
-      "name": { "type": "String", "example": "أحمد" }
+      "name": {
+        "type": "String",
+        "example": "أحمد"
+      }
     }
   },
-
   "sectionNotifications": "الإشعارات والتنبيهات",
   "sectionLanguage": "اللغة والمنطقة",
   "sectionFinance": "المالية والعملات",
   "sectionAppearance": "المظهر والثيم",
   "sectionData": "بيانات التطبيق",
-
   "settingsNotifications": "إشعارات التطبيق",
   "settingsNotificationsDesc": "تشغيل أو إيقاف كل التنبيهات المحلية (تذكيرات المهام)",
   "settingsReminderTime": "وقت التذكير الافتراضي",
@@ -42,7 +42,10 @@
   "@settingsReminderMinutes": {
     "description": "تذكير افتراضي قبل الموعد بالدقائق.",
     "placeholders": {
-      "minutes": { "type": "int", "example": "15" }
+      "minutes": {
+        "type": "int",
+        "example": "15"
+      }
     }
   },
   "settingsRequestPermission": "طلب صلاحية التنبيهات",
@@ -50,27 +53,44 @@
   "settingsPermissionGranted": "تم تفعيل صلاحية التنبيهات بنجاح",
   "settingsPermissionDenied": "تم رفض طلب الصلاحية",
   "settingsEnable": "تفعيل",
-
   "settingsLanguage": "لغة التطبيق",
   "settingsLanguageDesc": "اختيار لغة الواجهات (الافتراضي: لغة الجهاز)",
   "settingsLanguageSystem": "تلقائي (لغة الجهاز)",
   "settingsLanguageSystemShort": "تلقائي",
   "languageArabic": "العربية (RTL)",
   "languageEnglish": "English (LTR)",
-
+  "syncSyncing": "جاري المزامنة...",
+  "syncPending": "{count} معلق",
+  "@syncPending": {
+    "description": "عدد التغييرات المحلية غير المزامنة.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "syncSynced": "متزامن",
+  "signInToCloud": "تسجيل الدخول للسحابة",
+  "toggleThemeShort": "تبديل",
+  "directionTitle": "اتجاه الواجهة والسايد بار",
+  "directionDesc": "إبقاء القائمة الجانبية على اليسار دائماً بغض النظر عن اللغة",
+  "directionLtr": "يسار دائماً",
+  "directionAuto": "تلقائي (يتبع اللغة)",
   "settingsCurrency": "العملة الافتراضية",
   "settingsCurrencyDesc": "العملة المستخدمة في السجلات المالية الجديدة: {currency}",
   "@settingsCurrencyDesc": {
     "description": "وصف العملة الافتراضية الحالية.",
     "placeholders": {
-      "currency": { "type": "String", "example": "SAR" }
+      "currency": {
+        "type": "String",
+        "example": "SAR"
+      }
     }
   },
-
   "settingsViewMode": "طريقة العرض",
   "viewModeList": "قائمة",
   "viewModeKanban": "كانبان",
-
   "themeModeLabel": "وضع المظهر",
   "themeLight": "نهاري",
   "themeDark": "ليلي",
@@ -78,33 +98,853 @@
   "themeLightFull": "الوضع النهاري (Light)",
   "themeDarkFull": "الوضع الليلي (Dark)",
   "themeOledFull": "السواد العميق (OLED)",
-
   "appVersion": "إصدار التطبيق",
   "versionLabel": "الإصدار {version}",
   "@versionLabel": {
     "description": "رقم إصدار التطبيق الحالي.",
     "placeholders": {
-      "version": { "type": "String", "example": "3.0.0" }
+      "version": {
+        "type": "String",
+        "example": "3.0.0"
+      }
     }
   },
-
   "accountStatus": "حالة الحساب",
   "signedInAs": "مسجل الدخول: {email}",
   "@signedInAs": {
     "description": "حالة تسجيل الدخول مع البريد.",
     "placeholders": {
-      "email": { "type": "String", "example": "user@tasky.app" }
+      "email": {
+        "type": "String",
+        "example": "user@tasky.app"
+      }
     }
   },
   "signedOut": "غير مسجل الدخول",
-
   "profileTitle": "الملف الشخصي",
   "profileDisplayName": "الاسم المعروض",
   "profileEmail": "البريد الإلكتروني",
-
   "navHome": "اليوم",
   "navProjects": "المشاريع",
   "navNotes": "الملاحظات",
   "navFinance": "المالية",
-  "navSettings": "الإعدادات"
+  "navSettings": "الإعدادات",
+  "newTask": "مهمة جديدة",
+  "preview": "معاينة",
+  "signIn": "تسجيل الدخول",
+  "signOut": "تسجيل الخروج",
+  "taskyUser": "مستخدم Tasky",
+  "closeSearch": "إغلاق البحث",
+  "sidebarMenu": "القائمة الجانبية",
+  "viewList": "عرض القوائم",
+  "viewKanban": "عرض الكانبان",
+  "viewTable": "عرض الجدول",
+  "exportCsvTooltip": "تصدير المهام إلى CSV / Excel",
+  "exportCsvCurrentTooltip": "تصدير المهام الحالية إلى CSV / Excel",
+  "globalSearch": "بحث شامل",
+  "globalSearchInApp": "بحث شامل في كل التطبيق",
+  "cancelGlobalSearch": "إلغاء البحث الشامل",
+  "cancelGlobalShort": "إلغاء الشامل",
+  "filterToday": "☀️ مهام اليوم",
+  "filterUpcoming": "📅 المهام القادمة",
+  "filterWaiting": "⏳ المهام المعلّقة (Waiting)",
+  "filterUrgent": "🔥 المهام العاجلة (Urgent)",
+  "filterAll": "📋 جميع المهام",
+  "contextTitleNotes": "📚 الملاحظات ومستودع المعرفة (Knowledge Vault)",
+  "contextTitleFinance": "💰 السجل المالي والتسويات",
+  "contextTitleArchive": "🗄️ الأرشيف العام (Global Archive)",
+  "contextTitleTrash": "🗑️ سلة المهملات (Trash Bin)",
+  "contextTitleSharedProject": "💼 مشروع مشترك",
+  "contextTitleSharedArea": "📁 مجال مشترك",
+  "contextTitleTag": "🏷️ وسم: {name}",
+  "@contextTitleTag": {
+    "description": "عنوان شريط الرأس عند تصفية مهمة حسب وسم.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "تصميم"
+      }
+    }
+  },
+  "searchHintTasks": "بحث في المهام...",
+  "searchHintGlobal": "بحث شامل في كل المجالات والمشاريع...",
+  "searchHintProject": "بحث في مشروع ({title})...",
+  "@searchHintProject": {
+    "description": "تلميح البحث داخل مشروع محدد.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "تطبيق المهام"
+      }
+    }
+  },
+  "searchHintArea": "بحث في مجال ({title})...",
+  "@searchHintArea": {
+    "description": "تلميح البحث داخل مجال محدد.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "العمل"
+      }
+    }
+  },
+  "exportEmptyToast": "لا توجد مهام لتصديرها في العرض الحالي",
+  "exportSuccessToast": "تم تصدير {count} مهمة ونسخ CSV إلى الحافظة بنجاح!",
+  "@exportSuccessToast": {
+    "description": "رسالة نجاح تصدير المهام إلى الحافظة.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "quickAddHint": "إضافة مهمة سريعة...",
+  "smartFiltersHeader": "الفلاتر السريعة",
+  "smartFilterToday": "اليوم",
+  "smartFilterUpcoming": "القادمة",
+  "smartFilterWaiting": "معلّقة (Waiting)",
+  "smartFilterUrgent": "عاجل (Urgent)",
+  "smartFilterAll": "جميع المهام",
+  "areasProjectsSection": "المجالات والمشاريع",
+  "addNewAreaTooltip": "إضافة مجال جديد",
+  "newProjectEllipsis": "مشروع جديد...",
+  "tagsSection": "الوسوم والتصنيفات",
+  "createTagTooltip": "إنشاء وسم جديد",
+  "noTagsAdded": "لا توجد وسوم مضافة",
+  "sharedWithMeHeader": "مشارك معي (Shared)",
+  "refreshSharedTooltip": "تحديث الكيانات المشتركة",
+  "sharedEntityDefault": "عنصر مشترك",
+  "permissionAdmin": "مسؤول",
+  "permissionEditor": "محرر",
+  "permissionViewer": "مشاهدة",
+  "sidebarNotesSection": "الملاحظات والمعرفة (Vault)",
+  "sidebarNotesTitle": "الملاحظات ومستودع المعرفة",
+  "sidebarFinanceSection": "الماليات والتسويات",
+  "sidebarFinanceTitle": "السجل المالي والتسويات",
+  "sidebarArchiveSection": "الأرشيف والمهملات",
+  "sidebarArchiveTitle": "الأرشيف العام",
+  "sidebarTrashTitle": "سلة المهملات",
+  "attachmentSyncing": "⏳ قيد المزامنة",
+  "reminderNote": "⚠️ (تذكير)",
+  "chipPendingInvoice": "⚠️ بانتظار الفاتورة",
+  "invoicePendingTap": "⚠️ بانتظار الفاتورة (اضغط للاستلام)",
+  "attachmentSynced": "✓ مزامن",
+  "paidPersonalFromWork": "🏠 دفعت شخصي من حساب الشغل (عليّ للشغل)",
+  "chipPaidToWork": "🏠 مدفوع للشغل",
+  "paidFromPocket": "💼 دفعت للشغل من جيبي (لي عند الشغل)",
+  "chipDueFromWork": "💼 مستحق من الشغل",
+  "chipTransfers": "🔄 تحويلات",
+  "sharedPublicTitle": "TaskyW — مشاركة عامة",
+  "enterNewName": "أدخل اسمك الجديد",
+  "descriptionNotesHint": "أدخل تفاصيل وملاحظات أو أرقام قطع الغيار...",
+  "archiveAction": "أرشفة",
+  "recurrenceWeekly": "أسبوعياً",
+  "pasteEmojiHint": "ألصق إيموجي (مثال: 🤖) أو كوده (U+1F680)",
+  "enterHexCode": "أو أدخل كود HEX مخصص:",
+  "orCreateTag": "أو إنشاء وسم جديد:",
+  "trashTasksEmptyDesc": "أي مهمة يتم حذفها ستُحفظ هنا ويمكن استعادتها بأي وقت.",
+  "quickEmojis": "أيقونات مقترحة سريعة:",
+  "customEmojiInput": "إدخال مخصص (لصق إيموجي أو كود U+...):",
+  "projectNotifications": "إشعارات هذا المشروع",
+  "createTask": "إضافة المهمة",
+  "addStepHint": "إضافة خطوة فرعية جديدة...",
+  "addNewAreaTitle": "إضافة مجال مسؤولية جديد",
+  "addAttachment": "إضافة مرفق",
+  "addNewProjectTitle": "إضافة مشروع جديد",
+  "addNewTaskTitle": "إضافة مهمة جديدة",
+  "addGeneralTask": "إضافة مهمة عامة",
+  "addTaskInProject": "إضافة مهمة في المشروع",
+  "kanbanAddInColumn": "إضافة مهمة في هذا العمود",
+  "addTag": "إضافة وسم",
+  "addTagForTask": "إضافة وسم للمهمة",
+  "retryAction": "إعادة المحاولة",
+  "emptyTrash": "إفراغ السلة",
+  "emptyTrashConfirmAction": "إفراغ السلة نهائياً",
+  "emptyTrashConfirmTitle": "إفراغ سلة المهملات بالكامل؟",
+  "unarchive": "إلغاء الأرشفة",
+  "unpinNote": "إلغاء التثبيت",
+  "toAccount": "إلى حساب",
+  "markDone": "إنجاز",
+  "createAction": "إنشاء",
+  "createArea": "إنشاء المجال",
+  "createProject": "إنشاء المشروع",
+  "createAndAttachTag": "إنشاء وإضافة الوسم",
+  "createNewTag": "إنشاء وسم جديد",
+  "startAddingTasks": "ابدأ بإضافة مهمة جديدة لمتابعة إنجازك اليومي",
+  "chooseIconTitle": "اختر أيقونة معبرة",
+  "chooseTagColor": "اختر لون الوسم:",
+  "chooseCustomColor": "اختر لوناً مخصصاً",
+  "choose": "اختيار",
+  "restoreAction": "استعادة",
+  "restoreProject": "استعادة المشروع",
+  "restoreNote": "استعادة الملاحظة",
+  "restoreTask": "استعادة المهمة",
+  "archiveRestoreToActive": "استعادة للأعمال النشطة",
+  "kanbanDropHint": "اسحب المهام إلى هنا أو أضف مهمة جديدة",
+  "areaName": "اسم المجال",
+  "projectName": "اسم المشروع",
+  "tagName": "اسم الوسم",
+  "newTagNameHint": "اسم الوسم (مثلاً: عاجل، قطع_غيار...)",
+  "notesEmptyHint": "اضغط + لإضافة أول ملاحظة...",
+  "noteContentHint": "اكتب أفكارك ومراجعك هنا...",
+  "archiveGlobalTitle": "الأرشيف العام (Global Archive)",
+  "suggestedColors": "الألوان المقترحة:",
+  "priorityLabel": "الأولوية",
+  "priorityColon": "الأولوية:",
+  "trashSearchHint": "البحث في سلة المهملات...",
+  "archiveSearchHint": "البحث في عناصر الأرشيف...",
+  "bankOption": "البنك",
+  "toAccountHint": "البنك، المحفظة...",
+  "descriptionLabel": "البيان *",
+  "recurrenceColon": "التكرار:",
+  "reminderColon": "التنبيه:",
+  "emojiCategoryStatus": "الحالات والتنبيه",
+  "statusLabel": "الحالة",
+  "statusColon": "الحالة:",
+  "deadlineColon": "الديدلاين:",
+  "invalidShareLink": "الرابط غير صالح أو انتهت صلاحية المشاركة.",
+  "linkUnavailable": "الرابط غير متوفر",
+  "emojiCategoryPersonal": "الشخصية والمنزل",
+  "emojiCategoryWork": "العمل والمشاريع",
+  "trashSubtitle": "العناصر المحذوفة مؤقتاً، يمكنك استعادتها أو حذفها نهائياً لتفريغ المساحة",
+  "noteTitle": "العنوان",
+  "allFilter": "الكل",
+  "colorLabel": "اللون",
+  "colorColon": "اللون: ",
+  "amountLabel": "المبلغ (SAR) *",
+  "pinnedNotes": "المثبتة",
+  "areaLabel": "المجال",
+  "areaProjectColumn": "المجال / المشروع",
+  "areaColon": "المجال:",
+  "noteContent": "المحتوى",
+  "notesScreenSubtitle": "المستودع المعرفي والمساحة الهادئة للأفكار، المراجع، الروابط وجهات الاتصال دون مواعيد أو قيود مهام.",
+  "areaProjects": "المشاريع التابعة للمجال",
+  "trashProjectsEmptyDesc": "المشاريع المحذوفة تظهر هنا لحين استعادتها أو مسحها نهائياً.",
+  "archiveProjectsEmptyDesc": "المشاريع المنتهية أو المؤرشفة ستظهر هنا للحفظ المرجعي.",
+  "projectLabel": "المشروع",
+  "projectColon": "المشروع:",
+  "trashNotesEmptyDesc": "الملاحظات المحذوفة ناعماً تظهر هنا.",
+  "notesScreenTitle": "الملاحظات ومستودع المعرفة (Knowledge Vault)",
+  "attachmentNotSynced": "الملف غير مرفوع بعد؛ سيتوفر التنزيل بعد المزامنة",
+  "subtasksColumn": "المهام الفرعية",
+  "subtasksTitle": "المهام الفرعية (Checklist)",
+  "completedTasksSection": "المهام المكتملة (Completed Tasks)",
+  "archiveGlobalSubtitle": "المهام والمشاريع والملاحظات المنتهية المحفوظة للرجوع إليها دون تشويش مساحات العمل اليومية",
+  "patternColon": "النمط:",
+  "emojiCategoryTools": "الهندسة والأدوات",
+  "tagsColumn": "الوسوم",
+  "availableTags": "الوسوم المتاحة:",
+  "tagsTitle": "الوسوم والتصنيفات (Tags)",
+  "descriptionNotesLabel": "الوصف والملاحظات:",
+  "financeSearchHint": "بحث في العمليات، الحسابات، الملاحظات...",
+  "notesSearchHint": "بحث لحظي في العناوين والمحتوى...",
+  "noEndDate": "بدون تاريخ انتهاء (مستمر)",
+  "untitled": "بدون عنوان",
+  "noProject": "بدون مشروع",
+  "noProjectGeneral": "بدون مشروع (مهمة عامة)",
+  "exportedCsvData": "بيانات CSV المُصدّرة",
+  "confirmChoice": "تأكيد الاختيار",
+  "dueDateColumn": "تاريخ الاستحقاق",
+  "dueDateLabel": "تاريخ التسليم",
+  "pinNote": "تثبيت",
+  "groupByProject": "تجميع بحسب المشروع",
+  "archiveRefresh": "تحديث الأرشيف",
+  "refreshTrash": "تحديث السلة",
+  "transferOption": "تحويل",
+  "customizeTaskColor": "تخصيص لون للمهمة",
+  "undoAction": "تراجع",
+  "registerTransaction": "تسجيل العملية",
+  "newTransactionTitle": "تسجيل عملية مالية جديدة",
+  "settlementLabel": "تسوية حساب الشغل والشخصي:",
+  "exportStatement": "تصدير كشف الحساب إلى Excel / CSV",
+  "pendingInvoiceReminder": "تظل معلقة حتى تستلم الفاتورة لتتذكر المطالبة بها",
+  "editLabel": "تعديل",
+  "editName": "تعديل الاسم",
+  "editTransactionTitle": "تعديل العملية المالية",
+  "editArea": "تعديل المجال",
+  "editProject": "تعديل المشروع",
+  "editNote": "تعديل الملاحظة",
+  "editAreaData": "تعديل بيانات المجال",
+  "editProjectData": "تعديل بيانات المشروع",
+  "syncFailedTapRetry": "تعذر الاتصال بالسحابة. اضغط للمحاولة مجدداً.",
+  "invalidEmojiCode": "تعذر التعرف على كود الإيموجي",
+  "attachSaveError": "تعذر حفظ المرفق",
+  "openFileError": "تعذر فتح الملف",
+  "setDateHint": "تعيين موعد...",
+  "taskDetails": "تفاصيل المهمة",
+  "enableProjectNotifications": "تفعيل إشعارات هذا Projekt",
+  "projectNotificationsDesc": "تفعيل التذكيرات المحلية لمهام هذا المشروع",
+  "trashEmptiedToast": "تم إفراغ سلة المهملات بنجاح",
+  "allDoneSection": "تم إنجاز كل المهام في هذا القسم 🎉",
+  "invoiceReceivedToast": "تم استلام الفاتورة وتحديث الحالة لمكتملة ✅",
+  "nameUpdatedToast": "تم تحديث الاسم بنجاح",
+  "projectNotifEnabledToast": "تم تفعيل إشعارات المشروع",
+  "projectDeletedPermanentToast": "تم حذف المشروع نهائياً",
+  "taskDeletedPermanentToast": "تم حذف المهمة نهائياً",
+  "projectNotifMutedToast": "تم كتم إشعارات المشروع",
+  "settledToast": "تمت التسوية ✔️",
+  "statusInProgress": "جاري التنفيذ",
+  "syncInProgressNow": "جاري المزامنة مع السحابة الآن...",
+  "syncingNow": "جاري المزامنة...",
+  "loadingSharedItem": "جاري تحميل العنصر المشترك...",
+  "syncUploading": "جاري رفع التعديلات السحابية...",
+  "syncChecking": "جاري فحص وتحديث البيانات مع السحابة...",
+  "tryOtherKeywords": "جرّب البحث بكلمات أخرى.",
+  "syncAllSynced": "جميع بياناتك متزامنة مع السحابة",
+  "cloudStatus": "حالة السحابة",
+  "projectStatus": "حالة المشروع",
+  "shareLoadError": "حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.",
+  "deleteStep": "حذف الخطوة",
+  "deleteTransaction": "حذف العملية المالية",
+  "deleteArea": "حذف المجال",
+  "deleteAreaFully": "حذف المجال بالكامل",
+  "deleteAttachment": "حذف المرفق",
+  "deleteProject": "حذف المشروع",
+  "deleteProjectPermanentConfirm": "حذف المشروع نهائياً؟",
+  "deleteNote": "حذف الملاحظة",
+  "deleteTask": "حذف المهمة",
+  "deleteSubtask": "حذف المهمة الفرعية",
+  "deleteTaskPermanentConfirm": "حذف المهمة نهائياً؟",
+  "deletePermanent": "حذف نهائي",
+  "saveEdit": "حفظ التعديل",
+  "saveChanges": "حفظ التعديلات",
+  "incomeRefundOption": "دخل/استرداد",
+  "notesHint": "رقم الإيصال، اسم المورد، تفاصيل...",
+  "trashProjectsEmpty": "سلة المشاريع فارغة",
+  "trashNotesEmpty": "سلة الملاحظات فارغة",
+  "trashTasksEmpty": "سلة المهام فارغة",
+  "trashTitle": "سلة المهملات (Trash Bin)",
+  "emptyTrashConfirmBody": "سيتم حذف جميع المهام والمشاريع الموجودة في سلة المهملات نهائياً وبلا رجعة. هل تريد الاستمرار؟",
+  "recurrenceMonthly": "شهرياً",
+  "setReminderHint": "ضبط تذكير...",
+  "priorityCritical": "عاجل جداً",
+  "priorityHigh": "عالية",
+  "netYouOwe": "عليك للشغل (صافي)",
+  "newTransaction": "عملية جديدة",
+  "normalTransaction": "عملية عادية (لا تتطلب تسوية)",
+  "archiveTasksEmptyDesc": "عند أرشفة أي مهمة ستظهر هنا للرجوع إليها مستقبلاً.",
+  "noteTitleHint": "عنوان الملاحظة...",
+  "columnTitle": "عنوان المهمة",
+  "taskTitleLabel": "عنوان المهمة *",
+  "taskTitleEditHint": "عنوان المهمة...",
+  "notSpecified": "غير محدد",
+  "notSignedIn": "غير مسجل الدخول",
+  "openAttachment": "فتح / تنزيل المرفق",
+  "pendingInvoices": "فواتير معلقة",
+  "statusWaiting": "قيد الانتظار",
+  "cashOption": "كاش",
+  "paymentMethodHint": "كاش، CIB، فودافون كاش...",
+  "muteProjectNotifications": "كتم إشعارات هذا المشروع",
+  "exportedStatementCsv": "كشف الحساب المُصدّر (CSV)",
+  "financeEmpty": "لا توجد أي عمليات مالية مسجلة بعد",
+  "attachmentsEmpty": "لا توجد مرفقات بعد — يمكنك إرفاق مستندات وصور وملفات.",
+  "archiveEmptyProjects": "لا توجد مشاريع مؤرشفة",
+  "areaNoProjects": "لا توجد مشاريع مضافة تحت هذا المجال بعد",
+  "notesEmpty": "لا توجد ملاحظات بعد",
+  "archiveEmptyNotes": "لا توجد ملاحظات مؤرشفة",
+  "areaNoGeneralTasks": "لا توجد مهام عامة خارج المشاريع لهذا المجال",
+  "noTasksInSection": "لا توجد مهام في هذا القسم حالياً",
+  "tableEmpty": "لا توجد مهام لعرضها في الجدول",
+  "archiveEmptyTasks": "لا توجد مهام مؤرشفة",
+  "noTasksRegistered": "لا توجد مهام مسجلة حالياً",
+  "projectNoTasks": "لا توجد مهام مضافة لهذا المشروع حتى الآن",
+  "noMatchingResults": "لا توجد نتائج مطابقة",
+  "financeNoFilterMatch": "لا توجد نتائج مطابقة للفلتر المحدد",
+  "noTagsForTask": "لا توجد وسوم مرتبطة بهذه المهمة. اضغط \"إضافة وسم\" للتصنيف.",
+  "paste": "لصق",
+  "pasteFromClipboard": "لصق من الحافظة",
+  "netOwedToYou": "لك عند الشغل (صافي)",
+  "readOnlyBadge": "للقراءة فقط",
+  "notReceivedInvoice": "لم أستلم الفاتورة بعد",
+  "noFileSelected": "لم يتم اختيار أي ملف",
+  "noteColor": "لون الملاحظة",
+  "customTaskColor": "لون مخصص للمهمة",
+  "taskTitleHint": "ما الذي ترغب في إنجازه؟",
+  "fullySynced": "متزامن بالكامل",
+  "recurrenceRecurring": "متكررة",
+  "priorityMedium": "متوسطة",
+  "descriptionHint": "مثلاً: شراء قطع غيار، غداء عمل، تحويل عهدة...",
+  "tagNameHint": "مثلاً: عاجل، قطع_غيار...",
+  "entityArea": "مجال (Area)",
+  "statusReview": "مراجعة",
+  "syncNowButton": "مزامنة...",
+  "owedByYou": "مستحق عليك للشغل ⏳",
+  "shareAreaWithTeam": "مشاركة المجال مع الفريق",
+  "shareProjectWithTeam": "مشاركة المشروع مع الفريق",
+  "shareTaskWithTeam": "مشاركة المهمة مع الفريق برابط أو حساب",
+  "entityProject": "مشروع (Project)",
+  "newProject": "مشروع جديد",
+  "expenseOption": "مصروف",
+  "reimbursementRequired": "مطلوب استرداده من الشغل ⏳",
+  "generalTransaction": "معاملة عامة",
+  "areaCompletionRate": "معدل إنجاز المجال العام:",
+  "disabled": "معطّل",
+  "projectStatusOnHold": "معلّق مؤقتاً (On Hold)",
+  "statusOnHold": "معلّقة",
+  "enabled": "مفعّل",
+  "projectStatusCompleted": "مكتمل (Completed)",
+  "statusCompleted": "مكتملة",
+  "notesListTitle": "ملاحظات",
+  "taskNotesLabel": "ملاحظات أو وصف (اختياري)",
+  "additionalNotes": "ملاحظات إضافية (اختياري)",
+  "archiveNotesEmptyDesc": "ملاحظات المعرفة والتوثيق المؤرشفة تظهر هنا.",
+  "newNote": "ملاحظة جديدة",
+  "chooseIconSubtitle": "من القائمة أو بلصق الإيموجي أو كود Unicode",
+  "fromAccount": "من حساب",
+  "priorityLow": "منخفضة",
+  "areaGeneralTasks": "مهام عامة تابعة للمجال",
+  "entityTask": "مهمة (Task)",
+  "projectCompletionRate": "نسبة إنجاز المشروع:",
+  "projectStatusActive": "نشط (Active)",
+  "yesDelete": "نعم، حذف",
+  "paymentMethodLabel": "وسيلة الدفع / الحساب",
+  "projectDescription": "وصف المشروع (اختياري)",
+  "syncOffline": "وضع أوفلاين. يعمل التطبيق محلياً بالكامل.",
+  "requireAreaFirst": "يجب إنشاء مجال أولاً قبل إضافة المهام.",
+  "invalidTransactionMsg": "يرجى كتابة البيان وتحديد مبلغ صحيح",
+  "endsAtColon": "ينتهي في:",
+  "recurrenceDaily": "يومياً",
+  "syncPendingTooltip": "توجد {count} تعديلات محلية بانتظار الرفع. اضغط للمزامنة.",
+  "taskDeletedToast": "تم حذف المهمة \"{title}\"",
+  "deleteFileConfirm": "هل أنت متأكد من حذف الملف \"{fileName}\"؟",
+  "fileSavedLocal": "الملف محفوظ محلياً: {url}",
+  "attachmentsCount": "المرفقات ({count})",
+  "deleteTaskConfirm": "هل أنت متأكد من رغبتك في حذف المهمة \"{title}\"؟",
+  "deleteStepConfirm": "هل أنت متأكد من حذف الخطوة \"{title}\"؟",
+  "tabsTasks": "المهام ({count})",
+  "tabsProjects": "المشاريع ({count})",
+  "tabsNotes": "الملاحظات ({count})",
+  "restoredTaskToast": "تمت استعادة المهمة \"{title}\" بنجاح",
+  "restoredProjectToast": "تمت استعادة المشروع \"{name}\" بنجاح",
+  "restoredNoteToast": "تمت استعادة الملاحظة \"{title}\" بنجاح",
+  "cannotRestoreTaskMsg": "لن تتمكن من استعادة المهمة \"{title}\" بعد الحذف النهائي.",
+  "cannotRestoreProjectMsg": "لن تتمكن من استعادة المشروع \"{name}\" بعد الحذف النهائي.",
+  "deleteNoteConfirm": "هل أنت متأكد من حذف \"{title}\"؟",
+  "areaStats": "مجال مسؤولية يضم {projects} مشاريع و {tasks} مهام",
+  "taskCounter": "{done}/{total} مهام",
+  "urgentCount": "{count} عاجلة",
+  "projectProgress": "{percent}% ({done}/{total} مكتملة)",
+  "pendingChangesCount": "{count} تعديل معلق",
+  "dueDateBadge": "الموعد: {date}",
+  "financeExportToast": "تم تصدير {count} عملية ونسخ CSV إلى الحافظة!",
+  "transferFromTo": "من {from} ⬅️ إلى {to}",
+  "viaAccount": "عبر: {account}",
+  "deleteTransactionConfirm": "هل أنت متأكد من حذف عملية \"{title}\"؟",
+  "yesNow": "نعم، احذف",
+  "@tabsTasks": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "@transferFromTo": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "from": {
+        "type": "String",
+        "example": "Example"
+      },
+      "to": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@cannotRestoreTaskMsg": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@viaAccount": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "account": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@areaStats": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "projects": {
+        "type": "int",
+        "example": "5"
+      },
+      "tasks": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "@syncPendingTooltip": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "@restoredProjectToast": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@deleteTaskConfirm": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@dueDateBadge": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@cannotRestoreProjectMsg": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@tabsNotes": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "@deleteTransactionConfirm": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@fileSavedLocal": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "url": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@financeExportToast": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "@restoredTaskToast": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@urgentCount": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "@restoredNoteToast": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@attachmentsCount": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "@deleteNoteConfirm": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@tabsProjects": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "@taskDeletedToast": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@deleteFileConfirm": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "fileName": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@projectProgress": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "percent": {
+        "type": "int",
+        "example": "5"
+      },
+      "done": {
+        "type": "int",
+        "example": "5"
+      },
+      "total": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "@deleteStepConfirm": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "@pendingChangesCount": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "@taskCounter": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "done": {
+        "type": "int",
+        "example": "5"
+      },
+      "total": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "deleteAreaConfirm": "هل أنت متأكد من رغبتك في حذف مجال \"{name}\" وجميع المشاريع والمهام التابعة له؟ لا يمكن التراجع عن هذا الإجراء.",
+  "@deleteAreaConfirm": {
+    "description": "تأكيد حذف عنصر مع اسمه في Tasky.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "deleteProjectConfirm": "هل أنت متأكد من رغبتك في حذف مشروع \"{name}\" وجميع المهام التابعة له؟ لا يمكن التراجع عن هذا الإجراء.",
+  "@deleteProjectConfirm": {
+    "description": "تأكيد حذف عنصر مع اسمه في Tasky.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "syncPartialFail": "اكتملت المزامنة مع بعض الأخطاء",
+  "syncAutoFail": "تعذر إتمام المزامنة التلقائية",
+  "syncLoginRequired": "يجب تسجيل الدخول لمزامنة البيانات",
+  "tagDefault": "وسم",
+  "currencySearchHint": "ابحث باسم الدولة، العملة، أو الرمز (SAR, EGP...)",
+  "selectCurrencyTitle": "اختيار العملة الافتراضية",
+  "noCurrencyResult": "لا توجد عملة تطابق بحثك",
+  "authResendActivation": " إعادة إرسال رابط التفعيل الآن",
+  "shareRestrictedNotice": "🔒 صلاحيتك الحالية (مشاهدة أو تحرير) لا تسمح بدعوة أعضاء أو تعديل صلاحياتهم. هذه الإجراءات متاحة فقط للمالك (Owner) أو المسؤول (Admin).",
+  "authResetEmailHint": "أدخل بريدك المسجل لإرسال رابط التعيين",
+  "authConfirmEmailResent": "أرسلنا رابط التفعيل مسبقاً. تفقّد صندوق الوارد وكذلك مجلد الرسائل غير المرغوب فيها (Spam / Junk).",
+  "shareTeamMembers": "أعضاء الفريق (بحساب)",
+  "authConfirmEmailAction": "أكدت بريدي، تسجيل الدخول الآن",
+  "shareSecurityNote": "أمان مضمون: الزائر عبر هذا الرابط لن يرى سوى هذا العنصر فقط، ولن يتمكن من تعديل أو حذف أي شيء إطلاقاً.",
+  "authSignUpSubtitle": "أنشئ حسابك للنسخ الاحتياطي السحابي والمشاركة",
+  "authSendResetLink": "إرسال رابط الاستعادة",
+  "authCreateAccountAction": "إنشاء الحساب",
+  "authCreateAccount": "إنشاء حساب جديد",
+  "authGetStartedSubtitle": "ابدأ إدارة مشاريعك باحتراف",
+  "authResetPassword": "استعادة كلمة المرور",
+  "authFullName": "الاسم الكامل",
+  "authEmailLabel": "البريد الإلكتروني",
+  "shareInviteUnavailable": "الدعوة غير متاحة لصلاحيتك",
+  "shareLinkDisabled": "الرابط العام معطّل حالياً",
+  "shareEntityElement": "العنصر",
+  "authContinueOffline": "المتابعة دون حساب (محلياً)",
+  "shareEntityArea": "المجال",
+  "sharePublicLinkTitle": "المشاركة عبر رابط عام",
+  "shareEntityProject": "المشروع",
+  "shareEntityTask": "المهمة",
+  "authEmailInvalid": "بريد إلكتروني غير صحيح",
+  "authConfirmEmailTitle": "تأكيد البريد الإلكتروني",
+  "authConfirmAccount": "تأكيد الحساب",
+  "authConfirmRequired": "تأكيد الحساب مطلوب لتسجيل الدخول",
+  "shareRevokeConfirmTitle": "تأكيد السحب",
+  "shareFullAccessBadge": "تحكم كامل 🗑️",
+  "authSignIn": "تسجيل الدخول",
+  "authChangeEmail": "تعديل البريد الإلكتروني أو المحاولة بحساب آخر",
+  "shareInviteError": "تعذر إرسال الدعوة",
+  "shareLinkCreationError": "تعذر إنشاء الرابط العام، تأكد من تسجيل الدخول والمزامنة.",
+  "sharePermissionUpdateError": "تعذر تحديث الصلاحية، يرجى المحاولة لاحقاً",
+  "shareRevokeError": "تعذر سحب الصلاحية",
+  "sharePublicLinkToggleDesc": "تفعيل أو إيقاف الرابط العام متاح فقط للمالك (Owner) أو المسؤول (Admin).",
+  "authResetEmailSent": "تم إرسال رابط استعادة كلمة المرور إلى بريدك.",
+  "authAccountCreatedSuccessfully": "تم إنشاء الحساب بنجاح!",
+  "authAccountCreatedBody": "تم إنشاء حسابك بنجاح! أرسلنا رسالة تأكيد تحتوي على رابط التفعيل إلى:",
+  "shareRevokeSuccess": "تم سحب الصلاحية بنجاح",
+  "shareCopyLinkSuccess": "تم نسخ رابط المشاركة العام إلى الحافظة",
+  "authResendSuccess": "تمت إعادة إرسال رابط التفعيل بنجاح! تفقد بريدك.",
+  "shareLoading": "جاري التحميل...",
+  "shareInviteButton": "دعوة",
+  "shareInviteNewMember": "دعوة شخص جديد وتحديد صلاحيته",
+  "sharePublicLink": "رابط عام (بدون حساب)",
+  "authSignInSubtitle": "سجل دخولك لمزامنة مهامك ومشاركتها مع فريقك",
+  "shareRevokeAccess": "سحب الصلاحية",
+  "sharePermissionDenied": "صلاحيتك على هذا العنصر لا تسمح بإدارة المشاركة. هذه الإجراءات متاحة فقط للمالك (Owner) أو المسؤول (Admin).",
+  "shareLinkToggleHint": "قم بتفعيل المفتاح بالأعلى لتوليد رابط مشاركة سريع يمكن إرساله للعملاء أو الزملاء.",
+  "authPasswordLabel": "كلمة المرور",
+  "authPasswordMin": "كلمة المرور 6 خانات كحد أدنى",
+  "authHasAccount": "لديك حساب بالفعل؟",
+  "shareNotSharedYet": "لم تتم مشاركة هذا العنصر مع أي شخص بعد.",
+  "authResendLink": "لم تصلك الرسالة؟ إعادة الإرسال",
+  "authNoAccount": "ليس لديك حساب بعد؟",
+  "shareEditor": "محرر",
+  "shareEditorBadge": "محرر / تعديل ✏️",
+  "authWelcomeBack": "مرحباً بعودتك إلى Tasky",
+  "shareAdmin": "مسؤول",
+  "shareUserWithoutEmail": "مستخدم بدون بريد",
+  "shareViewer": "مشاهدة فقط",
+  "shareViewOnlyBadge": "مشاهدة فقط 👁️",
+  "sharePending": "معلّق (في انتظار التسجيل)",
+  "shareCopyLink": "نسخ الرابط",
+  "authForgotPassword": "نسيت كلمة المرور؟",
+  "shareActive": "نشط",
+  "authOfflineMode": "وضع الأوفلاين",
+  "sharePublicLinkDesc": "يتيح لأي شخص لديه الرابط الاطلاع على المحتوى (قراءة فقط بدون حساب)",
+  "shareInvalidEmail": "يرجى إدخال بريد إلكتروني صالح",
+  "authConfirmEmailBody": "يرجى فتح الرسالة والنقر على رابط التفعيل. إذا لم تجد الرسالة في صندوق الوارد، تفقّد مجلد الرسائل غير المرغوب فيها (Spam / Junk).",
+  "authNameRequired": "يرجى كتابة الاسم",
+  "authEmailRequired": "يرجى كتابة البريد الإلكتروني",
+  "authPasswordRequired": "يرجى كتابة كلمة المرور",
+  "sharePeopleWithAccess": "الأشخاص الذين لديهم صلاحية وصول ({count})",
+  "@sharePeopleWithAccess": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "sharePermissionUpdatedSuccess": "تم تحديث الصلاحية إلى {permission} بنجاح",
+  "@sharePermissionUpdatedSuccess": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "permission": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "authResendActivationSuccess": "تمت إعادة إرسال رابط التفعيل إلى {email} بنجاح! تفقد بريدك الآن.",
+  "@authResendActivationSuccess": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "email": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "shareInviteSentSuccess": "تمت دعوة {email} بنجاح",
+  "@shareInviteSentSuccess": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "email": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "shareDialogTitle": "مشاركة {name}",
+  "@shareDialogTitle": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  },
+  "shareRevokeConfirmBody": "هل أنت متأكد من إلغاء مشاركة هذا العنصر مع {email}؟",
+  "@shareRevokeConfirmBody": {
+    "description": "نص واجهة مع متغيرات لتطبيق Tasky.",
+    "placeholders": {
+      "email": {
+        "type": "String",
+        "example": "Example"
+      }
+    }
+  }
 }

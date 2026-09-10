@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../controllers/financial_controller.dart';
 import '../widgets/financial_record_card.dart';
@@ -40,14 +41,14 @@ class _FinancialLogScreenState extends State<FinancialLogScreen> {
     Clipboard.setData(ClipboardData(text: csv));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('تم تصدير ${_controller.visibleRecords.length} عملية ونسخ CSV إلى الحافظة!'),
+        content: Text(context.l10n.financeExportToast(_controller.visibleRecords.length)),
         action: SnackBarAction(
-          label: 'معاينة',
+          label: context.l10n.preview,
           onPressed: () {
             showDialog(
               context: context,
               builder: (ctx) => AlertDialog(
-                title: const Text('كشف الحساب المُصدّر (CSV)'),
+                title: Text(context.l10n.exportedStatementCsv),
                 content: SizedBox(
                   width: 500,
                   height: 300,
@@ -56,7 +57,7 @@ class _FinancialLogScreenState extends State<FinancialLogScreen> {
                   ),
                 ),
                 actions: [
-                  TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('إغلاق')),
+                  TextButton(onPressed: () => Navigator.pop(ctx), child: Text(context.l10n.commonClose)),
                 ],
               ),
             );
@@ -75,6 +76,7 @@ class _FinancialLogScreenState extends State<FinancialLogScreen> {
           return const Center(child: CircularProgressIndicator());
         }
 
+        final l10n = context.l10n;
         final visible = _controller.visibleRecords;
         final pendingInvoicesCount = _controller.pendingInvoicesCount;
         final netBalance = _controller.netSettlementBalance;
@@ -84,7 +86,7 @@ class _FinancialLogScreenState extends State<FinancialLogScreen> {
           floatingActionButton: FloatingActionButton.extended(
             onPressed: () => RecordDialog.show(context, controller: _controller),
             icon: const Icon(Icons.add_rounded),
-            label: const Text('عملية جديدة'),
+            label: Text(context.l10n.newTransaction),
           ),
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -124,7 +126,7 @@ class _FinancialLogScreenState extends State<FinancialLogScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Text('فواتير معلقة', style: TextStyle(fontSize: 11, color: Colors.orange, fontWeight: FontWeight.bold)),
+                                    Text(l10n.pendingInvoices, style: const TextStyle(fontSize: 11, color: Colors.orange, fontWeight: FontWeight.bold)),
                                     Text(
                                       '$pendingInvoicesCount فواتير (${_controller.pendingInvoicesTotal.toStringAsFixed(0)} SAR)',
                                       style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
@@ -163,7 +165,7 @@ class _FinancialLogScreenState extends State<FinancialLogScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    netBalance >= 0 ? 'لك عند الشغل (صافي)' : 'عليك للشغل (صافي)',
+                                    netBalance >= 0 ? l10n.netOwedToYou : l10n.netYouOwe,
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.bold,
@@ -197,7 +199,7 @@ class _FinancialLogScreenState extends State<FinancialLogScreen> {
                       child: TextField(
                         controller: _searchCtrl,
                         decoration: InputDecoration(
-                          hintText: 'بحث في العمليات، الحسابات، الملاحظات...',
+                          hintText: l10n.financeSearchHint,
                           prefixIcon: const Icon(Icons.search, size: 18),
                           isDense: true,
                           contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -217,7 +219,7 @@ class _FinancialLogScreenState extends State<FinancialLogScreen> {
                     const SizedBox(width: 8),
                     IconButton(
                       icon: const Icon(Icons.download_rounded, size: 20),
-                      tooltip: 'تصدير كشف الحساب إلى Excel / CSV',
+                      tooltip: l10n.exportStatement,
                       onPressed: _exportFinancialsToCsv,
                     ),
                   ],
@@ -228,11 +230,11 @@ class _FinancialLogScreenState extends State<FinancialLogScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
                 child: Row(
                   children: [
-                    _buildFilterChip('الكل', 'all'),
-                    _buildFilterChip('⚠️ بانتظار الفاتورة', 'pending_invoices'),
-                    _buildFilterChip('💼 مستحق من الشغل', 'claim_from_work'),
-                    _buildFilterChip('🏠 مدفوع للشغل', 'owe_to_work'),
-                    _buildFilterChip('🔄 تحويلات', 'transfers'),
+                    _buildFilterChip(l10n.allFilter, 'all'),
+                    _buildFilterChip(l10n.chipPendingInvoice, 'pending_invoices'),
+                    _buildFilterChip(l10n.chipDueFromWork, 'claim_from_work'),
+                    _buildFilterChip(l10n.chipPaidToWork, 'owe_to_work'),
+                    _buildFilterChip(l10n.chipTransfers, 'transfers'),
                   ],
                 ),
               ),
@@ -247,8 +249,8 @@ class _FinancialLogScreenState extends State<FinancialLogScreen> {
                             const SizedBox(height: 10),
                             Text(
                               _controller.allRecords.isEmpty
-                                  ? 'لا توجد أي عمليات مالية مسجلة بعد'
-                                  : 'لا توجد نتائج مطابقة للفلتر المحدد',
+                                  ? l10n.financeEmpty
+                                  : l10n.financeNoFilterMatch,
                               style: TextStyle(color: AppColors.textMuted(context), fontSize: 13),
                             ),
                           ],

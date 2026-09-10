@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/core/theme/app_colors.dart';
 import 'package:tasky/features/areas/data/models/area_model.dart';
 import 'package:tasky/features/areas/presentation/widgets/sidebar_tree/sidebar_smart_filters.dart';
@@ -62,6 +63,7 @@ class _SidebarAreasTreeState extends State<SidebarAreasTree> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = context.l10n;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -69,10 +71,10 @@ class _SidebarAreasTreeState extends State<SidebarAreasTree> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const SidebarSectionHeader('المجالات والمشاريع'),
+            SidebarSectionHeader(l10n.areasProjectsSection),
             IconButton(
               icon: const Icon(Icons.add, size: 16),
-              tooltip: 'إضافة مجال جديد',
+              tooltip: l10n.addNewAreaTooltip,
               splashRadius: 14,
               onPressed: widget.onAddNewArea,
             ),
@@ -223,7 +225,7 @@ class _SidebarAreasTreeState extends State<SidebarAreasTree> {
                               Icon(Icons.add, size: 14, color: AppColors.textMuted(context)),
                               const SizedBox(width: 4),
                               Text(
-                                'مشروع جديد...',
+                                l10n.newProjectEllipsis,
                                 style: TextStyle(
                                   fontSize: 11.5,
                                   color: AppColors.textMuted(context),

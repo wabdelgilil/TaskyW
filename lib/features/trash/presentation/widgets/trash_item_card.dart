@@ -19,8 +19,8 @@ class TrashItemCard extends StatelessWidget {
     this.subtitle,
     required this.onRestore,
     this.onPermanentDelete,
-    this.restoreTooltip = 'استعادة',
-    this.deleteTooltip = 'حذف نهائي',
+    this.restoreTooltip = '',
+    this.deleteTooltip = '',
   });
 
   @override

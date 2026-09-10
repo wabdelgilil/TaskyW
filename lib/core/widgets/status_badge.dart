@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
+import '../../l10n/app_localizations.dart';
 import '../theme/app_colors.dart';
 
 /// شارة أنيقة لعرض حالة المهمة مع لونها وأيقونتها
@@ -16,19 +18,19 @@ class StatusBadge extends StatelessWidget {
     return AppColors.adaptiveStatusColor(status, isDark);
   }
 
-  static String getStatusLabel(String status) {
+  static String getStatusLabel(String status, AppLocalizations l10n) {
     switch (status.toLowerCase()) {
       case 'in_progress':
-        return 'جاري التنفيذ';
+        return l10n.statusInProgress;
       case 'waiting':
-        return 'معلّقة';
+        return l10n.statusOnHold;
       case 'review':
-        return 'مراجعة';
+        return l10n.statusReview;
       case 'completed':
-        return 'مكتملة';
+        return l10n.statusCompleted;
       case 'todo':
       default:
-        return 'قيد الانتظار';
+        return l10n.statusWaiting;
     }
   }
 
@@ -50,9 +52,10 @@ class StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final color = getStatusColor(status, isDark: isDark);
-    final label = getStatusLabel(status);
+    final label = getStatusLabel(status, l10n);
     final icon = getStatusIcon(status);
 
     final widget = Container(

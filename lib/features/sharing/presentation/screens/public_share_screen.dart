@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import '../../../../core/services/share_read_service.dart';
 
 /// شاشة عرض الكيان المشارك عاماً (بدون تسجيل دخول)
@@ -38,7 +39,7 @@ class _PublicShareScreenState extends State<PublicShareScreen> {
       if (result == null) {
         setState(() {
           _isLoading = false;
-          _errorMessage = 'الرابط غير صالح أو انتهت صلاحية المشاركة.';
+          _errorMessage = context.l10n.invalidShareLink;
         });
       } else {
         setState(() {
@@ -50,7 +51,7 @@ class _PublicShareScreenState extends State<PublicShareScreen> {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
-        _errorMessage = 'حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.';
+        _errorMessage = context.l10n.shareLoadError;
       });
     }
   }
@@ -78,9 +79,9 @@ class _PublicShareScreenState extends State<PublicShareScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            const Text(
-              'TaskyW — مشاركة عامة',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            Text(
+              context.l10n.sharedPublicTitle,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ],
         ),
@@ -98,13 +99,13 @@ class _PublicShareScreenState extends State<PublicShareScreen> {
 
   Widget _buildBody(ThemeData theme) {
     if (_isLoading) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('جاري تحميل العنصر المشترك...'),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(context.l10n.loadingSharedItem),
           ],
         ),
       );
@@ -120,7 +121,7 @@ class _PublicShareScreenState extends State<PublicShareScreen> {
               Icon(Icons.link_off_rounded, size: 64, color: theme.colorScheme.error),
               const SizedBox(height: 16),
               Text(
-                _errorMessage ?? 'الرابط غير متوفر',
+                _errorMessage ?? context.l10n.linkUnavailable,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: theme.colorScheme.onSurface,
@@ -131,7 +132,7 @@ class _PublicShareScreenState extends State<PublicShareScreen> {
               ElevatedButton.icon(
                 onPressed: _loadSharedContent,
                 icon: const Icon(Icons.refresh),
-                label: const Text('إعادة المحاولة'),
+                label: Text(context.l10n.retryAction),
               ),
             ],
           ),
@@ -180,10 +181,10 @@ class _PublicShareScreenState extends State<PublicShareScreen> {
                     const SizedBox(width: 6),
                     Text(
                       isTask
-                          ? 'مهمة (Task)'
+                          ? context.l10n.entityTask
                           : isProject
-                              ? 'مشروع (Project)'
-                              : 'مجال (Area)',
+                              ? context.l10n.entityProject
+                              : context.l10n.entityArea,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -204,12 +205,12 @@ class _PublicShareScreenState extends State<PublicShareScreen> {
                   color: theme.colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.visibility_outlined, size: 14),
-                    SizedBox(width: 4),
-                    Text('للقراءة فقط', style: TextStyle(fontSize: 11)),
+                    const Icon(Icons.visibility_outlined, size: 14),
+                    const SizedBox(width: 4),
+                    Text(context.l10n.readOnlyBadge, style: const TextStyle(fontSize: 11)),
                   ],
                 ),
               ),
@@ -227,7 +228,7 @@ class _PublicShareScreenState extends State<PublicShareScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    (entity['title'] ?? entity['name'] ?? 'بدون عنوان').toString(),
+                    (entity['title'] ?? entity['name'] ?? context.l10n.untitled).toString(),
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -253,19 +254,19 @@ class _PublicShareScreenState extends State<PublicShareScreen> {
                       if (entity['status'] != null)
                         _buildBadge(
                           icon: Icons.info_outline,
-                          label: 'الحالة: ${entity['status']}',
+                          label: '${context.l10n.statusColon} ${entity['status']}',
                           color: _getStatusColor(entity['status'].toString()),
                         ),
                       if (entity['priority'] != null)
                         _buildBadge(
                           icon: Icons.flag_outlined,
-                          label: 'الأولوية: ${entity['priority']}',
+                          label: '${context.l10n.priorityColon} ${entity['priority']}',
                           color: _getPriorityColor(entity['priority'].toString()),
                         ),
                       if (entity['due_date'] != null || entity['target_date'] != null)
                         _buildBadge(
                           icon: Icons.calendar_today_outlined,
-                          label: 'الموعد: ${(entity['due_date'] ?? entity['target_date']).toString().split('T').first}',
+                          label: context.l10n.dueDateBadge((entity['due_date'] ?? entity['target_date']).toString().split('T').first),
                           color: Colors.blueGrey,
                         ),
                     ],
@@ -280,10 +281,10 @@ class _PublicShareScreenState extends State<PublicShareScreen> {
           if (_sharedResult!.children.isNotEmpty) ...[
             Text(
               isTask
-                  ? 'المهام الفرعية (${_sharedResult!.children.length})'
+                  ? '${context.l10n.subtasksTitle} (${_sharedResult!.children.length})'
                   : isProject
-                      ? 'مهام المشروع (${_sharedResult!.children.length})'
-                      : 'مشاريع المجال (${_sharedResult!.children.length})',
+                      ? '${context.l10n.areaGeneralTasks} (${_sharedResult!.children.length})'
+                      : '${context.l10n.areaProjects} (${_sharedResult!.children.length})',
               style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),

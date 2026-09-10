@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/core/theme/app_colors.dart';
 
 /// رأس موحّد لأقسام القائمة الجانبية (Section Header)
@@ -126,15 +127,16 @@ class SidebarSmartFilters extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = context.l10n;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SidebarSectionHeader('الفلاتر السريعة'),
+        SidebarSectionHeader(l10n.smartFiltersHeader),
         SidebarFilterTile(
           icon: Icons.wb_sunny_rounded,
           iconColor: isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706), // Amber 400 vs 600
-          title: 'اليوم',
+          title: l10n.smartFilterToday,
           count: todayCount,
           isSelected: selectedFilter == 'today',
           onTap: () => onSelectFilter('today'),
@@ -142,7 +144,7 @@ class SidebarSmartFilters extends StatelessWidget {
         SidebarFilterTile(
           icon: Icons.calendar_month_rounded,
           iconColor: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7), // Sky 400 vs 600 (عالي التباين)
-          title: 'القادمة',
+          title: l10n.smartFilterUpcoming,
           count: upcomingCount,
           isSelected: selectedFilter == 'upcoming',
           onTap: () => onSelectFilter('upcoming'),
@@ -150,7 +152,7 @@ class SidebarSmartFilters extends StatelessWidget {
         SidebarFilterTile(
           icon: Icons.pause_circle_filled_rounded,
           iconColor: AppColors.adaptiveStatusColor('waiting', isDark),
-          title: 'معلّقة (Waiting)',
+          title: l10n.smartFilterWaiting,
           count: waitingCount,
           isSelected: selectedFilter == 'waiting',
           onTap: () => onSelectFilter('waiting'),
@@ -158,7 +160,7 @@ class SidebarSmartFilters extends StatelessWidget {
         SidebarFilterTile(
           icon: Icons.local_fire_department_rounded,
           iconColor: AppColors.adaptivePriorityColor('urgent', isDark),
-          title: 'عاجل (Urgent)',
+          title: l10n.smartFilterUrgent,
           count: urgentCount,
           isSelected: selectedFilter == 'urgent',
           onTap: () => onSelectFilter('urgent'),
@@ -166,7 +168,7 @@ class SidebarSmartFilters extends StatelessWidget {
         SidebarFilterTile(
           icon: Icons.all_inbox_rounded,
           iconColor: isDark ? const Color(0xFF34D399) : const Color(0xFF0D9488), // Teal/Emerald 400 vs 600
-          title: 'جميع المهام',
+          title: l10n.smartFilterAll,
           count: null,
           isSelected: selectedFilter == 'all',
           onTap: () => onSelectFilter('all'),

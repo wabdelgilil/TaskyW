@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/features/tags/data/models/tag_model.dart';
 import 'package:tasky/core/theme/app_colors.dart';
 
@@ -29,14 +30,14 @@ class TaskTagsSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'الوسوم والتصنيفات (Tags)',
-              style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold),
+            Text(
+              context.l10n.tagsTitle,
+              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold),
             ),
             TextButton.icon(
               onPressed: () => _showAddTagDialog(context),
               icon: const Icon(Icons.add, size: 16),
-              label: const Text('إضافة وسم', style: TextStyle(fontSize: 12)),
+              label: Text(context.l10n.addTag, style: const TextStyle(fontSize: 12)),
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 minimumSize: Size.zero,
@@ -56,7 +57,7 @@ class TaskTagsSection extends StatelessWidget {
               border: Border.all(color: AppColors.border(context), width: 0.8),
             ),
             child: Text(
-              'لا توجد وسوم مرتبطة بهذه المهمة. اضغط "إضافة وسم" للتصنيف.',
+              context.l10n.noTagsForTask,
               style: TextStyle(fontSize: 12, color: AppColors.textMuted(context)),
             ),
           )
@@ -144,9 +145,9 @@ class TaskTagsSection extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'إضافة وسم للمهمة',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      Text(
+                        context.l10n.addTagForTask,
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       IconButton(
                         icon: const Icon(Icons.close, size: 18),
@@ -158,7 +159,7 @@ class TaskTagsSection extends StatelessWidget {
 
                   // الوسوم المتاحة للاختيار السريع
                   if (available.isNotEmpty) ...[
-                    const Text('الوسوم المتاحة:', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    Text(context.l10n.availableTags, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Colors.grey)),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
@@ -187,13 +188,13 @@ class TaskTagsSection extends StatelessWidget {
                   ],
 
                   // إنشاء وسم جديد
-                  const Text('أو إنشاء وسم جديد:', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Colors.grey)),
+                  Text(context.l10n.orCreateTag, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Colors.grey)),
                   const SizedBox(height: 8),
                   TextField(
                     controller: newTagController,
                     style: const TextStyle(fontSize: 13),
-                    decoration: const InputDecoration(
-                      hintText: 'اسم الوسم (مثلاً: عاجل، قطع_غيار...)',
+                    decoration: InputDecoration(
+                      hintText: context.l10n.newTagNameHint,
                       isDense: true,
                     ),
                   ),
@@ -201,7 +202,7 @@ class TaskTagsSection extends StatelessWidget {
                   // باليت الألوان
                   Row(
                     children: [
-                      const Text('اللون: ', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                      Text(context.l10n.colorColon, style: const TextStyle(fontSize: 12, color: Colors.grey)),
                       const SizedBox(width: 8),
                       Expanded(
                         child: SingleChildScrollView(
@@ -241,7 +242,7 @@ class TaskTagsSection extends StatelessWidget {
                         Navigator.pop(ctx);
                       }
                     },
-                    child: const Text('إنشاء وإضافة الوسم'),
+                    child: Text(context.l10n.createAndAttachTag),
                   ),
                 ],
               ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/core/theme/app_colors.dart';
 import 'package:tasky/core/widgets/sync_status_button.dart';
 import 'package:tasky/features/auth/presentation/controllers/auth_controller.dart';
@@ -80,7 +81,7 @@ class MainTopHeader extends StatelessWidget {
               children: [
                 IconButton(
                   icon: const Icon(Icons.arrow_back),
-                  tooltip: 'إغلاق البحث',
+                  tooltip: context.l10n.closeSearch,
                   onPressed: onCloseMobileSearch,
                 ),
                 Expanded(
@@ -109,7 +110,7 @@ class MainTopHeader extends StatelessWidget {
                   const SizedBox(width: 4),
                   IconButton(
                     icon: Icon(forceGlobalSearch ? Icons.filter_alt_off : Icons.public, size: 20),
-                    tooltip: forceGlobalSearch ? 'إلغاء البحث الشامل' : 'بحث شامل في كل التطبيق',
+                    tooltip: forceGlobalSearch ? context.l10n.cancelGlobalSearch : context.l10n.globalSearchInApp,
                     onPressed: onToggleGlobalSearch,
                   ),
                 ],
@@ -128,7 +129,7 @@ class MainTopHeader extends StatelessWidget {
                 Builder(
                   builder: (ctx) => IconButton(
                     icon: const Icon(Icons.menu),
-                    tooltip: 'القائمة الجانبية',
+                    tooltip: context.l10n.sidebarMenu,
                     onPressed: () => Scaffold.of(ctx).openDrawer(),
                   ),
                 ),
@@ -141,7 +142,7 @@ class MainTopHeader extends StatelessWidget {
                 ),
                 IconButton(
                   icon: const Icon(Icons.search, size: 22),
-                  tooltip: 'بحث',
+                  tooltip: context.l10n.commonSearch,
                   onPressed: onOpenMobileSearch,
                 ),
                 IconButton(
@@ -154,10 +155,10 @@ class MainTopHeader extends StatelessWidget {
                     size: 20,
                   ),
                   tooltip: viewMode == 'list'
-                      ? 'عرض الكانبان'
+                      ? context.l10n.viewKanban
                       : viewMode == 'kanban'
-                          ? 'عرض الجدول'
-                          : 'عرض القوائم',
+                          ? context.l10n.viewTable
+                          : context.l10n.viewList,
                   onPressed: () {
                     if (viewMode == 'list') {
                       onViewModeChanged('kanban');
@@ -171,7 +172,7 @@ class MainTopHeader extends StatelessWidget {
                 const SizedBox(width: 2),
                 IconButton(
                   icon: const Icon(Icons.download_rounded, size: 20),
-                  tooltip: 'تصدير المهام إلى CSV / Excel',
+                  tooltip: context.l10n.exportCsvTooltip,
                   onPressed: onExportCsv,
                 ),
                 const SizedBox(width: 2),
@@ -237,12 +238,12 @@ class MainTopHeader extends StatelessWidget {
                 isWide
                     ? TextButton.icon(
                         icon: Icon(forceGlobalSearch ? Icons.filter_alt_off : Icons.public, size: 16),
-                        label: Text(forceGlobalSearch ? 'إلغاء الشامل' : 'بحث شامل'),
+                        label: Text(forceGlobalSearch ? context.l10n.cancelGlobalShort : context.l10n.globalSearch),
                         onPressed: onToggleGlobalSearch,
                       )
                     : IconButton(
                         icon: Icon(forceGlobalSearch ? Icons.filter_alt_off : Icons.public, size: 18),
-                        tooltip: forceGlobalSearch ? 'إلغاء الشامل' : 'بحث شامل',
+                        tooltip: forceGlobalSearch ? context.l10n.cancelGlobalShort : context.l10n.globalSearch,
                         onPressed: onToggleGlobalSearch,
                       ),
               ],
@@ -268,10 +269,10 @@ class MainTopHeader extends StatelessWidget {
                     size: 20,
                   ),
                   tooltip: viewMode == 'list'
-                      ? 'عرض الكانبان'
+                      ? context.l10n.viewKanban
                       : viewMode == 'kanban'
-                          ? 'عرض الجدول'
-                          : 'عرض القوائم',
+                          ? context.l10n.viewTable
+                          : context.l10n.viewList,
                   onPressed: () {
                     if (viewMode == 'list') {
                       onViewModeChanged('kanban');
@@ -285,7 +286,7 @@ class MainTopHeader extends StatelessWidget {
               const SizedBox(width: 6),
               IconButton(
                 icon: const Icon(Icons.download_rounded, size: 20),
-                tooltip: 'تصدير المهام الحالية إلى CSV / Excel',
+                tooltip: context.l10n.exportCsvCurrentTooltip,
                 onPressed: onExportCsv,
               ),
               const SizedBox(width: 4),
@@ -298,13 +299,13 @@ class MainTopHeader extends StatelessWidget {
                 ElevatedButton.icon(
                   onPressed: onAddTask,
                   icon: const Icon(Icons.add, size: 18),
-                  label: const Text('مهمة جديدة'),
+                  label: Text(context.l10n.newTask),
                 )
               else
                 IconButton.filled(
                   onPressed: onAddTask,
                   icon: const Icon(Icons.add, size: 18),
-                  tooltip: 'مهمة جديدة',
+                  tooltip: context.l10n.newTask,
                 ),
               const SizedBox(width: 6),
               _buildAuthButton(context, isCompact: !isWide),
@@ -322,7 +323,7 @@ class MainTopHeader extends StatelessWidget {
         final auth = AuthController.instance;
         if (auth.isAuthenticated) {
           return PopupMenuButton<String>(
-            tooltip: 'الملف الشخصي',
+            tooltip: context.l10n.profileTitle,
             onSelected: (val) {
               if (val == 'signout') {
                 auth.signOut();
@@ -334,19 +335,19 @@ class MainTopHeader extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(auth.displayName ?? 'مستخدم Tasky', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text(auth.displayName ?? context.l10n.taskyUser, style: const TextStyle(fontWeight: FontWeight.bold)),
                     Text(auth.userEmail ?? '', style: const TextStyle(fontSize: 11, color: Colors.grey)),
                   ],
                 ),
               ),
               const PopupMenuDivider(),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'signout',
                 child: Row(
                   children: [
-                    Icon(Icons.logout, size: 16, color: Colors.red),
-                    SizedBox(width: 8),
-                    Text('تسجيل الخروج', style: TextStyle(color: Colors.red)),
+                    const Icon(Icons.logout, size: 16, color: Colors.red),
+                    const SizedBox(width: 8),
+                    Text(context.l10n.signOut, style: const TextStyle(color: Colors.red)),
                   ],
                 ),
               ),
@@ -369,7 +370,7 @@ class MainTopHeader extends StatelessWidget {
         if (isCompact) {
           return IconButton(
             icon: const Icon(Icons.person_outline, size: 22),
-            tooltip: 'تسجيل الدخول',
+            tooltip: context.l10n.signIn,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const AuthScreen()),
@@ -385,7 +386,7 @@ class MainTopHeader extends StatelessWidget {
             );
           },
           icon: const Icon(Icons.person_outline, size: 18),
-          label: const Text('تسجيل الدخول'),
+          label: Text(context.l10n.signIn),
         );
       },
     );

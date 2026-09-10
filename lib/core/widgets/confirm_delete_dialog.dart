@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import '../theme/app_colors.dart';
 
 /// نافذة تأكيد الحذف لمنع الحذف بالخطأ
 class ConfirmDeleteDialog extends StatelessWidget {
   final String title;
   final String message;
-  final String confirmLabel;
-  final String cancelLabel;
+  final String? confirmLabel;
+  final String? cancelLabel;
 
   const ConfirmDeleteDialog({
     super.key,
     required this.title,
     required this.message,
-    this.confirmLabel = 'نعم، حذف',
-    this.cancelLabel = 'إلغاء',
+    this.confirmLabel,
+    this.cancelLabel,
   });
 
   /// دالة مساعدة سريعة لإظهار نافذة التأكيد
@@ -21,17 +22,18 @@ class ConfirmDeleteDialog extends StatelessWidget {
     BuildContext context, {
     required String title,
     required String message,
-    String confirmLabel = 'نعم، حذف',
-    String cancelLabel = 'إلغاء',
+    String? confirmLabel,
+    String? cancelLabel,
   }) async {
+    final l10n = context.l10n;
     final result = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => ConfirmDeleteDialog(
         title: title,
         message: message,
-        confirmLabel: confirmLabel,
-        cancelLabel: cancelLabel,
+        confirmLabel: confirmLabel ?? l10n.yesDelete,
+        cancelLabel: cancelLabel ?? l10n.commonCancel,
       ),
     );
     return result ?? false;
@@ -39,6 +41,10 @@ class ConfirmDeleteDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final confirmText = confirmLabel ?? l10n.yesDelete;
+    final cancelText = cancelLabel ?? l10n.commonCancel;
+
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Row(
@@ -77,7 +83,7 @@ class ConfirmDeleteDialog extends StatelessWidget {
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
           child: Text(
-            cancelLabel,
+            cancelText,
             style: TextStyle(
               color: AppColors.textMuted(context),
               fontWeight: FontWeight.bold,
@@ -94,7 +100,7 @@ class ConfirmDeleteDialog extends StatelessWidget {
           ),
           onPressed: () => Navigator.of(context).pop(true),
           child: Text(
-            confirmLabel,
+            confirmText,
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),

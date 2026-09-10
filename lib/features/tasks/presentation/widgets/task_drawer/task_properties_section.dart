@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/core/theme/app_colors.dart';
 import 'package:tasky/core/widgets/priority_badge.dart';
 import 'package:tasky/core/widgets/status_badge.dart';
@@ -54,6 +55,7 @@ class TaskPropertiesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final areaProjects = projects.where((p) => p.areaId == areaId).toList();
 
     return Container(
@@ -68,7 +70,7 @@ class TaskPropertiesSection extends StatelessWidget {
           // الحالة والأولوية
           Row(
             children: [
-              const SizedBox(width: 70, child: Text('الحالة:', style: TextStyle(fontSize: 12.5, color: Colors.grey))),
+              SizedBox(width: 70, child: Text(l10n.statusColon, style: const TextStyle(fontSize: 12.5, color: Colors.grey))),
               Expanded(
                 child: DropdownButton<String>(
                   value: status,
@@ -91,7 +93,7 @@ class TaskPropertiesSection extends StatelessWidget {
           const Divider(height: 16),
           Row(
             children: [
-              const SizedBox(width: 70, child: Text('الأولوية:', style: TextStyle(fontSize: 12.5, color: Colors.grey))),
+              SizedBox(width: 70, child: Text(l10n.priorityColon, style: const TextStyle(fontSize: 12.5, color: Colors.grey))),
               Expanded(
                 child: DropdownButton<String>(
                   value: priority,
@@ -114,7 +116,7 @@ class TaskPropertiesSection extends StatelessWidget {
           // المجال والمشروع
           Row(
             children: [
-              const SizedBox(width: 70, child: Text('المجال:', style: TextStyle(fontSize: 12.5, color: Colors.grey))),
+              SizedBox(width: 70, child: Text(l10n.areaColon, style: const TextStyle(fontSize: 12.5, color: Colors.grey))),
               Expanded(
                 child: DropdownButton<String>(
                   value: areas.any((a) => a.id == areaId) ? areaId : null,
@@ -138,7 +140,7 @@ class TaskPropertiesSection extends StatelessWidget {
             const Divider(height: 16),
             Row(
               children: [
-                const SizedBox(width: 70, child: Text('المشروع:', style: TextStyle(fontSize: 12.5, color: Colors.grey))),
+                SizedBox(width: 70, child: Text(l10n.projectColon, style: const TextStyle(fontSize: 12.5, color: Colors.grey))),
                 Expanded(
                   child: DropdownButton<String?>(
                     value: projectId,
@@ -146,7 +148,7 @@ class TaskPropertiesSection extends StatelessWidget {
                     isExpanded: true,
                     underline: const SizedBox(),
                     items: [
-                      const DropdownMenuItem(value: null, child: Text('بدون مشروع (مهمة عامة)', style: TextStyle(fontSize: 12, color: Colors.grey))),
+                      DropdownMenuItem(value: null, child: Text(l10n.noProjectGeneral, style: const TextStyle(fontSize: 12, color: Colors.grey))),
                       ...areaProjects.map((p) => DropdownMenuItem(value: p.id, child: Text('${p.iconEmoji} ${p.name}', style: const TextStyle(fontSize: 13)))),
                     ],
                     onChanged: (val) => onProjectChanged(val),
@@ -159,7 +161,7 @@ class TaskPropertiesSection extends StatelessWidget {
           // تاريخ الديدلاين
           Row(
             children: [
-              const SizedBox(width: 70, child: Text('الديدلاين:', style: TextStyle(fontSize: 12.5, color: Colors.grey))),
+              SizedBox(width: 70, child: Text(l10n.deadlineColon, style: const TextStyle(fontSize: 12.5, color: Colors.grey))),
               Expanded(
                 child: InkWell(
                   onTap: () async {
@@ -174,7 +176,7 @@ class TaskPropertiesSection extends StatelessWidget {
                     }
                   },
                   child: Text(
-                    dueDate != null ? '${dueDate!.year}/${dueDate!.month}/${dueDate!.day}' : 'تعيين موعد...',
+                    dueDate != null ? '${dueDate!.year}/${dueDate!.month}/${dueDate!.day}' : l10n.setDateHint,
                     style: TextStyle(
                       fontSize: 13,
                       color: dueDate != null ? Theme.of(context).colorScheme.primary : Colors.grey,
@@ -195,7 +197,7 @@ class TaskPropertiesSection extends StatelessWidget {
           // وقت التنبيه
           Row(
             children: [
-              const SizedBox(width: 70, child: Text('التنبيه:', style: TextStyle(fontSize: 12.5, color: Colors.grey))),
+              SizedBox(width: 70, child: Text(l10n.reminderColon, style: const TextStyle(fontSize: 12.5, color: Colors.grey))),
               Expanded(
                 child: InkWell(
                   onTap: () async {
@@ -229,7 +231,7 @@ class TaskPropertiesSection extends StatelessWidget {
                   child: Text(
                     reminderTime != null
                         ? '${reminderTime!.year}/${reminderTime!.month}/${reminderTime!.day} ${reminderTime!.hour.toString().padLeft(2, '0')}:${reminderTime!.minute.toString().padLeft(2, '0')}'
-                        : 'ضبط تذكير...',
+                        : l10n.setReminderHint,
                     style: TextStyle(
                       fontSize: 13,
                       color: reminderTime != null ? Theme.of(context).colorScheme.primary : Colors.grey,
@@ -250,7 +252,7 @@ class TaskPropertiesSection extends StatelessWidget {
           // التكرار الدوري للمهمة
           Row(
             children: [
-              const SizedBox(width: 70, child: Text('التكرار:', style: TextStyle(fontSize: 12.5, color: Colors.grey))),
+              SizedBox(width: 70, child: Text(l10n.recurrenceColon, style: const TextStyle(fontSize: 12.5, color: Colors.grey))),
               Expanded(
                 child: Row(
                   children: [
@@ -261,7 +263,7 @@ class TaskPropertiesSection extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      isRecurring ? 'مفعّل' : 'معطّل',
+                      isRecurring ? l10n.enabled : l10n.disabled,
                       style: TextStyle(
                         fontSize: 12.5,
                         fontWeight: isRecurring ? FontWeight.bold : FontWeight.normal,
@@ -277,16 +279,16 @@ class TaskPropertiesSection extends StatelessWidget {
             const SizedBox(height: 8),
             Row(
               children: [
-                const SizedBox(width: 70, child: Text('النمط:', style: TextStyle(fontSize: 12.5, color: Colors.grey))),
+                SizedBox(width: 70, child: Text(l10n.patternColon, style: const TextStyle(fontSize: 12.5, color: Colors.grey))),
                 Expanded(
                   child: DropdownButton<String>(
                     value: recurrencePattern,
                     isDense: true,
                     underline: const SizedBox(),
-                    items: const [
-                      DropdownMenuItem(value: 'daily', child: Text('يومياً', style: TextStyle(fontSize: 13))),
-                      DropdownMenuItem(value: 'weekly', child: Text('أسبوعياً', style: TextStyle(fontSize: 13))),
-                      DropdownMenuItem(value: 'monthly', child: Text('شهرياً', style: TextStyle(fontSize: 13))),
+                    items: [
+                      DropdownMenuItem(value: 'daily', child: Text(l10n.recurrenceDaily, style: const TextStyle(fontSize: 13))),
+                      DropdownMenuItem(value: 'weekly', child: Text(l10n.recurrenceWeekly, style: const TextStyle(fontSize: 13))),
+                      DropdownMenuItem(value: 'monthly', child: Text(l10n.recurrenceMonthly, style: const TextStyle(fontSize: 13))),
                     ],
                     onChanged: (val) {
                       if (val != null) onRecurrencePatternChanged(val);
@@ -298,7 +300,7 @@ class TaskPropertiesSection extends StatelessWidget {
             const SizedBox(height: 8),
             Row(
               children: [
-                const SizedBox(width: 70, child: Text('ينتهي في:', style: TextStyle(fontSize: 12.5, color: Colors.grey))),
+                SizedBox(width: 70, child: Text(l10n.endsAtColon, style: const TextStyle(fontSize: 12.5, color: Colors.grey))),
                 Expanded(
                   child: InkWell(
                     onTap: () async {
@@ -315,7 +317,7 @@ class TaskPropertiesSection extends StatelessWidget {
                     child: Text(
                       recurrenceEndDate != null
                           ? '${recurrenceEndDate!.year}/${recurrenceEndDate!.month}/${recurrenceEndDate!.day}'
-                          : 'بدون تاريخ انتهاء (مستمر)',
+                          : l10n.noEndDate,
                       style: TextStyle(
                         fontSize: 12.5,
                         color: recurrenceEndDate != null ? Theme.of(context).colorScheme.primary : Colors.grey,

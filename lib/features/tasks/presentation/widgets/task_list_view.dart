@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/features/tags/data/models/tag_model.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../projects/data/models/project_model.dart';
@@ -41,7 +42,7 @@ class TaskListView extends StatefulWidget {
     this.completedSubtaskCounts = const {},
     this.taskTags = const {},
     this.projects = const [],
-    this.emptyMessage = 'لا توجد مهام مسجلة حالياً',
+    this.emptyMessage = '',
     this.showCompletedSection = true,
   });
 
@@ -137,7 +138,7 @@ class _TaskListViewState extends State<TaskListView> {
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  'تم إنجاز كل المهام في هذا القسم 🎉',
+                  context.l10n.allDoneSection,
                   style: TextStyle(
                     fontSize: 12.5,
                     color: AppColors.textSecondary(context),
@@ -177,7 +178,7 @@ class _TaskListViewState extends State<TaskListView> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  _groupByProject ? 'تجميع بحسب المشروع' : 'تجميع بحسب المشروع',
+                  context.l10n.groupByProject,
                   style: TextStyle(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w600,
@@ -224,7 +225,7 @@ class _TaskListViewState extends State<TaskListView> {
               Icon(Icons.inbox_outlined, size: 15, color: AppColors.textMuted(context)),
               const SizedBox(width: 6),
               Text(
-                'بدون مشروع',
+                context.l10n.noProject,
                 style: TextStyle(
                   fontSize: 12.5,
                   fontWeight: FontWeight.bold,
@@ -342,9 +343,9 @@ class _TaskListViewState extends State<TaskListView> {
               ),
             ),
             const SizedBox(height: 16),
-            Text(
-              widget.emptyMessage,
-              style: TextStyle(
+              Text(
+                widget.emptyMessage.isNotEmpty ? widget.emptyMessage : context.l10n.noTasksRegistered,
+                style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textSecondary(context),
@@ -352,7 +353,7 @@ class _TaskListViewState extends State<TaskListView> {
             ),
             const SizedBox(height: 8),
             Text(
-              'ابدأ بإضافة مهمة جديدة لمتابعة إنجازك اليومي',
+              context.l10n.startAddingTasks,
               style: TextStyle(
                 fontSize: 12.5,
                 color: AppColors.textMuted(context),
@@ -363,7 +364,7 @@ class _TaskListViewState extends State<TaskListView> {
               ElevatedButton.icon(
                 onPressed: widget.onAddTask,
                 icon: const Icon(Icons.add, size: 18),
-                label: const Text('إضافة مهمة جديدة'),
+                label: Text(context.l10n.addNewTaskTitle),
               ),
             ],
           ],
@@ -422,14 +423,14 @@ class _TaskListViewState extends State<TaskListView> {
           context,
           alignEnd: isLtr,
           icon: Icons.check_circle_outline,
-          label: 'إنجاز',
+          label: context.l10n.markDone,
           color: AppColors.statusCompleted,
         ),
         secondaryBackground: _buildSwipeBackground(
           context,
           alignEnd: !isLtr,
           icon: Icons.delete_outline,
-          label: 'حذف',
+          label: context.l10n.commonDelete,
           color: Colors.redAccent,
         ),
         confirmDismiss: (details) async {
@@ -443,9 +444,9 @@ class _TaskListViewState extends State<TaskListView> {
             ScaffoldMessenger.of(context).hideCurrentSnackBar();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('تم حذف المهمة "${task.title}"'),
+                content: Text(context.l10n.taskDeletedToast(task.title)),
                 action: SnackBarAction(
-                  label: 'تراجع',
+                  label: context.l10n.undoAction,
                   onPressed: () => widget.onRestoreTask?.call(task.id),
                 ),
               ),
@@ -526,7 +527,7 @@ class _TaskListViewState extends State<TaskListView> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'المهام المكتملة (Completed Tasks)',
+                    context.l10n.completedTasksSection,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,

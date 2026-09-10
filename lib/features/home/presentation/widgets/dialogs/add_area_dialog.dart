@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/core/theme/app_colors.dart';
 import 'package:tasky/core/widgets/color_picker_dialog.dart';
 import 'package:tasky/core/widgets/emoji_picker_dialog.dart';
@@ -43,10 +44,11 @@ class _AddAreaDialogState extends State<AddAreaDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final aColor = AppColors.fromHex(_colorHex);
 
     return AlertDialog(
-      title: const Text('إضافة مجال مسؤولية جديد', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+      title: Text(l10n.addNewAreaTitle, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
       content: SizedBox(
         width: 360,
         child: Column(
@@ -78,7 +80,7 @@ class _AddAreaDialogState extends State<AddAreaDialog> {
                       children: [
                         Container(width: 16, height: 16, decoration: BoxDecoration(color: aColor, shape: BoxShape.circle)),
                         const SizedBox(width: 6),
-                        const Text('اللون', style: TextStyle(fontSize: 12)),
+                        Text(l10n.colorLabel, style: const TextStyle(fontSize: 12)),
                       ],
                     ),
                   ),
@@ -86,12 +88,12 @@ class _AddAreaDialogState extends State<AddAreaDialog> {
               ],
             ),
             const SizedBox(height: 14),
-            TextField(controller: _nameCtrl, decoration: const InputDecoration(labelText: 'اسم المجال')),
+            TextField(controller: _nameCtrl, decoration: InputDecoration(labelText: l10n.areaName)),
           ],
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('إلغاء')),
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(l10n.commonCancel)),
         ElevatedButton(
           onPressed: () {
             if (_nameCtrl.text.trim().isNotEmpty) {
@@ -107,7 +109,7 @@ class _AddAreaDialogState extends State<AddAreaDialog> {
               Navigator.of(context).pop();
             }
           },
-          child: const Text('إنشاء المجال'),
+          child: Text(l10n.createArea),
         ),
       ],
     );

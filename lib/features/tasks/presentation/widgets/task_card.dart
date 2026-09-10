@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/features/tags/data/models/tag_model.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/priority_badge.dart';
@@ -304,10 +305,10 @@ class TaskCard extends StatelessWidget {
                                       const SizedBox(width: 3),
                                       Text(
                                         task.recurrencePattern == 'daily'
-                                            ? 'يومياً'
+                                            ? context.l10n.recurrenceDaily
                                             : (task.recurrencePattern == 'weekly'
-                                                ? 'أسبوعياً'
-                                                : (task.recurrencePattern == 'monthly' ? 'شهرياً' : 'متكررة')),
+                                                ? context.l10n.recurrenceWeekly
+                                                : (task.recurrencePattern == 'monthly' ? context.l10n.recurrenceMonthly : context.l10n.recurrenceRecurring)),
                                         style: const TextStyle(
                                           fontSize: 10.5,
                                           fontWeight: FontWeight.w600,

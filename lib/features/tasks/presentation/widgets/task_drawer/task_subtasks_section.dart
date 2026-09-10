@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/core/theme/app_colors.dart';
 import 'package:tasky/core/widgets/confirm_delete_dialog.dart';
 import 'package:tasky/core/widgets/progress_bar_widget.dart';
@@ -64,9 +65,9 @@ class _TaskSubtasksSectionState extends State<TaskSubtasksSection> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'المهام الفرعية (Checklist)',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            Text(
+              context.l10n.subtasksTitle,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
             ),
             if (widget.subtasks.isNotEmpty)
               Text(
@@ -118,9 +119,9 @@ class _TaskSubtasksSectionState extends State<TaskSubtasksSection> {
                   onPressed: () async {
                     final confirmed = await ConfirmDeleteDialog.show(
                       context,
-                      title: 'حذف المهمة الفرعية',
-                      message: 'هل أنت متأكد من حذف الخطوة "${subtask.title}"؟',
-                      confirmLabel: 'حذف الخطوة',
+                      title: context.l10n.deleteSubtask,
+                      message: context.l10n.deleteStepConfirm(subtask.title),
+                      confirmLabel: context.l10n.deleteStep,
                     );
                     if (confirmed && mounted) {
                       widget.onDeleteSubtask(subtask.id);
@@ -139,8 +140,8 @@ class _TaskSubtasksSectionState extends State<TaskSubtasksSection> {
               child: TextField(
                 controller: _newSubtaskController,
                 style: const TextStyle(fontSize: 13),
-                decoration: const InputDecoration(
-                  hintText: 'إضافة خطوة فرعية جديدة...',
+                decoration: InputDecoration(
+                  hintText: context.l10n.addStepHint,
                   isDense: true,
                 ),
                 onSubmitted: (val) {
@@ -157,7 +158,7 @@ class _TaskSubtasksSectionState extends State<TaskSubtasksSection> {
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               ),
               onPressed: _handleAddSubtask,
-              child: const Text('إضافة'),
+              child: Text(context.l10n.commonAdd),
             ),
           ],
         ),

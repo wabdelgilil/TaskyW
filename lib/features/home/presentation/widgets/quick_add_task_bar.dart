@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/core/theme/app_colors.dart';
 
 /// شريط إضافة مهمة سريعة يظهر أسفل شاشة اليوم في وضع الموبايل.
@@ -57,7 +58,7 @@ class _QuickAddTaskBarState extends State<QuickAddTaskBar> {
               textInputAction: TextInputAction.done,
               onSubmitted: (_) => _submit(),
               decoration: InputDecoration(
-                hintText: 'إضافة مهمة سريعة...',
+                hintText: context.l10n.quickAddHint,
                 hintStyle: TextStyle(
                   color: AppColors.textMuted(context),
                   fontSize: 13.5,

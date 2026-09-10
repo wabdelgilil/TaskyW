@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/core/services/export_service.dart';
 import 'package:tasky/features/areas/data/models/area_model.dart';
 import 'package:tasky/features/areas/presentation/widgets/hierarchical_tree_sidebar.dart';
@@ -183,48 +184,50 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
 
   // عنوان السياق الحالي
   String get _currentContextTitle {
-    if (_showNotes) return '📚 الملاحظات ومستودع المعرفة (Knowledge Vault)';
-    if (_showFinance) return '💰 السجل المالي والتسويات';
-    if (_showArchive) return '🗄️ الأرشيف العام (Global Archive)';
-    if (_showTrash) return '🗑️ سلة المهملات (Trash Bin)';
+    final l10n = context.l10n;
+    if (_showNotes) return l10n.contextTitleNotes;
+    if (_showFinance) return l10n.contextTitleFinance;
+    if (_showArchive) return l10n.contextTitleArchive;
+    if (_showTrash) return l10n.contextTitleTrash;
     if (_selectedTagId != null) {
       final tag = widget.tags.firstWhere(
         (t) => t.id == _selectedTagId,
-        orElse: () => TagModel(id: '', name: 'وسم', createdAt: DateTime.now(), updatedAt: DateTime.now()),
+        orElse: () => TagModel(id: '', name: l10n.tagDefault, createdAt: DateTime.now(), updatedAt: DateTime.now()),
       );
-      return '🏷️ وسم: ${tag.name}';
+      return l10n.contextTitleTag(tag.name);
     }
     if (_selectedProjectId != null) {
       final p = widget.projects.where((p) => p.id == _selectedProjectId).firstOrNull;
       if (p != null) return '${p.iconEmoji} ${p.name}';
-      return _selectedSharedTitle ?? '💼 مشروع مشترك';
+      return _selectedSharedTitle ?? l10n.contextTitleSharedProject;
     }
     if (_selectedAreaId != null) {
       final a = widget.areas.where((a) => a.id == _selectedAreaId).firstOrNull;
       if (a != null) return '${a.iconEmoji} ${a.name}';
-      return _selectedSharedTitle ?? '📁 مجال مشترك';
+      return _selectedSharedTitle ?? l10n.contextTitleSharedArea;
     }
 
     switch (_activeFilter) {
       case 'today':
-        return '☀️ مهام اليوم';
+        return l10n.filterToday;
       case 'upcoming':
-        return '📅 المهام القادمة';
+        return l10n.filterUpcoming;
       case 'waiting':
-        return '⏳ المهام المعلّقة (Waiting)';
+        return l10n.filterWaiting;
       case 'urgent':
-        return '🔥 المهام العاجلة (Urgent)';
+        return l10n.filterUrgent;
       case 'all':
       default:
-        return '📋 جميع المهام';
+        return l10n.filterAll;
     }
   }
 
   String get _searchHint {
-    if (_forceGlobalSearch) return 'بحث شامل في كل المجالات والمشاريع...';
-    if (_selectedProjectId != null) return 'بحث في مشروع ($_currentContextTitle)...';
-    if (_selectedAreaId != null) return 'بحث في مجال ($_currentContextTitle)...';
-    return 'بحث في المهام...';
+    final l10n = context.l10n;
+    if (_forceGlobalSearch) return l10n.searchHintGlobal;
+    if (_selectedProjectId != null) return l10n.searchHintProject(_currentContextTitle);
+    if (_selectedAreaId != null) return l10n.searchHintArea(_currentContextTitle);
+    return l10n.searchHintTasks;
   }
 
   void _onSearchChanged(String query) {
@@ -297,7 +300,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
     final tasksToExport = _contextTasks;
     if (tasksToExport.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('لا توجد مهام لتصديرها في العرض الحالي')),
+        SnackBar(content: Text(context.l10n.exportEmptyToast)),
       );
       return;
     }
@@ -313,9 +316,9 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
     Clipboard.setData(ClipboardData(text: csv));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('تم تصدير ${tasksToExport.length} مهمة ونسخ CSV إلى الحافظة بنجاح!'),
+        content: Text(context.l10n.exportSuccessToast(tasksToExport.length)),
         action: SnackBarAction(
-          label: 'معاينة',
+          label: context.l10n.preview,
           onPressed: () => ExportTasksDialog.show(context, csvContent: csv),
         ),
       ),
@@ -502,7 +505,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
       onSelectSharedEntity: (entity) {
         final entityType = entity['_entity_type'];
         final id = entity['id'];
-        final entityTitle = entity['name'] ?? entity['title'] ?? 'عنصر مشترك';
+        final entityTitle = entity['name'] ?? entity['title'] ?? context.l10n.sharedEntityDefault;
 
         if (entityType == 'project') {
           final foundProj = widget.projects.where((p) => p.id == id).firstOrNull;
@@ -539,7 +542,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
           ? null
           : FloatingActionButton(
               onPressed: () => _showAddTaskDialog(),
-              tooltip: 'مهمة جديدة',
+              tooltip: context.l10n.newTask,
               child: const Icon(Icons.add, size: 26),
             ),
       body: SafeArea(
@@ -739,12 +742,27 @@ Expanded(
                   }
                 });
               },
-              destinations: const [
-                NavigationDestination(icon: Icon(Icons.wb_sunny_outlined), selectedIcon: Icon(Icons.wb_sunny), label: 'اليوم'),
-                NavigationDestination(icon: Icon(Icons.folder_open_outlined), selectedIcon: Icon(Icons.folder), label: 'المشاريع'),
-                NavigationDestination(icon: Icon(Icons.edit_note_outlined), selectedIcon: Icon(Icons.edit_note), label: 'الملاحظات'),
-                NavigationDestination(icon: Icon(Icons.account_balance_wallet_outlined), selectedIcon: Icon(Icons.account_balance_wallet), label: 'المالية'),
-                NavigationDestination(icon: Icon(Icons.settings_outlined), selectedIcon: Icon(Icons.settings), label: 'الإعدادات'),
+              destinations: [
+                NavigationDestination(
+                    icon: Icon(Icons.wb_sunny_outlined),
+                    selectedIcon: Icon(Icons.wb_sunny),
+                    label: context.l10n.navHome),
+                NavigationDestination(
+                    icon: Icon(Icons.folder_open_outlined),
+                    selectedIcon: Icon(Icons.folder),
+                    label: context.l10n.navProjects),
+                NavigationDestination(
+                    icon: Icon(Icons.edit_note_outlined),
+                    selectedIcon: Icon(Icons.edit_note),
+                    label: context.l10n.navNotes),
+                NavigationDestination(
+                    icon: Icon(Icons.account_balance_wallet_outlined),
+                    selectedIcon: Icon(Icons.account_balance_wallet),
+                    label: context.l10n.navFinance),
+                NavigationDestination(
+                    icon: Icon(Icons.settings_outlined),
+                    selectedIcon: Icon(Icons.settings),
+                    label: context.l10n.navSettings),
               ],
             ),
     );

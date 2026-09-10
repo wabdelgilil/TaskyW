@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../services/attachment_service.dart';
+import '../../../../core/l10n/localization_x.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/confirm_delete_dialog.dart';
 import '../../data/models/attachment_model.dart';
@@ -101,8 +102,8 @@ class _TaskAttachmentsSectionState extends State<TaskAttachmentsSection> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('لم يتم اختيار أي ملف'),
+          SnackBar(
+            content: Text(context.l10n.noFileSelected),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -119,7 +120,7 @@ class _TaskAttachmentsSectionState extends State<TaskAttachmentsSection> {
     if (added == null && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(_controller.errorMessage ?? 'تعذر حفظ المرفق'),
+          content: Text(_controller.errorMessage ?? context.l10n.attachSaveError),
           backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
         ),
@@ -130,9 +131,9 @@ class _TaskAttachmentsSectionState extends State<TaskAttachmentsSection> {
   Future<void> _handleDelete(AttachmentModel attachment) async {
     final confirmed = await ConfirmDeleteDialog.show(
       context,
-      title: 'حذف المرفق',
-      message: 'هل أنت متأكد من حذف الملف "${attachment.fileName}"؟',
-      confirmLabel: 'نعم، احذف',
+      title: context.l10n.deleteAttachment,
+      message: context.l10n.deleteFileConfirm(attachment.fileName),
+      confirmLabel: context.l10n.yesNow,
     );
     if (confirmed != true || !mounted) return;
     await _controller.delete(attachment.id);
@@ -144,7 +145,7 @@ class _TaskAttachmentsSectionState extends State<TaskAttachmentsSection> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('الملف غير مرفوع بعد؛ سيتوفر التنزيل بعد المزامنة'),
+            content: Text(context.l10n.attachmentNotSynced),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -157,7 +158,7 @@ class _TaskAttachmentsSectionState extends State<TaskAttachmentsSection> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('الملف محفوظ محلياً: $url'),
+              content: Text(context.l10n.fileSavedLocal(url)),
               behavior: SnackBarBehavior.floating,
             ),
           );
@@ -168,8 +169,8 @@ class _TaskAttachmentsSectionState extends State<TaskAttachmentsSection> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('تعذر فتح الملف'),
+          SnackBar(
+            content: Text(context.l10n.openFileError),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -201,7 +202,7 @@ class _TaskAttachmentsSectionState extends State<TaskAttachmentsSection> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'المرفقات (${attachments.length})',
+                      context.l10n.attachmentsCount(attachments.length),
                       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -216,7 +217,7 @@ class _TaskAttachmentsSectionState extends State<TaskAttachmentsSection> {
                       ),
                     IconButton(
                       icon: const Icon(Icons.attach_file_rounded, size: 20),
-                      tooltip: 'إضافة مرفق',
+                      tooltip: context.l10n.addAttachment,
                       onPressed: _handleAdd,
                     ),
                   ],
@@ -227,7 +228,7 @@ class _TaskAttachmentsSectionState extends State<TaskAttachmentsSection> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 6),
                 child: Text(
-                  'لا توجد مرفقات بعد — يمكنك إرفاق مستندات وصور وملفات.',
+                  context.l10n.attachmentsEmpty,
                   style: TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary(context),
@@ -284,8 +285,8 @@ class _TaskAttachmentsSectionState extends State<TaskAttachmentsSection> {
                     const SizedBox(width: 6),
                     Text(
                       pending
-                          ? '⏳ قيد المزامنة'
-                          : (isSynced ? '✓ مزامن' : '—'),
+                          ? context.l10n.attachmentSyncing
+                          : (isSynced ? context.l10n.attachmentSynced : '—'),
                       style: TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w600,
@@ -301,12 +302,12 @@ class _TaskAttachmentsSectionState extends State<TaskAttachmentsSection> {
           ),
           IconButton(
             icon: const Icon(Icons.download_rounded, size: 18),
-            tooltip: 'فتح / تنزيل المرفق',
+            tooltip: context.l10n.openAttachment,
             onPressed: () => _handleOpen(attachment),
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline, size: 18, color: Colors.redAccent),
-            tooltip: 'حذف المرفق',
+            tooltip: context.l10n.deleteAttachment,
             onPressed: () => _handleDelete(attachment),
           ),
         ],

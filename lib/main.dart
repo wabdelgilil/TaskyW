@@ -44,6 +44,16 @@ class TaskyApp extends StatelessWidget {
           locale: SettingsController.instance.activeLocale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
+          builder: (context, child) {
+            // إبقاء الواجهة كلها LTR (السايد بار يسار دائماً) بغض النظر عن اللغة
+            if (SettingsController.instance.isForcedLtr) {
+              return Directionality(
+                textDirection: TextDirection.ltr,
+                child: child!,
+              );
+            }
+            return child!;
+          },
           localeListResolutionCallback: (locales, supported) {
             if (SettingsController.instance.activeLocale != null) {
               return SettingsController.instance.activeLocale;

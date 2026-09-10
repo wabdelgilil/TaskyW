@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/confirm_delete_dialog.dart';
 import '../../data/models/financial_record_model.dart';
@@ -17,6 +18,7 @@ class FinancialRecordCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     Color badgeColor;
@@ -79,8 +81,11 @@ class FinancialRecordCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         record.type == 'transfer'
-                            ? 'من ${record.fromAccount ?? 'غير محدد'} ⬅️ إلى ${record.toAccount ?? 'غير محدد'}'
-                            : (record.fromAccount != null ? 'عبر: ${record.fromAccount}' : 'معاملة عامة'),
+                            ? l10n.transferFromTo(
+                                record.fromAccount ?? l10n.notSpecified,
+                                record.toAccount ?? l10n.notSpecified,
+                              )
+                            : (record.fromAccount != null ? l10n.viaAccount(record.fromAccount!) : l10n.generalTransaction),
                         style: TextStyle(fontSize: 11, color: AppColors.textSecondary(context)),
                       ),
                     ],
@@ -114,7 +119,7 @@ class FinancialRecordCard extends StatelessWidget {
                       await controller.markInvoiceReceived(record.id);
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('تم استلام الفاتورة وتحديث الحالة لمكتملة ✅')),
+                          SnackBar(content: Text(l10n.invoiceReceivedToast)),
                         );
                       }
                     },
@@ -126,8 +131,8 @@ class FinancialRecordCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(4),
                         border: Border.all(color: Colors.orange.withOpacity(0.5)),
                       ),
-                      child: const Text(
-                        '⚠️ بانتظار الفاتورة (اضغط للاستلام)',
+                      child: Text(
+                        l10n.invoicePendingTap,
                         style: TextStyle(fontSize: 10, color: Colors.orange, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -149,8 +154,8 @@ class FinancialRecordCard extends StatelessWidget {
                       ),
                       child: Text(
                         record.settlementStatus == 'settled'
-                            ? 'تمت التسوية ✔️'
-                            : (record.isClaimFromWork ? 'مطلوب استرداده من الشغل ⏳' : 'مستحق عليك للشغل ⏳'),
+                            ? l10n.settledToast
+                            : (record.isClaimFromWork ? l10n.reimbursementRequired : l10n.owedByYou),
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
@@ -165,19 +170,19 @@ class FinancialRecordCard extends StatelessWidget {
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.edit_outlined, size: 16),
-                  tooltip: 'تعديل',
+                  tooltip: l10n.editLabel,
                   splashRadius: 14,
                   onPressed: () => RecordDialog.show(context, controller: controller, record: record),
                 ),
                 IconButton(
                   icon: const Icon(Icons.delete_outline, size: 16, color: Colors.redAccent),
-                  tooltip: 'حذف',
+                  tooltip: l10n.commonDelete,
                   splashRadius: 14,
                   onPressed: () async {
                     final confirmed = await ConfirmDeleteDialog.show(
                       context,
-                      title: 'حذف العملية المالية',
-                      message: 'هل أنت متأكد من حذف عملية "${record.title}"؟',
+                      title: l10n.deleteTransaction,
+                      message: l10n.deleteTransactionConfirm(record.title),
                     );
                     if (confirmed) {
                       await controller.deleteRecord(record.id);

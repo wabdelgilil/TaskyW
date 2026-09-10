@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/core/theme/app_colors.dart';
 import 'package:tasky/features/areas/presentation/widgets/sidebar_tree/sidebar_smart_filters.dart';
 import 'package:tasky/features/collaboration/presentation/controllers/collaboration_controller.dart';
@@ -39,6 +40,7 @@ class _SidebarSharedSectionState extends State<SidebarSharedSection> {
         if (sharedItems.isEmpty && !_collabController.isLoading) {
           return const SizedBox.shrink();
         }
+        final l10n = context.l10n;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -46,7 +48,7 @@ class _SidebarSharedSectionState extends State<SidebarSharedSection> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const SidebarSectionHeader('مشارك معي (Shared)'),
+                SidebarSectionHeader(l10n.sharedWithMeHeader),
                 if (_collabController.isLoading)
                   const SizedBox(
                     width: 12,
@@ -56,7 +58,7 @@ class _SidebarSharedSectionState extends State<SidebarSharedSection> {
                 else
                   IconButton(
                     icon: const Icon(Icons.refresh, size: 15),
-                    tooltip: 'تحديث الكيانات المشتركة',
+                    tooltip: l10n.refreshSharedTooltip,
                     splashRadius: 14,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
@@ -66,7 +68,7 @@ class _SidebarSharedSectionState extends State<SidebarSharedSection> {
             ),
             const SizedBox(height: 4),
             ...sharedItems.map((item) {
-              final title = item['name'] ?? item['title'] ?? 'عنصر مشترك';
+              final title = item['name'] ?? item['title'] ?? l10n.sharedEntityDefault;
               final entityType = item['_entity_type'] ?? 'project';
               final perm = item['_permission_level'] ?? 'viewer';
               final iconEmoji = item['icon_emoji'] as String?;
@@ -128,10 +130,10 @@ class _SidebarSharedSectionState extends State<SidebarSharedSection> {
                         ),
                         child: Text(
                           perm == 'admin'
-                              ? 'مسؤول'
+                              ? l10n.permissionAdmin
                               : perm == 'editor'
-                                  ? 'محرر'
-                                  : 'مشاهدة',
+                                  ? l10n.permissionEditor
+                                  : l10n.permissionViewer,
                           style: TextStyle(
                             fontSize: 9.5,
                             fontWeight: FontWeight.bold,

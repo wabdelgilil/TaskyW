@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/core/theme/app_colors.dart';
 import 'package:tasky/core/widgets/color_picker_dialog.dart';
 import 'package:tasky/features/areas/data/models/area_model.dart';
@@ -41,8 +42,8 @@ class AddTaskDialog extends StatefulWidget {
   }) async {
     if (areas.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('يجب إنشاء مجال أولاً قبل إضافة المهام.'),
+        SnackBar(
+          content: Text(context.l10n.requireAreaFirst),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -99,10 +100,11 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final areaProjects = widget.projects.where((p) => p.areaId == _areaId).toList();
 
     return AlertDialog(
-      title: const Text('إضافة مهمة جديدة', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+      title: Text(l10n.addNewTaskTitle, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
       content: SizedBox(
         width: 420,
         child: Column(
@@ -112,13 +114,13 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
             TextField(
               controller: _titleCtrl,
               autofocus: true,
-              decoration: const InputDecoration(labelText: 'عنوان المهمة *', hintText: 'ما الذي ترغب في إنجازه؟'),
+              decoration: InputDecoration(labelText: l10n.taskTitleLabel, hintText: l10n.taskTitleHint),
             ),
             const SizedBox(height: 10),
             TextField(
               controller: _descCtrl,
               maxLines: 2,
-              decoration: const InputDecoration(labelText: 'ملاحظات أو وصف (اختياري)'),
+              decoration: InputDecoration(labelText: l10n.taskNotesLabel),
             ),
             const SizedBox(height: 12),
             Row(
@@ -126,13 +128,13 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
                 Expanded(
                   child: DropdownButtonFormField<String>(
                     value: _status,
-                    decoration: const InputDecoration(labelText: 'الحالة'),
-                    items: const [
-                      DropdownMenuItem(value: 'todo', child: Text('قيد الانتظار')),
-                      DropdownMenuItem(value: 'in_progress', child: Text('جاري التنفيذ')),
-                      DropdownMenuItem(value: 'waiting', child: Text('معلّقة')),
-                      DropdownMenuItem(value: 'review', child: Text('مراجعة')),
-                      DropdownMenuItem(value: 'completed', child: Text('مكتملة')),
+                    decoration: InputDecoration(labelText: l10n.statusLabel),
+                    items: [
+                      DropdownMenuItem(value: 'todo', child: Text(l10n.statusWaiting)),
+                      DropdownMenuItem(value: 'in_progress', child: Text(l10n.statusInProgress)),
+                      DropdownMenuItem(value: 'waiting', child: Text(l10n.statusOnHold)),
+                      DropdownMenuItem(value: 'review', child: Text(l10n.statusReview)),
+                      DropdownMenuItem(value: 'completed', child: Text(l10n.statusCompleted)),
                     ],
                     onChanged: (val) {
                       if (val != null) setState(() => _status = val);
@@ -143,12 +145,12 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
                 Expanded(
                   child: DropdownButtonFormField<String>(
                     value: _priority,
-                    decoration: const InputDecoration(labelText: 'الأولوية'),
-                    items: const [
-                      DropdownMenuItem(value: 'low', child: Text('منخفضة')),
-                      DropdownMenuItem(value: 'medium', child: Text('متوسطة')),
-                      DropdownMenuItem(value: 'high', child: Text('عالية')),
-                      DropdownMenuItem(value: 'urgent', child: Text('عاجل جداً')),
+                    decoration: InputDecoration(labelText: l10n.priorityLabel),
+                    items: [
+                      DropdownMenuItem(value: 'low', child: Text(l10n.priorityLow)),
+                      DropdownMenuItem(value: 'medium', child: Text(l10n.priorityMedium)),
+                      DropdownMenuItem(value: 'high', child: Text(l10n.priorityHigh)),
+                      DropdownMenuItem(value: 'urgent', child: Text(l10n.priorityCritical)),
                     ],
                     onChanged: (val) {
                       if (val != null) setState(() => _priority = val);
@@ -163,7 +165,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
                 Expanded(
                   child: DropdownButtonFormField<String>(
                     value: _areaId,
-                    decoration: const InputDecoration(labelText: 'المجال'),
+                    decoration: InputDecoration(labelText: l10n.areaLabel),
                     items: widget.areas.map((a) {
                       return DropdownMenuItem(value: a.id, child: Text('${a.iconEmoji} ${a.name}'));
                     }).toList(),
@@ -181,9 +183,9 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
                 Expanded(
                   child: DropdownButtonFormField<String?>(
                     value: _projectId,
-                    decoration: const InputDecoration(labelText: 'المشروع'),
+                    decoration: InputDecoration(labelText: l10n.projectLabel),
                     items: [
-                      const DropdownMenuItem(value: null, child: Text('بدون مشروع')),
+                      DropdownMenuItem(value: null, child: Text(l10n.noProject)),
                       ...areaProjects.map((p) => DropdownMenuItem(value: p.id, child: Text('${p.iconEmoji} ${p.name}'))),
                     ],
                     onChanged: (val) => setState(() => _projectId = val),
@@ -197,7 +199,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
                 // زر تعيين الديدلاين
                 TextButton.icon(
                   icon: const Icon(Icons.calendar_today, size: 16),
-                  label: Text(_dueDate != null ? '${_dueDate!.day}/${_dueDate!.month}/${_dueDate!.year}' : 'تاريخ التسليم'),
+                  label: Text(_dueDate != null ? '${_dueDate!.day}/${_dueDate!.month}/${_dueDate!.year}' : l10n.dueDateLabel),
                   onPressed: () async {
                     final picked = await showDatePicker(
                       context: context,
@@ -212,7 +214,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
                 // زر اختيار لون المهمة
                 IconButton(
                   icon: Icon(Icons.palette_outlined, color: _colorHex != null ? AppColors.fromHex(_colorHex!) : Colors.grey),
-                  tooltip: 'لون مخصص للمهمة',
+                  tooltip: l10n.customTaskColor,
                   onPressed: () async {
                     final selected = await ColorPickerDialog.show(context, initialColorHex: _colorHex ?? '#3B82F6');
                     if (selected != null) setState(() => _colorHex = selected);
@@ -224,7 +226,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('إلغاء')),
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(l10n.commonCancel)),
         ElevatedButton(
           onPressed: () {
             final text = _titleCtrl.text.trim();
@@ -246,7 +248,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
               Navigator.of(context).pop();
             }
           },
-          child: const Text('إضافة المهمة'),
+          child: Text(l10n.createTask),
         ),
       ],
     );

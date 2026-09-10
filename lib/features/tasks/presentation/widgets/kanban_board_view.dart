@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/features/tags/data/models/tag_model.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/status_badge.dart';
@@ -137,7 +138,7 @@ class _KanbanColumn extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final color = StatusBadge.getStatusColor(status, isDark: isDark);
-    final label = StatusBadge.getStatusLabel(status);
+    final label = StatusBadge.getStatusLabel(status, context.l10n);
 
     return DragTarget<TaskModel>(
       onWillAccept: (data) => data != null && data.status != status,
@@ -203,7 +204,7 @@ class _KanbanColumn extends StatelessWidget {
                     const Spacer(),
                     IconButton(
                       icon: const Icon(Icons.add, size: 18),
-                      tooltip: 'إضافة مهمة في هذا العمود',
+                      tooltip: context.l10n.kanbanAddInColumn,
                       splashRadius: 18,
                       onPressed: onAddTask,
                     ),
@@ -220,7 +221,7 @@ class _KanbanColumn extends StatelessWidget {
                         padding: const EdgeInsets.all(24),
                         alignment: Alignment.center,
                         child: Text(
-                          'اسحب المهام إلى هنا أو أضف مهمة جديدة',
+                          context.l10n.kanbanDropHint,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 12,

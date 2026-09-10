@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tasky/core/constants/app_version.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/core/services/sync_controller.dart';
 import 'package:tasky/core/theme/app_colors.dart';
 import 'package:tasky/features/auth/presentation/controllers/auth_controller.dart';
@@ -35,12 +36,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('البروفايل'),
+        title: Text(context.l10n.profileTitle),
         actions: [
           if (auth.isAuthenticated)
             IconButton(
               icon: Icon(_editing ? Icons.close : Icons.edit_outlined, size: 20),
-              tooltip: _editing ? 'إلغاء' : 'تعديل الاسم',
+              tooltip: _editing ? context.l10n.commonCancel : context.l10n.editName,
               onPressed: () {
                 setState(() {
                   _editing = !_editing;
@@ -62,14 +63,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   Icon(Icons.cloud_off, size: 56, color: AppColors.textMuted(context)),
                   const SizedBox(height: 12),
-                  Text('غير مسجل الدخول', style: TextStyle(color: AppColors.textSecondary(context), fontSize: 15)),
+                  Text(context.l10n.notSignedIn, style: TextStyle(color: AppColors.textSecondary(context), fontSize: 15)),
                   const SizedBox(height: 16),
                   ElevatedButton.icon(
                     onPressed: () => Navigator.of(context).pushReplacement(
                       MaterialPageRoute(builder: (_) => const AuthScreen()),
                     ),
                     icon: const Icon(Icons.login, size: 18),
-                    label: const Text('تسجيل الدخول'),
+                    label: Text(context.l10n.signIn),
                   ),
                 ],
               ),
@@ -98,7 +99,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text('الاسم المعروض', style: TextStyle(fontSize: 12, color: AppColors.textMuted(context))),
+                      Text(context.l10n.profileDisplayName, style: TextStyle(fontSize: 12, color: AppColors.textMuted(context))),
                       const SizedBox(height: 6),
                       if (_editing)
                         Row(
@@ -107,7 +108,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: TextField(
                                 controller: _nameCtrl,
                                 autofocus: true,
-                                decoration: const InputDecoration(hintText: 'أدخل اسمك الجديد'),
+                                decoration: InputDecoration(hintText: context.l10n.enterNewName),
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -118,7 +119,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 if (success && mounted && context.mounted) {
                                   setState(() => _editing = false);
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('تم تحديث الاسم بنجاح')),
+                                    SnackBar(content: Text(context.l10n.nameUpdatedToast)),
                                   );
                                 }
                               },
@@ -127,7 +128,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         )
                       else
                         Text(
-                          auth.displayName ?? 'مستخدم Tasky',
+                          auth.displayName ?? context.l10n.taskyUser,
                           style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                         ),
                     ],
@@ -140,8 +141,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Card(
                 child: ListTile(
                   leading: const Icon(Icons.email_outlined),
-                  title: const Text('البريد الإلكتروني'),
-                  subtitle: Text(auth.userEmail ?? 'غير محدد'),
+                  title: Text(context.l10n.profileEmail),
+                  subtitle: Text(auth.userEmail ?? context.l10n.notSpecified),
                 ),
               ),
               const SizedBox(height: 10),
@@ -161,13 +162,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ? Colors.amber
                                 : Colors.green,
                       ),
-                      title: const Text('حالة السحابة'),
+                      title: Text(context.l10n.cloudStatus),
                       subtitle: Text(
                         sync.isSyncing
-                            ? 'جاري المزامنة...'
+                            ? context.l10n.syncingNow
                             : sync.hasPending
-                                ? '${sync.pendingCount} تعديل معلق'
-                                : 'متزامن بالكامل',
+                                ? context.l10n.pendingChangesCount(sync.pendingCount)
+                                : context.l10n.fullySynced,
                       ),
                     );
                   },
@@ -179,7 +180,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Card(
                 child: ListTile(
                   leading: Icon(Icons.info_outline, color: AppColors.textMuted(context)),
-                  title: const Text('إصدار التطبيق'),
+                  title: Text(context.l10n.appVersion),
                   subtitle: Text('Tasky ${AppVersion.shortVersion} (${AppVersion.version})'),
                 ),
               ),
@@ -196,7 +197,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   if (mounted && context.mounted) Navigator.of(context).pop();
                 },
                 icon: const Icon(Icons.logout, size: 18),
-                label: const Text('تسجيل الخروج'),
+                label: Text(context.l10n.signOut),
               ),
             ],
           );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/features/tags/data/models/tag_model.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -68,7 +69,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
         builder: (context, setDialogState) {
           final pColor = AppColors.fromHex(colorHex);
           return AlertDialog(
-            title: const Text('تعديل بيانات المشروع', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            title: Text(context.l10n.editProjectData, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             content: SizedBox(
               width: 380,
               child: Column(
@@ -111,7 +112,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                             children: [
                               Container(width: 16, height: 16, decoration: BoxDecoration(color: pColor, shape: BoxShape.circle)),
                               const SizedBox(width: 6),
-                              const Text('اللون', style: TextStyle(fontSize: 12)),
+                              Text(context.l10n.colorLabel, style: const TextStyle(fontSize: 12)),
                             ],
                           ),
                         ),
@@ -121,22 +122,22 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                   const SizedBox(height: 14),
                   TextField(
                     controller: nameCtrl,
-                    decoration: const InputDecoration(labelText: 'اسم المشروع'),
+                    decoration: InputDecoration(labelText: context.l10n.projectName),
                   ),
                   const SizedBox(height: 10),
                   TextField(
                     controller: descCtrl,
                     maxLines: 2,
-                    decoration: const InputDecoration(labelText: 'وصف المشروع (اختياري)'),
+                    decoration: InputDecoration(labelText: context.l10n.projectDescription),
                   ),
                   const SizedBox(height: 14),
                   DropdownButtonFormField<String>(
                     value: status,
-                    decoration: const InputDecoration(labelText: 'حالة المشروع'),
-                    items: const [
-                      DropdownMenuItem(value: 'active', child: Text('نشط (Active)')),
-                      DropdownMenuItem(value: 'on_hold', child: Text('معلّق مؤقتاً (On Hold)')),
-                      DropdownMenuItem(value: 'completed', child: Text('مكتمل (Completed)')),
+                    decoration: InputDecoration(labelText: context.l10n.projectStatus),
+                    items: [
+                      DropdownMenuItem(value: 'active', child: Text(context.l10n.projectStatusActive)),
+                      DropdownMenuItem(value: 'on_hold', child: Text(context.l10n.projectStatusOnHold)),
+                      DropdownMenuItem(value: 'completed', child: Text(context.l10n.projectStatusCompleted)),
                     ],
                     onChanged: (val) {
                       if (val != null) setDialogState(() => status = val);
@@ -145,7 +146,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                   const SizedBox(height: 12),
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('إشعارات هذا المشروع'),
+                    title: Text(context.l10n.projectNotifications),
                     value: notificationsEnabled,
                     onChanged: (val) => setDialogState(() => notificationsEnabled = val),
                   ),
@@ -153,7 +154,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
               ),
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('إلغاء')),
+              TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(context.l10n.commonCancel)),
               ElevatedButton(
                 onPressed: () {
                   if (nameCtrl.text.trim().isNotEmpty) {
@@ -169,7 +170,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                     Navigator.of(ctx).pop();
                   }
                 },
-                child: const Text('حفظ التعديلات'),
+                child: Text(context.l10n.saveChanges),
               ),
             ],
           );
@@ -183,6 +184,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final rawProjectColor = AppColors.fromHex(widget.project.colorHex);
     final projectColor = AppColors.adaptiveCustomColor(rawProjectColor, isDark);
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -278,8 +280,8 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                             : AppColors.textMuted(context),
                       ),
                       tooltip: widget.project.notificationsEnabled
-                          ? 'كتم إشعارات هذا المشروع'
-                          : 'تفعيل إشعارات هذا Projekt',
+                          ? l10n.muteProjectNotifications
+                          : l10n.enableProjectNotifications,
                       onPressed: () {
                         final newEnabled = !widget.project.notificationsEnabled;
                         final updated = widget.project.copyWith(
@@ -296,7 +298,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              newEnabled ? 'تم تفعيل إشعارات المشروع' : 'تم كتم إشعارات المشروع',
+                              newEnabled ? l10n.projectNotifEnabledToast : l10n.projectNotifMutedToast,
                             ),
                             duration: const Duration(seconds: 2),
                           ),
@@ -307,7 +309,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                     // زر مشاركة المشروع
                     IconButton(
                       icon: const Icon(Icons.share_outlined, size: 20),
-                      tooltip: 'مشاركة المشروع مع الفريق',
+                      tooltip: l10n.shareProjectWithTeam,
                       onPressed: () {
                         UniversalShareDialog.show(
                           context,
@@ -322,18 +324,18 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                     // أزرار التحكم
                     IconButton(
                       icon: const Icon(Icons.edit_outlined, size: 20),
-                      tooltip: 'تعديل المشروع',
+                      tooltip: l10n.editProject,
                       onPressed: _showEditProjectDialog,
                     ),
                     IconButton(
                       icon: const Icon(Icons.delete_outline, size: 20, color: Colors.redAccent),
-                      tooltip: 'حذف المشروع',
+                      tooltip: l10n.deleteProject,
                       onPressed: () async {
                         final confirmed = await ConfirmDeleteDialog.show(
                           context,
-                          title: 'حذف المشروع',
-                          message: 'هل أنت متأكد من رغبتك في حذف مشروع "${widget.project.name}" وجميع المهام التابعة له؟ لا يمكن التراجع عن هذا الإجراء.',
-                          confirmLabel: 'حذف المشروع',
+                          title: l10n.deleteProject,
+                          message: context.l10n.deleteProjectConfirm(widget.project.name),
+                          confirmLabel: context.l10n.deleteProject,
                         );
                         if (confirmed && mounted) {
                           widget.onDeleteProject(widget.project.id);
@@ -355,9 +357,9 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('نسبة إنجاز المشروع:', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                              Text(l10n.projectCompletionRate, style: const TextStyle(fontSize: 12, color: Colors.grey)),
                               Text(
-                                '${(_progress * 100).toInt()}% ($_completedTasksCount/${widget.projectTasks.length} مكتملة)',
+                                context.l10n.projectProgress((_progress * 100).toInt(), _completedTasksCount, widget.projectTasks.length),
                                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: projectColor),
                               ),
                             ],
@@ -385,7 +387,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                             const Icon(Icons.local_fire_department_rounded, size: 16, color: AppColors.priorityUrgent),
                             const SizedBox(width: 4),
                             Text(
-                              '$_urgentTasksCount عاجلة',
+                              context.l10n.urgentCount(_urgentTasksCount),
                               style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -415,7 +417,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                   ),
                   onPressed: widget.onAddNewTask,
                   icon: const Icon(Icons.add, size: 18),
-                  label: const Text('إضافة مهمة في المشروع'),
+                  label: Text(l10n.addTaskInProject),
                 ),
               ],
             ),
@@ -445,7 +447,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                     : TaskListView(
                         tasks: widget.projectTasks,
                         taskTags: widget.taskTags,
-                        emptyMessage: 'لا توجد مهام مضافة لهذا المشروع حتى الآن',
+                        emptyMessage: l10n.projectNoTasks,
                         onTaskTap: widget.onTaskTap,
                         onToggleCompleted: widget.onToggleTaskCompleted,
                         onAddTask: widget.onAddNewTask,
