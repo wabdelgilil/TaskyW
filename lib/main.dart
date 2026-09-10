@@ -44,6 +44,21 @@ class TaskyApp extends StatelessWidget {
           locale: SettingsController.instance.activeLocale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
+          localeListResolutionCallback: (locales, supported) {
+            if (SettingsController.instance.activeLocale != null) {
+              return SettingsController.instance.activeLocale;
+            }
+            if (locales != null && locales.isNotEmpty) {
+              for (final locale in locales) {
+                for (final supportedLocale in supported) {
+                  if (supportedLocale.languageCode == locale.languageCode) {
+                    return supportedLocale;
+                  }
+                }
+              }
+            }
+            return const Locale('ar');
+          },
           onGenerateRoute: (settings) {
             final name = settings.name ?? '';
             final uri = Uri.tryParse(name);

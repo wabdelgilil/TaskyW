@@ -47,31 +47,30 @@ class ShareReadService {
       final entity = Map<String, dynamic>.from(row);
       final result = SharedEntityResult(entity: entity);
 
-      if (result.isTask) {
-        final children = await _supabase.fetchSubtasksForTask(
-          entity['id'] as String,
-        );
-        return SharedEntityResult(entity: entity, children: children);
-      }
+      // جلب الأولاد عبر دوال RPC آمنة بنفس الرمز (RLS تمنع الجلب المباشر
+      // للزائر المجهول). أي فشل في الأولاد لا يعطّل عرض الكيان الأب.
+      final children = result.isTask
+          ? await _fetchChildrenSafe(() => _supabase.fetchSharedSubtasks(token))
+          : result.isProject
+              ? await _fetchChildrenSafe(() => _supabase.fetchSharedTasks(token))
+              : await _fetchChildrenSafe(() => _supabase.fetchSharedProjects(token));
 
-      if (result.isProject) {
-        final children = await _supabase.fetchTasksForProject(
-          entity['id'] as String,
-        );
-        return SharedEntityResult(entity: entity, children: children);
-      }
-
-      if (result.isArea) {
-        final children = await _supabase.fetchProjectsForArea(
-          entity['id'] as String,
-        );
-        return SharedEntityResult(entity: entity, children: children);
-      }
-
-      return result;
+      return SharedEntityResult(entity: entity, children: children);
     } catch (e) {
       debugPrint('[ShareReadService] fetchPublicEntityByToken error: $e');
       return null;
+    }
+  }
+
+  /// تلغي أي خطأ في جلب الأولاد وتعيد قائمة فارغة حتى لا يكسر عرض الكيان.
+  Future<List<Map<String, dynamic>>> _fetchChildrenSafe(
+    Future<List<Map<String, dynamic>>> Function() loader,
+  ) async {
+    try {
+      return await loader();
+    } catch (e) {
+      debugPrint('[ShareReadService] children fetch skipped: $e');
+      return const [];
     }
   }
 
@@ -88,9 +87,9 @@ class ShareReadService {
 /// عقد قابل للحقن يسمح باختبار الخدمة دون اتصال فعلي بـ Supabase.
 abstract class SupabaseServiceLike {
   Future<Map<String, dynamic>?> fetchSharedEntity(String shareToken);
-  Future<List<Map<String, dynamic>>> fetchSubtasksForTask(String taskId);
-  Future<List<Map<String, dynamic>>> fetchTasksForProject(String projectId);
-  Future<List<Map<String, dynamic>>> fetchProjectsForArea(String areaId);
+  Future<List<Map<String, dynamic>>> fetchSharedSubtasks(String shareToken);
+  Future<List<Map<String, dynamic>>> fetchSharedTasks(String shareToken);
+  Future<List<Map<String, dynamic>>> fetchSharedProjects(String shareToken);
 }
 
 class _SupabaseAdapter implements SupabaseServiceLike {
@@ -104,37 +103,44 @@ class _SupabaseAdapter implements SupabaseServiceLike {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> fetchSubtasksForTask(String taskId) async {
-    final client = SupabaseService.client;
-    final rows = await client
-        .from('subtasks')
-        .select()
-        .eq('task_id', taskId)
-        .isFilter('deleted_at', null);
-    return rows;
-  }
-
-  @override
-  Future<List<Map<String, dynamic>>> fetchTasksForProject(
-    String projectId,
+  Future<List<Map<String, dynamic>>> fetchSharedSubtasks(
+    String shareToken,
   ) async {
     final client = SupabaseService.client;
-    final rows = await client
-        .from('tasks')
-        .select()
-        .eq('project_id', projectId)
-        .isFilter('deleted_at', null);
-    return rows;
+    final rows = await client.rpc(
+      'get_shared_subtasks',
+      params: {'p_token': shareToken},
+    );
+    return rows is List
+        ? List<Map<String, dynamic>>.from(rows)
+        : const <Map<String, dynamic>>[];
   }
 
   @override
-  Future<List<Map<String, dynamic>>> fetchProjectsForArea(String areaId) async {
+  Future<List<Map<String, dynamic>>> fetchSharedTasks(
+    String shareToken,
+  ) async {
     final client = SupabaseService.client;
-    final rows = await client
-        .from('projects')
-        .select()
-        .eq('area_id', areaId)
-        .isFilter('deleted_at', null);
-    return rows;
+    final rows = await client.rpc(
+      'get_shared_tasks',
+      params: {'p_token': shareToken},
+    );
+    return rows is List
+        ? List<Map<String, dynamic>>.from(rows)
+        : const <Map<String, dynamic>>[];
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> fetchSharedProjects(
+    String shareToken,
+  ) async {
+    final client = SupabaseService.client;
+    final rows = await client.rpc(
+      'get_shared_projects',
+      params: {'p_token': shareToken},
+    );
+    return rows is List
+        ? List<Map<String, dynamic>>.from(rows)
+        : const <Map<String, dynamic>>[];
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/core/services/sync_controller.dart';
 import 'package:tasky/core/theme/app_colors.dart';
 import 'package:tasky/core/theme/app_theme.dart';
@@ -221,7 +222,7 @@ class SidebarUserFooter extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'الإعدادات',
+                      context.l10n.commonSettings,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,

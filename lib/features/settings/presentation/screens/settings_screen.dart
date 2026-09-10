@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/core/theme/app_colors.dart';
 import 'package:tasky/features/settings/presentation/controllers/settings_controller.dart';
-import 'package:tasky/features/settings/data/models/app_settings_model.dart';
 import 'package:tasky/core/services/notification_service.dart';
 import 'package:tasky/core/constants/app_version.dart';
 import 'package:tasky/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:tasky/features/settings/data/models/app_currency.dart';
+import 'package:tasky/features/settings/presentation/widgets/currency_picker_sheet.dart';
 
 /// شاشة الإعدادات العامة للتطبيق (مع دعم اللغة الرسمي عبر `context.l10n`).
 class SettingsScreen extends StatelessWidget {
@@ -14,17 +15,16 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = SettingsController.instance;
-    final l10n = context.l10n;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.commonSettings),
-      ),
-      body: AnimatedBuilder(
-        animation: settings,
-        builder: (context, _) {
-          final l10n = context.l10n;
-          return ListView(
+    return AnimatedBuilder(
+      animation: settings,
+      builder: (context, _) {
+        final l10n = context.l10n;
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(l10n.commonSettings),
+          ),
+          body: ListView(
             padding: const EdgeInsets.all(16),
             children: [
               // ===== قسم اللغة والمنطقة =====
@@ -148,17 +148,38 @@ class SettingsScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(l10n.settingsCurrency),
-                        subtitle: Text(l10n.settingsCurrencyDesc(settings.defaultCurrency)),
-                        trailing: PopupMenuButton<String>(
-                          initialValue: settings.defaultCurrency,
-                          onSelected: (val) => settings.setDefaultCurrency(val),
-                          itemBuilder: (_) => AppSettingsModel.supportedCurrencies
-                              .map((c) => PopupMenuItem(value: c, child: Text(c)))
-                              .toList(),
-                        ),
+                      Builder(
+                        builder: (ctx) {
+                          final currentCurrency = AppCurrency.findByCode(settings.defaultCurrency);
+                          return ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(l10n.settingsCurrency),
+                            subtitle: Text(
+                              '${currentCurrency.flagEmoji} ${currentCurrency.nameAr} (${currentCurrency.code}) - ${currentCurrency.countryAr}',
+                            ),
+                            trailing: OutlinedButton.icon(
+                              onPressed: () {
+                                CurrencyPickerSheet.show(
+                                  ctx,
+                                  selectedCurrencyCode: settings.defaultCurrency,
+                                  onCurrencySelected: (code) => settings.setDefaultCurrency(code),
+                                );
+                              },
+                              icon: const Icon(Icons.arrow_drop_down, size: 20),
+                              label: Text(
+                                '${currentCurrency.flagEmoji} ${currentCurrency.code}',
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            onTap: () {
+                              CurrencyPickerSheet.show(
+                                ctx,
+                                selectedCurrencyCode: settings.defaultCurrency,
+                                onCurrencySelected: (code) => settings.setDefaultCurrency(code),
+                              );
+                            },
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -255,9 +276,9 @@ class SettingsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
             ],
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

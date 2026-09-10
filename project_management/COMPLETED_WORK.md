@@ -2,7 +2,20 @@
 
 ## سجل الإنجازات والمهام المكتملة
 
-### [2026-09-10] - النظام الرسمي للترجمة والتعريب (Flutter Official ARB / l10n) — الإصدار 3.0.0+1
+### [2026-09-10] - إصلاح اللغة الفوري ومحرك اختيار العملات الذكي (v3.0.2+1)
+- **إصلاح لغة الواجهة الفوري (Instant Localization Fix)**:
+  - إضافة `localeListResolutionCallback` في `MaterialApp` لتوجيه لغة الجهاز تلقائياً إلى العربية عند مطابقة أي لهجة عربية، مع تعيين العربية كافتراضي موثوق بدلاً من الإنجليزية عند اختيار الوضع التلقائي.
+  - إحاطة `SettingsScreen` بالكامل بـ `AnimatedBuilder` لضمان إعادة بناء الـ AppBar والشاشة بأكملها لحظياً فور النقر على أي لغة.
+  - تأمين `LocalizationX.l10n` بدعم Fallback تلقائي للعربية في البيئات المنعزلة واختبارات الـ Widgets.
+- **محرك اختيار العملات الذكي (Searchable Currency Engine)**:
+  - استبدال قائمة الثلاث نقاط القديمة (`PopupMenuButton`) بنافذة بحث سفلية احترافية `CurrencyPickerSheet` رشيقة وغير مثقلة على الكود.
+  - إنشاء نموذج `AppCurrency` الذي يحتوي على أشهر العملات العربية والعالمية المتداولة مع دعم البحث اللحظي بالاسم، بالدولة (مصر، السعودية، الإمارات...)، وبالكود والرمز وعلم الدولة.
+- **الفحص والتحقق**:
+  - `flutter analyze`: **0 issues found**.
+  - `flutter test`: **264/264 passing**.
+  - ترقية الإصدار إلى `3.0.2+1` في `pubspec.yaml` و `lib/core/constants/app_version.dart`.
+
+### [2026-09-10] - النظام الرسمي للترجمة والتعريب (Flutter Official ARB / l10n) — الإصدار 3.0.1+1
 - **البنية التحتية الرسمية (Official l10n Infrastructure)**:
   - إضافة `flutter_localizations` (sdk) + `intl: any` + تفعيل `generate: true` في `pubspec.yaml` وإنشاء ملف الإعداد `l10n.yaml` (قالب `app_ar.arb` + قاموس `app_en.arb` + `nullable-getter: false`).
   - إنشاء القواميس الرسمية `lib/l10n/app_ar.arb` و `lib/l10n/app_en.arb` بدعم الـ Placeholders المعرّفة (`taskCountRemaining`, `welcomeUser`, `settingsReminderMinutes`, `settingsCurrencyDesc`, `versionLabel`, `signedInAs`) مع تعريفات `@key` الكاملة ونوع كل متغير.

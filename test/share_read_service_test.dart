@@ -5,15 +5,15 @@ import 'package:tasky/core/services/share_read_service.dart';
 /// عقد تجريبي يملأ طريقة واحدة بسلوك محدد.
 class _FakeSupabase implements SupabaseServiceLike {
   final Map<String, Map<String, dynamic>> entities;
-  final Map<String, List<Map<String, dynamic>>> subtasksByTask;
-  final Map<String, List<Map<String, dynamic>>> tasksByProject;
-  final Map<String, List<Map<String, dynamic>>> projectsByArea;
+  final Map<String, List<Map<String, dynamic>>> subtasksByToken;
+  final Map<String, List<Map<String, dynamic>>> tasksByToken;
+  final Map<String, List<Map<String, dynamic>>> projectsByToken;
 
   _FakeSupabase({
     this.entities = const {},
-    this.subtasksByTask = const {},
-    this.tasksByProject = const {},
-    this.projectsByArea = const {},
+    this.subtasksByToken = const {},
+    this.tasksByToken = const {},
+    this.projectsByToken = const {},
   });
 
   @override
@@ -22,18 +22,24 @@ class _FakeSupabase implements SupabaseServiceLike {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> fetchSubtasksForTask(String taskId) async {
-    return subtasksByTask[taskId] ?? [];
+  Future<List<Map<String, dynamic>>> fetchSharedSubtasks(
+    String shareToken,
+  ) async {
+    return subtasksByToken[shareToken] ?? [];
   }
 
   @override
-  Future<List<Map<String, dynamic>>> fetchTasksForProject(String projectId) async {
-    return tasksByProject[projectId] ?? [];
+  Future<List<Map<String, dynamic>>> fetchSharedTasks(
+    String shareToken,
+  ) async {
+    return tasksByToken[shareToken] ?? [];
   }
 
   @override
-  Future<List<Map<String, dynamic>>> fetchProjectsForArea(String areaId) async {
-    return projectsByArea[areaId] ?? [];
+  Future<List<Map<String, dynamic>>> fetchSharedProjects(
+    String shareToken,
+  ) async {
+    return projectsByToken[shareToken] ?? [];
   }
 }
 
@@ -157,8 +163,8 @@ void main() {
     test('مهمة عامة تعيد المهمة مع مهامها الفرعية', () async {
       final fake = _FakeSupabase(
         entities: {'tok-task': Map.of(taskRow)},
-        subtasksByTask: {
-          'task-x': [
+        subtasksByToken: {
+          'tok-task': [
             {'id': 'sub-1', 'task_id': 'task-x', 'title': 'خطوة أولى'},
           ],
         },
@@ -175,8 +181,8 @@ void main() {
     test('مشروع عام يعيد المشروع مع مهامه', () async {
       final fake = _FakeSupabase(
         entities: {'tok-project': Map.of(projectRow)},
-        tasksByProject: {
-          'project-y': [
+        tasksByToken: {
+          'tok-project': [
             {'id': 'task-p1', 'project_id': 'project-y', 'title': 'مهمة المشروع'},
           ],
         },
@@ -191,8 +197,8 @@ void main() {
     test('مجال عام يعيد المجال مع مشاريعه', () async {
       final fake = _FakeSupabase(
         entities: {'tok-area': Map.of(areaRow)},
-        projectsByArea: {
-          'area-z': [
+        projectsByToken: {
+          'tok-area': [
             {'id': 'project-a1', 'area_id': 'area-z', 'name': 'مشروع المجال'},
           ],
         },
@@ -207,7 +213,7 @@ void main() {
     test('fetchPublicTaskWithSubtasks يعيد null لمشاركة مشروع', () async {
       final fake = _FakeSupabase(
         entities: {'tok-project': Map.of(projectRow)},
-        tasksByProject: {'project-y': []},
+        tasksByToken: {'tok-project': []},
       );
       final service = ShareReadService(supabase: fake);
       expect(await service.fetchPublicTaskWithSubtasks('tok-project'), isNull);
@@ -217,7 +223,9 @@ void main() {
       final errorSupabase = _ThrowingUntasksSupabase(taskRow);
       final service = ShareReadService(supabase: errorSupabase);
       final result = await service.fetchPublicEntityByToken('tok-task');
-      expect(result, isNull);
+      expect(result, isNotNull);
+      expect(result!.isTask, isTrue);
+      expect(result.children, isEmpty);
     });
   });
 }
@@ -233,17 +241,23 @@ class _ThrowingUntasksSupabase implements SupabaseServiceLike {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> fetchSubtasksForTask(String taskId) async {
+  Future<List<Map<String, dynamic>>> fetchSharedSubtasks(
+    String shareToken,
+  ) async {
     throw Exception('network down');
   }
 
   @override
-  Future<List<Map<String, dynamic>>> fetchTasksForProject(String projectId) async {
+  Future<List<Map<String, dynamic>>> fetchSharedTasks(
+    String shareToken,
+  ) async {
     return [];
   }
 
   @override
-  Future<List<Map<String, dynamic>>> fetchProjectsForArea(String areaId) async {
+  Future<List<Map<String, dynamic>>> fetchSharedProjects(
+    String shareToken,
+  ) async {
     return [];
   }
 }
