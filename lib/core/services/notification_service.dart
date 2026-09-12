@@ -42,7 +42,10 @@ class NotificationService {
         macOS: iosInit,
       );
 
-      await _plugin.initialize(settings, onDidReceiveNotificationResponse: onNotificationTap);
+      await _plugin.initialize(
+        settings: settings,
+        onDidReceiveNotificationResponse: onNotificationTap,
+      );
       _isInitialized = true;
     }
   }
@@ -119,11 +122,11 @@ class NotificationService {
     }
 
     await _plugin.zonedSchedule(
-      _notificationIdFor(taskId),
-      title,
-      'حان موعد تنفيذ المهمة',
-      tz.TZDateTime.from(scheduledDate, tz.local),
-      const NotificationDetails(
+      id: _notificationIdFor(taskId),
+      title: title,
+      body: 'حان موعد تنفيذ المهمة',
+      scheduledDate: tz.TZDateTime.from(scheduledDate, tz.local),
+      notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
           _taskChannelId,
           _taskChannelName,
@@ -135,21 +138,20 @@ class NotificationService {
       ),
       payload: taskId,
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
     );
   }
 
   /// إلغاء تذكير مهمة مجدول مسبقاً.
   Future<void> cancelTaskReminder(String taskId) async {
     if (!_isInitialized) return;
-    await _plugin.cancel(_notificationIdFor(taskId));
+    await _plugin.cancel(id: _notificationIdFor(taskId));
   }
 
   /// إلغاء تذكيرات مجموعة مهام دفعة واحدة (يُستخدم عند كتم إشعارات مشروع).
   Future<void> cancelRemindersForTasks(Iterable<String> taskIds) async {
     if (!_isInitialized) return;
     for (final taskId in taskIds) {
-      await _plugin.cancel(_notificationIdFor(taskId));
+      await _plugin.cancel(id: _notificationIdFor(taskId));
     }
   }
 
@@ -158,8 +160,8 @@ class NotificationService {
   Future<void> _configureTimeZone() async {
     tz.initializeTimeZones();
     try {
-      final timeZoneName = await FlutterTimezone.getLocalTimezone();
-      tz.setLocalLocation(tz.getLocation(timeZoneName));
+      final timeZoneInfo = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(timeZoneInfo.identifier));
     } catch (_) {
       tz.setLocalLocation(tz.UTC);
     }

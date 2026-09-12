@@ -10,7 +10,14 @@ import 'features/sharing/presentation/screens/public_share_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: '.env');
+
+  // تحميل متغيرات البيئة إن وُجد ملف .env (متاح في أصول التطبيق فقط عند توضيحه).
+  // على الويب أو عند غياب الملف يتم التخطي بأمان — المفاتيح لها fallback في
+  // SupabaseService (dart-define ثم القيمة الافتراضية).
+  try {
+    await dotenv.load(fileName: '.env');
+  } catch (_) {}
+
   await SupabaseService.initialize();
   await SettingsController.instance.load();
 
