@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -12,11 +13,13 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // تحميل متغيرات البيئة إن وُجد ملف .env (متاح في أصول التطبيق فقط عند توضيحه).
-  // على الويب أو عند غياب الملف يتم التخطي بأمان — المفاتيح لها fallback في
-  // SupabaseService (dart-define ثم القيمة الافتراضية).
-  try {
-    await dotenv.load(fileName: '.env');
-  } catch (_) {}
+  // على الويب لا يوجد ملف env مضمَّن → لا نحاول أصلاً (يتجنب 404).
+  // المفاتيح لها fallback في SupabaseService (dart-define ثم القيمة الافتراضية).
+  if (!kIsWeb) {
+    try {
+      await dotenv.load(fileName: '.env');
+    } catch (_) {}
+  }
 
   await SupabaseService.initialize();
   await SettingsController.instance.load();
