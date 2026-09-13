@@ -141,6 +141,42 @@ class NotificationService {
     );
   }
 
+  /// إرسال إشعار فوري لاختبار التنبيهات عبر كافة البيئات والأنظمة.
+  Future<bool> showInstantTestNotification({
+    String? title,
+    String? body,
+  }) async {
+    await init();
+    if (!_isInitialized) return false;
+
+    try {
+      await _plugin.show(
+        id: 999999,
+        title: title ?? 'اختبار التنبيهات 🔔',
+        body: body ?? 'تطبيق Tasky: نظام التنبيهات يعمل بنجاح على هذا الجهاز!',
+        notificationDetails: const NotificationDetails(
+          android: AndroidNotificationDetails(
+            _taskChannelId,
+            _taskChannelName,
+            channelDescription: _taskChannelDescription,
+            importance: Importance.max,
+            priority: Priority.high,
+            icon: '@mipmap/ic_launcher',
+          ),
+          iOS: DarwinNotificationDetails(
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: true,
+          ),
+        ),
+      );
+      return true;
+    } catch (e) {
+      debugPrint('Error showing instant test notification: $e');
+      return false;
+    }
+  }
+
   /// إلغاء تذكير مهمة مجدول مسبقاً.
   Future<void> cancelTaskReminder(String taskId) async {
     if (!_isInitialized) return;

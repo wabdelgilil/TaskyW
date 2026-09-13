@@ -90,6 +90,52 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsPermissionDenied => 'تم رفض طلب الصلاحية';
 
   @override
+  String get settingsTestNotification => 'اختبار التنبيهات الفوري';
+
+  @override
+  String get settingsTestNotificationDesc =>
+      'إرسال إشعار فوري للتأكد من عمل التنبيهات على هذا الجهاز';
+
+  @override
+  String get settingsTestNotificationBtn => 'إرسال تجريبي';
+
+  @override
+  String get settingsTestNotificationSuccess =>
+      'تم إرسال الإشعار التجريبي بنجاح 🔔';
+
+  @override
+  String get settingsTestNotificationFailed =>
+      'تعذر إرسال الإشعار، يرجى التحقق من إذن الإشعارات';
+
+  @override
+  String get desktopWidgetMode => 'الوضع المصغر (ودجت سطح المكتب)';
+
+  @override
+  String get desktopWidgetModeDesc =>
+      'تقليص النافذة إلى ودجت طافية على سطح المكتب';
+
+  @override
+  String get desktopWidgetAlwaysOnTop => 'تثبيت فوق النوافذ';
+
+  @override
+  String get desktopWidgetExpand => 'العودة للنافذة الكاملة';
+
+  @override
+  String get desktopWidgetQuickAddHint => 'أضف مهمة سريعة واضغط Enter...';
+
+  @override
+  String get desktopWidgetFilterToday => 'اليوم';
+
+  @override
+  String get desktopWidgetFilterAll => 'الكل';
+
+  @override
+  String get desktopWidgetFilterUrgent => 'العاجلة';
+
+  @override
+  String get desktopWidgetEmpty => 'لا توجد مهام نشطة حالياً 🎉';
+
+  @override
   String get settingsEnable => 'تفعيل';
 
   @override
@@ -1743,4 +1789,51 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get authRateLimit => 'يرجى الانتظار دقيقة قبل طلب إرسال رابط جديد';
+
+  @override
+  String get readTasksAloud => 'قراءة المهام صوتياً';
+
+  @override
+  String get readingTasks => 'جارٍ القراءة الصوتية';
+
+  @override
+  String get noTasksToRead => 'لا توجد مهام نشطة للقراءة في هذا القسم';
+
+  @override
+  String audioBriefingIntro(String context, int count) {
+    return 'ملخص مهام $context: لديك $count مهام متبقية.';
+  }
+
+  @override
+  String taskNumberSpoken(int index, String title) {
+    return 'المهمة رقم $index: $title';
+  }
+
+  @override
+  String get priorityUrgentSpoken => 'أولوية عاجلة';
+
+  @override
+  String dueDateSpoken(String date) {
+    return 'تاريخ الاستحقاق $date';
+  }
+
+  @override
+  String audioBarTaskProgress(int current, int total) {
+    return 'المهمة $current من $total';
+  }
+
+  @override
+  String get audioPause => 'إيقاف مؤقت';
+
+  @override
+  String get audioResume => 'استئناف';
+
+  @override
+  String get audioStop => 'إيقاف القراءة';
+
+  @override
+  String get audioNext => 'المهمة التالية';
+
+  @override
+  String get audioPrevious => 'المهمة السابقة';
 }

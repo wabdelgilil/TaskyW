@@ -52,6 +52,20 @@
   "settingsRequestPermissionDesc": "تأكيد صلاحية التنبيهات على الأندرويد/IOS",
   "settingsPermissionGranted": "تم تفعيل صلاحية التنبيهات بنجاح",
   "settingsPermissionDenied": "تم رفض طلب الصلاحية",
+  "settingsTestNotification": "اختبار التنبيهات الفوري",
+  "settingsTestNotificationDesc": "إرسال إشعار فوري للتأكد من عمل التنبيهات على هذا الجهاز",
+  "settingsTestNotificationBtn": "إرسال تجريبي",
+  "settingsTestNotificationSuccess": "تم إرسال الإشعار التجريبي بنجاح 🔔",
+  "settingsTestNotificationFailed": "تعذر إرسال الإشعار، يرجى التحقق من إذن الإشعارات",
+  "desktopWidgetMode": "الوضع المصغر (ودجت سطح المكتب)",
+  "desktopWidgetModeDesc": "تقليص النافذة إلى ودجت طافية على سطح المكتب",
+  "desktopWidgetAlwaysOnTop": "تثبيت فوق النوافذ",
+  "desktopWidgetExpand": "العودة للنافذة الكاملة",
+  "desktopWidgetQuickAddHint": "أضف مهمة سريعة واضغط Enter...",
+  "desktopWidgetFilterToday": "اليوم",
+  "desktopWidgetFilterAll": "الكل",
+  "desktopWidgetFilterUrgent": "العاجلة",
+  "desktopWidgetEmpty": "لا توجد مهام نشطة حالياً 🎉",
   "settingsEnable": "تفعيل",
   "settingsLanguage": "لغة التطبيق",
   "settingsLanguageDesc": "اختيار لغة الواجهات (الافتراضي: لغة الجهاز)",
@@ -959,5 +973,66 @@
   "authUserAlreadyRegistered": "هذا البريد الإلكتروني مسجل بالفعل",
   "authPasswordTooShort": "كلمة المرور يجب ألا تقل عن 6 أحرف",
   "authInvalidEmail": "صيغة البريد الإلكتروني غير صالحة",
-  "authRateLimit": "يرجى الانتظار دقيقة قبل طلب إرسال رابط جديد"
+  "authRateLimit": "يرجى الانتظار دقيقة قبل طلب إرسال رابط جديد",
+  "readTasksAloud": "قراءة المهام صوتياً",
+  "readingTasks": "جارٍ القراءة الصوتية",
+  "noTasksToRead": "لا توجد مهام نشطة للقراءة في هذا القسم",
+  "audioBriefingIntro": "ملخص مهام {context}: لديك {count} مهام متبقية.",
+  "@audioBriefingIntro": {
+    "description": "مقدمة القراءة الصوتية للمهام.",
+    "placeholders": {
+      "context": {
+        "type": "String",
+        "example": "اليوم"
+      },
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "taskNumberSpoken": "المهمة رقم {index}: {title}",
+  "@taskNumberSpoken": {
+    "description": "نص نطق المهمة.",
+    "placeholders": {
+      "index": {
+        "type": "int",
+        "example": "1"
+      },
+      "title": {
+        "type": "String",
+        "example": "مراجعة العقد"
+      }
+    }
+  },
+  "priorityUrgentSpoken": "أولوية عاجلة",
+  "dueDateSpoken": "تاريخ الاستحقاق {date}",
+  "@dueDateSpoken": {
+    "description": "تاريخ الاستحقاق المنطوق.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "اليوم"
+      }
+    }
+  },
+  "audioBarTaskProgress": "المهمة {current} من {total}",
+  "@audioBarTaskProgress": {
+    "description": "عداد شريط القراءة الصوتية.",
+    "placeholders": {
+      "current": {
+        "type": "int",
+        "example": "2"
+      },
+      "total": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "audioPause": "إيقاف مؤقت",
+  "audioResume": "استئناف",
+  "audioStop": "إيقاف القراءة",
+  "audioNext": "المهمة التالية",
+  "audioPrevious": "المهمة السابقة"
 }

@@ -155,6 +155,38 @@ class SettingsScreen extends StatelessWidget {
                           label: Text(l10n.settingsEnable),
                         ),
                       ),
+                      const Divider(),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(l10n.settingsTestNotification),
+                        subtitle: Text(l10n.settingsTestNotificationDesc),
+                        trailing: ElevatedButton.icon(
+                          onPressed: () async {
+                            final success = await NotificationService.instance
+                                .showInstantTestNotification();
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    success
+                                        ? l10n.settingsTestNotificationSuccess
+                                        : l10n.settingsTestNotificationFailed,
+                                  ),
+                                  backgroundColor: success
+                                      ? AppColors.statusCompleted
+                                      : Theme.of(context).colorScheme.error,
+                                ),
+                              );
+                            }
+                          },
+                          icon: const Icon(Icons.notification_important_outlined, size: 18),
+                          label: Text(l10n.settingsTestNotificationBtn),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.brandPrimary,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),

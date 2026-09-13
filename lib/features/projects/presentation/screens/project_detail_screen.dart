@@ -12,6 +12,7 @@ import '../../../tasks/presentation/widgets/kanban_board_view.dart';
 import '../../../tasks/presentation/widgets/task_list_view.dart';
 import '../../../tasks/presentation/widgets/tasks_table_view.dart';
 import '../../../collaboration/presentation/widgets/universal_share_dialog.dart';
+import '../../../tasks/presentation/controllers/audio_briefing_controller.dart';
 import '../../data/models/project_model.dart';
 
 
@@ -317,6 +318,45 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                           entityId: widget.project.id,
                           entityTitle: widget.project.name,
                           parentEntityIds: [widget.project.areaId],
+                        );
+                      },
+                    ),
+
+                    // زر القراءة الصوتية لمهام المشروع
+                    ListenableBuilder(
+                      listenable: AudioBriefingController.instance,
+                      builder: (context, _) {
+                        final isBriefing = AudioBriefingController.instance.isActive;
+                        final isPlaying = AudioBriefingController.instance.isPlaying;
+                        return IconButton(
+                          icon: Icon(
+                            isPlaying ? Icons.graphic_eq_rounded : Icons.record_voice_over_rounded,
+                            size: 20,
+                            color: isBriefing ? AppColors.primary : null,
+                          ),
+                          tooltip: l10n.readTasksAloud,
+                          onPressed: () {
+                            final controller = AudioBriefingController.instance;
+                            if (controller.isActive) {
+                              controller.stop();
+                            } else {
+                              final pending = widget.projectTasks.where((t) => t.status != 'completed').toList();
+                              if (pending.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(l10n.noTasksToRead),
+                                    duration: const Duration(seconds: 2),
+                                  ),
+                                );
+                                return;
+                              }
+                              controller.startBriefing(
+                                contextTitle: widget.project.name,
+                                tasks: widget.projectTasks,
+                                languageCode: Localizations.localeOf(context).languageCode,
+                              );
+                            }
+                          },
                         );
                       },
                     ),

@@ -1,9 +1,13 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:tasky/core/l10n/localization_x.dart';
+import 'package:tasky/core/services/desktop_widget_controller.dart';
 import 'package:tasky/core/theme/app_colors.dart';
 import 'package:tasky/core/widgets/sync_status_button.dart';
 import 'package:tasky/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:tasky/features/auth/presentation/screens/auth_screen.dart';
+import 'package:tasky/features/tasks/presentation/controllers/audio_briefing_controller.dart';
 
 /// ويدجت شريط الرأس العلوي ومحرك البحث المتجاوب مع أحجام الشاشات المختلفة
 class MainTopHeader extends StatelessWidget {
@@ -23,6 +27,7 @@ class MainTopHeader extends StatelessWidget {
   final ValueChanged<String> onViewModeChanged;
   final VoidCallback onExportCsv;
   final VoidCallback onAddTask;
+  final VoidCallback? onAudioBriefing;
 
   const MainTopHeader({
     super.key,
@@ -42,6 +47,7 @@ class MainTopHeader extends StatelessWidget {
     required this.onViewModeChanged,
     required this.onExportCsv,
     required this.onAddTask,
+    this.onAudioBriefing,
   });
 
   @override
@@ -175,6 +181,25 @@ class MainTopHeader extends StatelessWidget {
                   tooltip: context.l10n.exportCsvTooltip,
                   onPressed: onExportCsv,
                 ),
+                if (onAudioBriefing != null) ...[
+                  const SizedBox(width: 2),
+                  ListenableBuilder(
+                    listenable: AudioBriefingController.instance,
+                    builder: (context, _) {
+                      final isBriefing = AudioBriefingController.instance.isActive;
+                      final isPlaying = AudioBriefingController.instance.isPlaying;
+                      return IconButton(
+                        icon: Icon(
+                          isPlaying ? Icons.graphic_eq_rounded : Icons.record_voice_over_rounded,
+                          size: 20,
+                          color: isBriefing ? AppColors.primary : null,
+                        ),
+                        tooltip: context.l10n.readTasksAloud,
+                        onPressed: onAudioBriefing,
+                      );
+                    },
+                  ),
+                ],
                 const SizedBox(width: 2),
                 SyncStatusButton(
                   onTriggerSync: onSyncRequested,
@@ -289,7 +314,34 @@ class MainTopHeader extends StatelessWidget {
                 tooltip: context.l10n.exportCsvCurrentTooltip,
                 onPressed: onExportCsv,
               ),
+              if (onAudioBriefing != null) ...[
+                const SizedBox(width: 4),
+                ListenableBuilder(
+                  listenable: AudioBriefingController.instance,
+                  builder: (context, _) {
+                    final isBriefing = AudioBriefingController.instance.isActive;
+                    final isPlaying = AudioBriefingController.instance.isPlaying;
+                    return IconButton(
+                      icon: Icon(
+                        isPlaying ? Icons.graphic_eq_rounded : Icons.record_voice_over_rounded,
+                        size: 20,
+                        color: isBriefing ? AppColors.primary : null,
+                      ),
+                      tooltip: context.l10n.readTasksAloud,
+                      onPressed: onAudioBriefing,
+                    );
+                  },
+                ),
+              ],
               const SizedBox(width: 4),
+              if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) ...[
+                IconButton(
+                  icon: const Icon(Icons.picture_in_picture_alt_rounded, size: 20),
+                  tooltip: context.l10n.desktopWidgetMode,
+                  onPressed: () => DesktopWidgetController.instance.enterWidgetMode(),
+                ),
+                const SizedBox(width: 4),
+              ],
               SyncStatusButton(
                 onTriggerSync: onSyncRequested,
                 compact: !isWide,

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/services/home_screen_widget_service.dart';
 import '../../services/recurrence_service.dart';
 import '../../../../core/utils/date_time_utils.dart';
 import '../../data/models/task_model.dart';
@@ -86,6 +87,7 @@ class TasksController extends ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+      HomeScreenWidgetService.instance.updateWidgetTasks(allTasks: _tasks);
     }
   }
 
@@ -121,6 +123,7 @@ class TasksController extends ChangeNotifier {
         return;
       }
     }
+    HomeScreenWidgetService.instance.updateWidgetTasks(allTasks: _tasks);
     notifyListeners();
   }
 

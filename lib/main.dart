@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:tasky/l10n/app_localizations.dart';
+import 'core/services/desktop_widget_controller.dart';
+import 'core/services/home_screen_widget_service.dart';
 import 'core/services/supabase_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/home/presentation/screens/tasky_home_screen.dart';
@@ -23,6 +25,8 @@ Future<void> main() async {
 
   await SupabaseService.initialize();
   await SettingsController.instance.load();
+  await HomeScreenWidgetService.instance.init();
+  await DesktopWidgetController.instance.init();
 
   // ضبط شريط الحالة والنظام ليعمل بسلاسة بدون تداخل على الهواتف
   SystemChrome.setSystemUIOverlayStyle(

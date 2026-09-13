@@ -65,6 +65,15 @@ dependencies:
   url_launcher: ^6.3.2
   flutter_dotenv: ^6.0.1
 
+  # ودجت شاشة الهاتف (Home Screen Widget)
+  home_widget: ^0.9.4
+
+  # إدارة نوافذ الديسكتوب والوضع المصغر (Desktop Window Manager)
+  window_manager: ^0.5.2
+
+  # محرك النطق وقراءة المهام صوتياً (Text-to-Speech)
+  flutter_tts: ^4.2.5
+
 dependency_overrides:
   # نسخة محلية من flutter_timezone (مثبّتة ضمن third_party) بدون أي مرجع
   # إلى Kotlin Gradle Plugin في build.gradle — لإزالة تحذير KGP نهائياً

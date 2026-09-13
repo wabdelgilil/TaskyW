@@ -91,6 +91,52 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPermissionDenied => 'Notification permission was denied';
 
   @override
+  String get settingsTestNotification => 'Instant Test Notification';
+
+  @override
+  String get settingsTestNotificationDesc =>
+      'Send an instant notification to verify alerts on this device';
+
+  @override
+  String get settingsTestNotificationBtn => 'Send Test';
+
+  @override
+  String get settingsTestNotificationSuccess =>
+      'Test notification sent successfully 🔔';
+
+  @override
+  String get settingsTestNotificationFailed =>
+      'Failed to send notification. Please check permissions';
+
+  @override
+  String get desktopWidgetMode => 'Mini Widget Mode';
+
+  @override
+  String get desktopWidgetModeDesc =>
+      'Shrink window to a floating desktop widget';
+
+  @override
+  String get desktopWidgetAlwaysOnTop => 'Always on Top';
+
+  @override
+  String get desktopWidgetExpand => 'Expand to Full App';
+
+  @override
+  String get desktopWidgetQuickAddHint => 'Add a quick task and press Enter...';
+
+  @override
+  String get desktopWidgetFilterToday => 'Today';
+
+  @override
+  String get desktopWidgetFilterAll => 'All';
+
+  @override
+  String get desktopWidgetFilterUrgent => 'Urgent';
+
+  @override
+  String get desktopWidgetEmpty => 'No tasks right now 🎉';
+
+  @override
   String get settingsEnable => 'Enable';
 
   @override
@@ -1761,4 +1807,51 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get authRateLimit =>
       'Please wait a minute before requesting a new link';
+
+  @override
+  String get readTasksAloud => 'Read tasks aloud';
+
+  @override
+  String get readingTasks => 'Reading tasks aloud';
+
+  @override
+  String get noTasksToRead => 'No pending tasks to read in this section';
+
+  @override
+  String audioBriefingIntro(String context, int count) {
+    return 'Tasks summary for $context: you have $count pending tasks.';
+  }
+
+  @override
+  String taskNumberSpoken(int index, String title) {
+    return 'Task number $index: $title';
+  }
+
+  @override
+  String get priorityUrgentSpoken => 'Urgent priority';
+
+  @override
+  String dueDateSpoken(String date) {
+    return 'Due date $date';
+  }
+
+  @override
+  String audioBarTaskProgress(int current, int total) {
+    return 'Task $current of $total';
+  }
+
+  @override
+  String get audioPause => 'Pause';
+
+  @override
+  String get audioResume => 'Resume';
+
+  @override
+  String get audioStop => 'Stop reading';
+
+  @override
+  String get audioNext => 'Next task';
+
+  @override
+  String get audioPrevious => 'Previous task';
 }

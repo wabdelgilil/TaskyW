@@ -52,6 +52,20 @@
   "settingsRequestPermissionDesc": "Confirm notification permission on Android/iOS",
   "settingsPermissionGranted": "Notification permission enabled successfully",
   "settingsPermissionDenied": "Notification permission was denied",
+  "settingsTestNotification": "Instant Test Notification",
+  "settingsTestNotificationDesc": "Send an instant notification to verify alerts on this device",
+  "settingsTestNotificationBtn": "Send Test",
+  "settingsTestNotificationSuccess": "Test notification sent successfully 🔔",
+  "settingsTestNotificationFailed": "Failed to send notification. Please check permissions",
+  "desktopWidgetMode": "Mini Widget Mode",
+  "desktopWidgetModeDesc": "Shrink window to a floating desktop widget",
+  "desktopWidgetAlwaysOnTop": "Always on Top",
+  "desktopWidgetExpand": "Expand to Full App",
+  "desktopWidgetQuickAddHint": "Add a quick task and press Enter...",
+  "desktopWidgetFilterToday": "Today",
+  "desktopWidgetFilterAll": "All",
+  "desktopWidgetFilterUrgent": "Urgent",
+  "desktopWidgetEmpty": "No tasks right now 🎉",
   "settingsEnable": "Enable",
   "settingsLanguage": "App language",
   "settingsLanguageDesc": "Choose the interface language (default: device language)",
@@ -959,5 +973,66 @@
   "authUserAlreadyRegistered": "This email is already registered",
   "authPasswordTooShort": "Password must be at least 6 characters",
   "authInvalidEmail": "Invalid email format",
-  "authRateLimit": "Please wait a minute before requesting a new link"
+  "authRateLimit": "Please wait a minute before requesting a new link",
+  "readTasksAloud": "Read tasks aloud",
+  "readingTasks": "Reading tasks aloud",
+  "noTasksToRead": "No pending tasks to read in this section",
+  "audioBriefingIntro": "Tasks summary for {context}: you have {count} pending tasks.",
+  "@audioBriefingIntro": {
+    "description": "Audio briefing introductory spoken text.",
+    "placeholders": {
+      "context": {
+        "type": "String",
+        "example": "Today"
+      },
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "taskNumberSpoken": "Task number {index}: {title}",
+  "@taskNumberSpoken": {
+    "description": "Spoken text for a task item.",
+    "placeholders": {
+      "index": {
+        "type": "int",
+        "example": "1"
+      },
+      "title": {
+        "type": "String",
+        "example": "Review contract"
+      }
+    }
+  },
+  "priorityUrgentSpoken": "Urgent priority",
+  "dueDateSpoken": "Due date {date}",
+  "@dueDateSpoken": {
+    "description": "Spoken due date.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Today"
+      }
+    }
+  },
+  "audioBarTaskProgress": "Task {current} of {total}",
+  "@audioBarTaskProgress": {
+    "description": "Audio player bar task counter.",
+    "placeholders": {
+      "current": {
+        "type": "int",
+        "example": "2"
+      },
+      "total": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "audioPause": "Pause",
+  "audioResume": "Resume",
+  "audioStop": "Stop reading",
+  "audioNext": "Next task",
+  "audioPrevious": "Previous task"
 }

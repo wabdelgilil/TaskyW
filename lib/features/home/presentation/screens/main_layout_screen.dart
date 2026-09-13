@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/core/services/export_service.dart';
+import 'package:tasky/core/services/home_screen_widget_service.dart';
 import 'package:tasky/features/areas/data/models/area_model.dart';
 import 'package:tasky/features/areas/presentation/widgets/hierarchical_tree_sidebar.dart';
 import 'package:tasky/features/projects/data/models/project_model.dart';
@@ -9,6 +10,8 @@ import 'package:tasky/features/settings/presentation/screens/settings_screen.dar
 import 'package:tasky/features/tags/data/models/tag_model.dart';
 import 'package:tasky/features/tasks/data/models/subtask_model.dart';
 import 'package:tasky/features/tasks/data/models/task_model.dart';
+import 'package:tasky/features/tasks/presentation/controllers/audio_briefing_controller.dart';
+import 'package:tasky/features/tasks/presentation/widgets/audio_briefing_bar.dart';
 import 'package:tasky/features/tasks/presentation/widgets/task_detail_bottom_sheet.dart';
 import 'package:tasky/features/tasks/presentation/widgets/task_detail_drawer.dart';
 import '../widgets/dialogs/add_area_dialog.dart';
@@ -117,9 +120,68 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
+  void initState() {
+    super.initState();
+    HomeScreenWidgetService.instance.widgetActionNotifier.addListener(_handleWidgetAction);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _handleWidgetAction());
+  }
+
+  @override
   void dispose() {
+    HomeScreenWidgetService.instance.widgetActionNotifier.removeListener(_handleWidgetAction);
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _handleWidgetAction() {
+    final uri = HomeScreenWidgetService.instance.widgetActionNotifier.value;
+    if (uri == null || !mounted) return;
+
+    final uriStr = uri.toString();
+    if (uriStr.contains('add_task')) {
+      HomeScreenWidgetService.instance.clearAction();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _showAddTaskDialog();
+      });
+    } else if (uri.queryParameters.containsKey('id')) {
+      final taskId = uri.queryParameters['id'];
+      HomeScreenWidgetService.instance.clearAction();
+      if (taskId != null) {
+        final task = widget.tasks.cast<TaskModel?>().firstWhere(
+              (t) => t?.id == taskId,
+              orElse: () => null,
+            );
+        if (task != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            final isDesktop = MediaQuery.of(context).size.width >= 900;
+            if (isDesktop) {
+              setState(() => _openedTask = task);
+            } else {
+              showTaskDetailBottomSheet(
+                context,
+                task: task,
+                subtasks: widget.subtasks.where((s) => s.taskId == task.id).toList(),
+                areas: widget.areas,
+                projects: widget.projects,
+                availableTags: widget.tags,
+                taskTags: widget.taskTags[task.id] ?? const [],
+                onAssignTag: (tag) => widget.onAssignTag?.call(task, tag),
+                onRemoveTag: (tag) => widget.onRemoveTag?.call(task, tag),
+                onCreateTag: widget.onCreateTag != null
+                    ? (n, c) => widget.onCreateTag!.call(n, c)
+                    : (n, c) {},
+                onSaveTask: widget.onSaveTask?.call ?? (_) {},
+                onDeleteTask: (id) => widget.onDeleteTask?.call(id),
+                onAddSubtask: (title) => widget.onAddSubtask?.call(task.id, title),
+                onToggleSubtask: (sub, done) => widget.onToggleSubtask?.call(sub, done),
+                onDeleteSubtask: (subId) => widget.onDeleteSubtask?.call(subId),
+              );
+            }
+          });
+        }
+      }
+    }
   }
 
   // تصفية المهام حسب السياق النشط
@@ -323,6 +385,29 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
         ),
       ),
     );
+  }
+
+  void _handleAudioBriefing() {
+    final controller = AudioBriefingController.instance;
+    if (controller.isActive) {
+      controller.stop();
+    } else {
+      final pendingTasks = _contextTasks.where((t) => t.status != 'completed').toList();
+      if (pendingTasks.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.l10n.noTasksToRead),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+      controller.startBriefing(
+        contextTitle: _currentContextTitle,
+        tasks: _contextTasks,
+        languageCode: Localizations.localeOf(context).languageCode,
+      );
+    }
   }
 
   @override
@@ -584,6 +669,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
                     onViewModeChanged: (newMode) => setState(() => _viewMode = newMode),
                     onExportCsv: _exportCurrentTasksToCsv,
                     onAddTask: () => _showAddTaskDialog(),
+                    onAudioBriefing: _handleAudioBriefing,
                   ),
 Expanded(
                   child: MainWorkspaceContent(
@@ -674,6 +760,7 @@ Expanded(
                       widget.onSaveTask!(task);
                     },
                   ),
+                  const AudioBriefingBar(),
                 ],
               ),
             ),

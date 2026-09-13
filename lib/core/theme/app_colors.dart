@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 class AppColors {
   // --- هوية العلامة التجارية (TaskyW Brand Identity) ---
   static const Color brandPrimary = Color(0xFF0284C7);  // Vibrant Sky/Tasky Blue
+  static const Color primary = brandPrimary;            // اختصار مريح للون الأساسي
   static const Color brandLight = Color(0xFF38BDF8);    // Arrow Cyan Light
   static const Color brandDeep = Color(0xFF0A4C8A);     // Deep Royal Typography Blue
   static const Color brandDeepDark = Color(0xFF083358); // Midnight Navy

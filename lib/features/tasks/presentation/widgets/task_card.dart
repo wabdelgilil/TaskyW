@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/priority_badge.dart';
 import '../../../../core/widgets/status_badge.dart';
 import '../../data/models/task_model.dart';
+import '../controllers/audio_briefing_controller.dart';
 
 /// كارت عرض المهمة بتصميم عصري وأنيق مع دعم التخصيص اللوني والشارات التفاعلية
 class TaskCard extends StatelessWidget {
@@ -62,76 +63,120 @@ class TaskCard extends StatelessWidget {
         ? AppColors.adaptiveCustomColor(projectColor!, isDark)
         : null;
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      clipBehavior: Clip.antiAlias,
-      elevation: isDark ? 0 : 1,
-      shadowColor: Colors.black.withValues(alpha: 0.08),
-      color: customColor != null
-          ? (isDark ? customColor.withValues(alpha: 0.14) : customColor.withValues(alpha: 0.08))
-          : null,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: customColor != null
-              ? (isDark ? customColor.withValues(alpha: 0.65) : customColor.withValues(alpha: 0.50))
-              : AppColors.border(context),
-          width: customColor != null ? 1.5 : 1,
-        ),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // شريط اللون المخصص الجانبي
-              if (customColor != null)
-                Container(
-                  width: 5,
-                  color: customColor,
-                ),
+    final briefingController = AudioBriefingController.instance;
 
-              // المحتوى الرئيسي
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // صف العنوان وصندوق الاختيار
-                      Row(
+    return ListenableBuilder(
+      listenable: briefingController,
+      builder: (context, _) {
+        final isCurrentlySpoken = briefingController.currentTaskId == task.id;
+
+        return Card(
+          margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+          clipBehavior: Clip.antiAlias,
+          elevation: isCurrentlySpoken ? 3 : (isDark ? 0 : 1),
+          shadowColor: isCurrentlySpoken
+              ? AppColors.primary.withValues(alpha: 0.35)
+              : Colors.black.withValues(alpha: 0.08),
+          color: isCurrentlySpoken
+              ? AppColors.primary.withValues(alpha: isDark ? 0.15 : 0.06)
+              : (customColor != null
+                  ? (isDark ? customColor.withValues(alpha: 0.14) : customColor.withValues(alpha: 0.08))
+                  : null),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(
+              color: isCurrentlySpoken
+                  ? AppColors.primary
+                  : (customColor != null
+                      ? (isDark ? customColor.withValues(alpha: 0.65) : customColor.withValues(alpha: 0.50))
+                      : AppColors.border(context)),
+              width: isCurrentlySpoken ? 2.0 : (customColor != null ? 1.5 : 1),
+            ),
+          ),
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(12),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // شريط اللون المخصص الجانبي
+                  if (customColor != null)
+                    Container(
+                      width: 5,
+                      color: customColor,
+                    ),
+
+                  // المحتوى الرئيسي
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Transform.scale(
-                            scale: 0.9,
-                            child: Checkbox(
-                              value: isCompleted,
-                              activeColor: customColor ?? AppColors.statusCompleted,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                              onChanged: onToggleCompleted,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 8),
-                              child: Text(
-                                task.title,
-                                style: TextStyle(
-                                  fontSize: 14.5,
-                                  fontWeight: FontWeight.w600,
-                                  decoration: isCompleted ? TextDecoration.lineThrough : null,
-                                  color: isCompleted
-                                      ? AppColors.textMuted(context)
-                                      : AppColors.textPrimary(context),
+                          // صف العنوان وصندوق الاختيار
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Transform.scale(
+                                scale: 0.9,
+                                child: Checkbox(
+                                  value: isCompleted,
+                                  activeColor: customColor ?? AppColors.statusCompleted,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                                  onChanged: onToggleCompleted,
                                 ),
                               ),
-                            ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 8),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          task.title,
+                                          style: TextStyle(
+                                            fontSize: 14.5,
+                                            fontWeight: FontWeight.w600,
+                                            decoration: isCompleted ? TextDecoration.lineThrough : null,
+                                            color: isCompleted
+                                                ? AppColors.textMuted(context)
+                                                : AppColors.textPrimary(context),
+                                          ),
+                                        ),
+                                      ),
+                                      if (isCurrentlySpoken) ...[
+                                        const SizedBox(width: 6),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.primary.withValues(alpha: 0.18),
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(Icons.volume_up_rounded, size: 14, color: AppColors.primary),
+                                              const SizedBox(width: 3),
+                                              Text(
+                                                context.l10n.readingTasks,
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: AppColors.primary,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
 
                       // وصف مقتضب إن وجد
                       if (task.description != null && task.description!.trim().isNotEmpty) ...[
@@ -365,6 +410,8 @@ class TaskCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+      },
     );
   }
 }

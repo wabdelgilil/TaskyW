@@ -2,6 +2,44 @@
 
 ## سجل الإنجازات والمهام المكتملة
 
+### [2026-09-13] - ودجت سطح المكتب لنظام ويندوز (Windows Desktop Floating Mini Widget)
+- **ودجت سطح المكتب العصرية الطافية (Floating Desktop Mini Widget)**:
+  - إضافة حزمة `window_manager: ^0.5.2` الرسمية لإدارة مقاسات النافذة وموقعها وتثبيتها.
+  - إنشاء متحكم النافذة `DesktopWidgetController` لإدارة حالة الودجت، والتثبيت الدائم فوق النوافذ (`isAlwaysOnTop`)، وتقليص النافذة إلى مقاس الودجت `380×600` ثم استعادة المقاس والموقع السابقين للنافذة بدقة عند العودة للوضع الكامل.
+  - تهيئة `windowManager` في `main.dart` لمنصة Windows/Desktop.
+  - بناء واجهة الودجت المصغرة `DesktopWidgetView`:
+    - شريط رأس قابل للسحب الحر على سطح المكتب (`DragToMoveArea`).
+    - زر دبوس التثبيت `📌` (Always on top) مع حالة بصرية نشطة.
+    - زر العودة للنافذة الكاملة `🗖`.
+    - فلاتر التبويب السريعة بنقرة واحدة ("اليوم"، "الكل"، "العاجلة") مع عدادات المهام النشطة.
+    - قائمة مهام تفاعلية بمربعات اختيار للإنجاز اللحظي، وشريط أولوية ملون وتفاصيل المشروع وتاريخ الاستحقاق وزر حذف سريع.
+    - شريط إضافة فوري بالأسفل لإضافة مهمة بنقرة واحدة أو بالضغط على Enter.
+  - إضافة زر التحويل إلى وضع الودجت في `MainTopHeader` بجانب أدوات العرض في الديسكتوب.
+  - ربط التبديل التفاعلي في `TaskyHomeScreen` لعرض `DesktopWidgetView` عند تفعيل وضع الودجت.
+  - إضافة النصوص والترجمات الكاملة في `app_ar.arb` و `app_en.arb` وتحديث `flutter gen-l10n`.
+- **الفحص والتحقق**:
+  - `flutter analyze`: **No issues found! (0 errors, 0 warnings)** عبر كامل المشروع.
+
+### [2026-09-13] - ودجت شاشة الهاتف الكبيرة للأندرويد (Large Home Screen Widget) واختبار الإشعارات الفوري
+- **ودجت شاشة الهاتف الكبيرة للأندرويد (Android Large Scrollable Widget)**:
+  - إضافة حزمة `home_widget: ^0.9.4` الرسمية في `pubspec.yaml` لدعم التخزين المشترك وتحديثات النظام.
+  - بناء خدمة `HomeScreenWidgetService` في Dart لمزامنة المهام النشطة بصيغة JSON ومعالجة الروابط العميقة.
+  - ربط تحديث المهام تلقائياً مع دورة حياة المهام في `TasksController` (`loadTasks`, `updateStatus`).
+  - ربط النقر السريع عبر `tasky://add_task` في `MainLayoutScreen` لفتح نافذة `AddTaskDialog` مباشرة عند النقر على زر `(+)`.
+  - دعم النقر على أي مهمة في الودجت لفتح تفاصيلها في التطبيق عبر `tasky://task?id=...`.
+  - إنشاء ملفات الأندرويد الأصلية:
+    - `TaskyWidgetProvider.kt` (فئة إدارة الودجت وتحديث الواجهة والـ PendingIntents).
+    - `TaskyWidgetService.kt` (`RemoteViewsService` + `RemoteViewsFactory` لبناء عناصر `ListView` وقراءة البيانات من الذاكرة المشتركة).
+    - تخطيطات XML: `tasky_widget_layout.xml` (هيدر + عداد + زر إضافة + قائمة مهام + رسالة فارغة)، و `tasky_widget_item.xml` (شريط أولوية لوني + عنوان المهمة + تفاصيل المشروع والتاريخ).
+    - مواصفات الحجم `tasky_widget_info.xml` (4×3 قابل للتكبير أفقياً ورأسياً) وتصاميم الخلفيات في `res/drawable/`.
+    - تحديث `AndroidManifest.xml` بالـ Receiver والـ Service وفلتر الروابط العميقة `tasky://`.
+- **زر اختبار الإشعارات الفوري (Instant Test Notification Button)**:
+  - ترقية `NotificationService` بإضافة `showInstantTestNotification({String? title, String? body})` لدعم التنبيهات الفورية عبر كافة المنصات (Windows, Android, iOS/macOS).
+  - إضافة عنصر تفاعلي مخصص وزر "إرسال تجريبي" تحت قسم الإشعارات في `SettingsScreen`.
+  - إضافة كافة النصوص والرسائل التوضيحية في ملفات الترجمة الرسمية `app_ar.arb` و `app_en.arb` وتحديث `flutter gen-l10n`.
+- **الفحص والتحقق**:
+  - `flutter analyze`: **No issues found! (0 errors, 0 warnings)** عبر كامل المشروع.
+
 ### [2026-09-10] - إصلاح اللغة الفوري ومحرك اختيار العملات الذكي (v3.0.2+1)
 - **إصلاح لغة الواجهة الفوري (Instant Localization Fix)**:
   - إضافة `localeListResolutionCallback` في `MaterialApp` لتوجيه لغة الجهاز تلقائياً إلى العربية عند مطابقة أي لهجة عربية، مع تعيين العربية كافتراضي موثوق بدلاً من الإنجليزية عند اختيار الوضع التلقائي.

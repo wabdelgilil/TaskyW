@@ -12,7 +12,9 @@ import 'package:tasky/features/tags/presentation/controllers/tags_controller.dar
 import 'package:tasky/features/tasks/data/models/subtask_model.dart';
 import 'package:tasky/features/tasks/data/models/task_model.dart';
 import 'package:tasky/features/tasks/data/repositories/subtask_repository_impl.dart';
+import 'package:tasky/core/services/desktop_widget_controller.dart';
 import 'package:tasky/features/tasks/presentation/controllers/tasks_controller.dart';
+import 'desktop_widget_view.dart';
 import 'main_layout_screen.dart';
 
 /// الشاشة الأم الحاضنة التي تربط المتحكمات المركزية (Controllers) بواجهات المستخدم المتطورة
@@ -60,6 +62,7 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
     _areasController.addListener(_onControllerStateChanged);
     _projectsController.addListener(_onControllerStateChanged);
     _tagsController.addListener(_onControllerStateChanged);
+    DesktopWidgetController.instance.addListener(_onControllerStateChanged);
 
     _loadAllData();
   }
@@ -75,6 +78,7 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
     _areasController.removeListener(_onControllerStateChanged);
     _projectsController.removeListener(_onControllerStateChanged);
     _tagsController.removeListener(_onControllerStateChanged);
+    DesktopWidgetController.instance.removeListener(_onControllerStateChanged);
 
     if (widget.tasksController == null) _tasksController.dispose();
     if (widget.areasController == null) _areasController.dispose();
@@ -340,6 +344,18 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
         body: Center(
           child: CircularProgressIndicator(),
         ),
+      );
+    }
+
+    final desktopCtrl = DesktopWidgetController.instance;
+    if (desktopCtrl.isWidgetMode) {
+      return DesktopWidgetView(
+        tasks: _tasksController.tasks,
+        projects: _projectsController.projects,
+        areas: _areasController.areas,
+        onSaveTask: _handleSaveTask,
+        onToggleTaskCompleted: _handleToggleTaskCompleted,
+        onDeleteTask: _handleDeleteTask,
       );
     }
 

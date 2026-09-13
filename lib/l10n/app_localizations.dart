@@ -242,6 +242,90 @@ abstract class AppLocalizations {
   /// **'تم رفض طلب الصلاحية'**
   String get settingsPermissionDenied;
 
+  /// No description provided for @settingsTestNotification.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختبار التنبيهات الفوري'**
+  String get settingsTestNotification;
+
+  /// No description provided for @settingsTestNotificationDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال إشعار فوري للتأكد من عمل التنبيهات على هذا الجهاز'**
+  String get settingsTestNotificationDesc;
+
+  /// No description provided for @settingsTestNotificationBtn.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال تجريبي'**
+  String get settingsTestNotificationBtn;
+
+  /// No description provided for @settingsTestNotificationSuccess.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إرسال الإشعار التجريبي بنجاح 🔔'**
+  String get settingsTestNotificationSuccess;
+
+  /// No description provided for @settingsTestNotificationFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذر إرسال الإشعار، يرجى التحقق من إذن الإشعارات'**
+  String get settingsTestNotificationFailed;
+
+  /// No description provided for @desktopWidgetMode.
+  ///
+  /// In ar, this message translates to:
+  /// **'الوضع المصغر (ودجت سطح المكتب)'**
+  String get desktopWidgetMode;
+
+  /// No description provided for @desktopWidgetModeDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'تقليص النافذة إلى ودجت طافية على سطح المكتب'**
+  String get desktopWidgetModeDesc;
+
+  /// No description provided for @desktopWidgetAlwaysOnTop.
+  ///
+  /// In ar, this message translates to:
+  /// **'تثبيت فوق النوافذ'**
+  String get desktopWidgetAlwaysOnTop;
+
+  /// No description provided for @desktopWidgetExpand.
+  ///
+  /// In ar, this message translates to:
+  /// **'العودة للنافذة الكاملة'**
+  String get desktopWidgetExpand;
+
+  /// No description provided for @desktopWidgetQuickAddHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'أضف مهمة سريعة واضغط Enter...'**
+  String get desktopWidgetQuickAddHint;
+
+  /// No description provided for @desktopWidgetFilterToday.
+  ///
+  /// In ar, this message translates to:
+  /// **'اليوم'**
+  String get desktopWidgetFilterToday;
+
+  /// No description provided for @desktopWidgetFilterAll.
+  ///
+  /// In ar, this message translates to:
+  /// **'الكل'**
+  String get desktopWidgetFilterAll;
+
+  /// No description provided for @desktopWidgetFilterUrgent.
+  ///
+  /// In ar, this message translates to:
+  /// **'العاجلة'**
+  String get desktopWidgetFilterUrgent;
+
+  /// No description provided for @desktopWidgetEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد مهام نشطة حالياً 🎉'**
+  String get desktopWidgetEmpty;
+
   /// No description provided for @settingsEnable.
   ///
   /// In ar, this message translates to:
@@ -3301,6 +3385,84 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'يرجى الانتظار دقيقة قبل طلب إرسال رابط جديد'**
   String get authRateLimit;
+
+  /// No description provided for @readTasksAloud.
+  ///
+  /// In ar, this message translates to:
+  /// **'قراءة المهام صوتياً'**
+  String get readTasksAloud;
+
+  /// No description provided for @readingTasks.
+  ///
+  /// In ar, this message translates to:
+  /// **'جارٍ القراءة الصوتية'**
+  String get readingTasks;
+
+  /// No description provided for @noTasksToRead.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد مهام نشطة للقراءة في هذا القسم'**
+  String get noTasksToRead;
+
+  /// مقدمة القراءة الصوتية للمهام.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملخص مهام {context}: لديك {count} مهام متبقية.'**
+  String audioBriefingIntro(String context, int count);
+
+  /// نص نطق المهمة.
+  ///
+  /// In ar, this message translates to:
+  /// **'المهمة رقم {index}: {title}'**
+  String taskNumberSpoken(int index, String title);
+
+  /// No description provided for @priorityUrgentSpoken.
+  ///
+  /// In ar, this message translates to:
+  /// **'أولوية عاجلة'**
+  String get priorityUrgentSpoken;
+
+  /// تاريخ الاستحقاق المنطوق.
+  ///
+  /// In ar, this message translates to:
+  /// **'تاريخ الاستحقاق {date}'**
+  String dueDateSpoken(String date);
+
+  /// عداد شريط القراءة الصوتية.
+  ///
+  /// In ar, this message translates to:
+  /// **'المهمة {current} من {total}'**
+  String audioBarTaskProgress(int current, int total);
+
+  /// No description provided for @audioPause.
+  ///
+  /// In ar, this message translates to:
+  /// **'إيقاف مؤقت'**
+  String get audioPause;
+
+  /// No description provided for @audioResume.
+  ///
+  /// In ar, this message translates to:
+  /// **'استئناف'**
+  String get audioResume;
+
+  /// No description provided for @audioStop.
+  ///
+  /// In ar, this message translates to:
+  /// **'إيقاف القراءة'**
+  String get audioStop;
+
+  /// No description provided for @audioNext.
+  ///
+  /// In ar, this message translates to:
+  /// **'المهمة التالية'**
+  String get audioNext;
+
+  /// No description provided for @audioPrevious.
+  ///
+  /// In ar, this message translates to:
+  /// **'المهمة السابقة'**
+  String get audioPrevious;
 }
 
 class _AppLocalizationsDelegate
