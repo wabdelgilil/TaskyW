@@ -811,17 +811,14 @@ Expanded(
                   if (idx == 0) {
                     _activeFilter = 'today';
                   } else if (idx == 2) {
-                    _activeFilter = 'all';
+                    _showNotes = true;
                   } else if (idx == 3) {
                     _showFinance = true;
-                    _showNotes = false;
-                    _showArchive = false;
-                    _showTrash = false;
                   }
                   _selectedAreaId = null;
                   _selectedProjectId = null;
                   _selectedTagId = null;
-                  if (idx != 3) {
+                  if (idx != 2 && idx != 3) {
                     _showNotes = false;
                     _showFinance = false;
                     _showArchive = false;
