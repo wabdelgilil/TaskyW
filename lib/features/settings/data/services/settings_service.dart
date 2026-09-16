@@ -20,6 +20,9 @@ class SettingsService {
   static const String _keyLanguageCode = 'settings.language_code';
   static const String _keyLayoutDirection = 'settings.layout_direction';
   static const String _keyTaskCardDensity = 'settings.task_card_density';
+  static const String _keyGeminiApiKey = 'settings.gemini_api_key';
+  static const String _keyAiEnabled = 'settings.ai_enabled';
+  static const String _keyAiModel = 'settings.ai_model';
 
   static const String _dbRowId = 'default';
 
@@ -34,7 +37,8 @@ class SettingsService {
         prefs.containsKey(_keyThemeMode) ||
         prefs.containsKey(_keyLanguageCode) ||
         prefs.containsKey(_keyLayoutDirection) ||
-        prefs.containsKey(_keyTaskCardDensity);
+        prefs.containsKey(_keyTaskCardDensity) ||
+        prefs.containsKey(_keyGeminiApiKey);
     if (hasPrefs) {
       final model = _fromPrefs(prefs);
       // عكسها إلى قاعدة SQLite لتحضيرها للمزامنة السحابية.
@@ -67,6 +71,9 @@ class SettingsService {
     await prefs.remove(_keyLanguageCode);
     await prefs.remove(_keyLayoutDirection);
     await prefs.remove(_keyTaskCardDensity);
+    await prefs.remove(_keyGeminiApiKey);
+    await prefs.remove(_keyAiEnabled);
+    await prefs.remove(_keyAiModel);
 
     try {
       final db = await AppDatabase.instance.database;
@@ -92,6 +99,13 @@ class SettingsService {
     await prefs.setString(_keyLanguageCode, model.languageCode);
     await prefs.setString(_keyLayoutDirection, model.layoutDirection);
     await prefs.setString(_keyTaskCardDensity, model.taskCardDensity);
+    if (model.geminiApiKey != null) {
+      await prefs.setString(_keyGeminiApiKey, model.geminiApiKey!);
+    } else {
+      await prefs.remove(_keyGeminiApiKey);
+    }
+    await prefs.setBool(_keyAiEnabled, model.aiEnabled);
+    await prefs.setString(_keyAiModel, model.aiModel);
   }
 
   AppSettingsModel _fromPrefs(SharedPreferences prefs) {
@@ -104,6 +118,9 @@ class SettingsService {
       languageCode: prefs.getString(_keyLanguageCode) ?? 'system',
       layoutDirection: prefs.getString(_keyLayoutDirection) ?? 'ltr',
       taskCardDensity: prefs.getString(_keyTaskCardDensity) ?? 'comfortable',
+      geminiApiKey: prefs.getString(_keyGeminiApiKey),
+      aiEnabled: prefs.getBool(_keyAiEnabled) ?? true,
+      aiModel: prefs.getString(_keyAiModel) ?? 'gemini-2.0-flash',
     );
   }
 

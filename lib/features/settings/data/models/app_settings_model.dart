@@ -30,6 +30,15 @@ class AppSettingsModel {
   /// كثافة كروت المهام: comfortable (مريح، افتراضي) أو compact (مضغوط).
   final String taskCardDensity;
 
+  /// مفتاح Google Gemini API الخاص بالمستخدم (BYOK).
+  final String? geminiApiKey;
+
+  /// تفعيل أو تعطيل مساعد الذكاء الاصطناعي.
+  final bool aiEnabled;
+
+  /// نموذج الذكاء الاصطناعي الافتراضي.
+  final String aiModel;
+
   const AppSettingsModel({
     this.notificationsEnabled = true,
     this.defaultReminderMinutes = 15,
@@ -39,6 +48,9 @@ class AppSettingsModel {
     this.languageCode = 'system',
     this.layoutDirection = 'ltr',
     this.taskCardDensity = 'comfortable',
+    this.geminiApiKey,
+    this.aiEnabled = true,
+    this.aiModel = 'gemini-2.0-flash',
   });
 
   AppSettingsModel copyWith({
@@ -50,6 +62,10 @@ class AppSettingsModel {
     String? languageCode,
     String? layoutDirection,
     String? taskCardDensity,
+    String? geminiApiKey,
+    bool clearGeminiApiKey = false,
+    bool? aiEnabled,
+    String? aiModel,
   }) {
     return AppSettingsModel(
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
@@ -61,6 +77,9 @@ class AppSettingsModel {
       languageCode: languageCode ?? this.languageCode,
       layoutDirection: layoutDirection ?? this.layoutDirection,
       taskCardDensity: taskCardDensity ?? this.taskCardDensity,
+      geminiApiKey: clearGeminiApiKey ? null : (geminiApiKey ?? this.geminiApiKey),
+      aiEnabled: aiEnabled ?? this.aiEnabled,
+      aiModel: aiModel ?? this.aiModel,
     );
   }
 

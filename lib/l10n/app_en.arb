@@ -34,6 +34,7 @@
   "sectionLanguage": "Language & Region",
   "sectionFinance": "Finance & Currencies",
   "sectionAppearance": "Appearance & Theme",
+  "sectionAiAssistant": "AI & Voice Assistant",
   "sectionData": "App Data",
   "settingsNotifications": "App Notifications",
   "settingsNotificationsDesc": "Turn all local notifications (task reminders) on or off",

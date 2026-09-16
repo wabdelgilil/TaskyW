@@ -59,6 +59,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sectionAppearance => 'Appearance & Theme';
 
   @override
+  String get sectionAiAssistant => 'AI & Voice Assistant';
+
+  @override
   String get sectionData => 'App Data';
 
   @override

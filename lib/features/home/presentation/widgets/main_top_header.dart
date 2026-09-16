@@ -8,6 +8,8 @@ import 'package:tasky/core/widgets/sync_status_button.dart';
 import 'package:tasky/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:tasky/features/auth/presentation/screens/auth_screen.dart';
 import 'package:tasky/features/tasks/presentation/controllers/audio_briefing_controller.dart';
+import 'package:tasky/features/ai_assistant/presentation/widgets/ai_voice_assistant_sheet.dart';
+import 'package:tasky/features/settings/presentation/controllers/settings_controller.dart';
 
 /// ويدجت شريط الرأس العلوي ومحرك البحث المتجاوب مع أحجام الشاشات المختلفة
 class MainTopHeader extends StatelessWidget {
@@ -125,7 +127,7 @@ class MainTopHeader extends StatelessWidget {
           );
         }
 
-        // 2. الهيدر المدمج لشاشات الموبايل (< 600px)
+        // 2. الهيدر العادي للموبايل (Mobile Normal Header)
         if (isMobile) {
           return Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -219,6 +221,21 @@ class MainTopHeader extends StatelessWidget {
                             },
                           ),
                         ],
+                        if (SettingsController.instance.aiEnabled) ...[
+                          const SizedBox(width: 2),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.auto_awesome_rounded,
+                              size: 20,
+                              color: Color(0xFF6366F1),
+                            ),
+                            tooltip: 'المساعد الصوتي الذكي (Tasky AI)',
+                            visualDensity: VisualDensity.compact,
+                            padding: const EdgeInsets.all(6),
+                            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                            onPressed: () => AiVoiceAssistantSheet.show(context),
+                          ),
+                        ],
                         const SizedBox(width: 2),
                         SyncStatusButton(
                           onTriggerSync: onSyncRequested,
@@ -236,6 +253,7 @@ class MainTopHeader extends StatelessWidget {
         }
 
         // 3. الهيدر للتابلت والشاشات الكبيرة (Desktop & Tablet)
+        final bool isExtraWide = screenWidth >= 1150;
         final bool isWide = screenWidth >= 800;
         final bool isMedium = screenWidth >= 550;
 
@@ -252,7 +270,7 @@ class MainTopHeader extends StatelessWidget {
                   ),
                 ),
               Expanded(
-                flex: isWide ? 2 : 3,
+                flex: isExtraWide ? 2 : 1,
                 child: Text(
                   currentContextTitle,
                   style: TextStyle(fontSize: isWide ? 18 : 15, fontWeight: FontWeight.bold),
@@ -261,7 +279,7 @@ class MainTopHeader extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Expanded(
-                flex: isWide ? 3 : 4,
+                flex: isExtraWide ? 3 : 2,
                 child: TextField(
                   controller: searchController,
                   decoration: InputDecoration(
@@ -356,6 +374,18 @@ class MainTopHeader extends StatelessWidget {
                   },
                 ),
               ],
+              if (SettingsController.instance.aiEnabled) ...[
+                const SizedBox(width: 4),
+                IconButton(
+                  icon: const Icon(
+                    Icons.auto_awesome_rounded,
+                    size: 20,
+                    color: Color(0xFF6366F1),
+                  ),
+                  tooltip: 'المساعد الصوتي الذكي (Tasky AI)',
+                  onPressed: () => AiVoiceAssistantSheet.show(context),
+                ),
+              ],
               const SizedBox(width: 4),
               if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) ...[
                 IconButton(
@@ -370,7 +400,7 @@ class MainTopHeader extends StatelessWidget {
                 compact: !isWide,
               ),
               const SizedBox(width: 6),
-              if (isWide)
+              if (isExtraWide)
                 ElevatedButton.icon(
                   onPressed: onAddTask,
                   icon: const Icon(Icons.add, size: 18),
@@ -383,7 +413,7 @@ class MainTopHeader extends StatelessWidget {
                   tooltip: context.l10n.newTask,
                 ),
               const SizedBox(width: 6),
-              _buildAuthButton(context, isCompact: !isWide),
+              _buildAuthButton(context, isCompact: !isExtraWide),
             ],
           ),
         );

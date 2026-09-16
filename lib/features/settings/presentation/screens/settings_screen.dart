@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/core/theme/app_colors.dart';
 import 'package:tasky/features/settings/presentation/controllers/settings_controller.dart';
@@ -191,6 +193,15 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(height: 16),
+
+              // ===== قسم الذكاء الاصطناعي والمساعد الصوتي =====
+              _SectionHeader(
+                title: l10n.sectionAiAssistant,
+                icon: Icons.auto_awesome_rounded,
+                color: const Color(0xFF6366F1),
+              ),
+              const _AiSettingsCard(),
               const SizedBox(height: 16),
 
               // ===== قسم المالية والعملات =====
@@ -454,6 +465,303 @@ class _ChoiceCard extends StatelessWidget {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// بطاقة إعدادات الذكاء الاصطناعي والمفتاح الشخصي (BYOK)
+class _AiSettingsCard extends StatefulWidget {
+  const _AiSettingsCard();
+
+  @override
+  State<_AiSettingsCard> createState() => _AiSettingsCardState();
+}
+
+class _AiSettingsCardState extends State<_AiSettingsCard> {
+  late TextEditingController _keyController;
+  bool _obscureKey = true;
+  bool _isTesting = false;
+  String? _testMessage;
+  bool? _testSuccess;
+
+  @override
+  void initState() {
+    super.initState();
+    _keyController = TextEditingController(
+      text: SettingsController.instance.geminiApiKey ?? '',
+    );
+  }
+
+  @override
+  void dispose() {
+    _keyController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _testKey() async {
+    final keyToTest = _keyController.text.trim();
+    if (keyToTest.isEmpty) {
+      setState(() {
+        _testSuccess = false;
+        _testMessage = 'يرجى إدخال مفتاح الـ API أولاً.';
+      });
+      return;
+    }
+
+    setState(() {
+      _isTesting = true;
+      _testMessage = null;
+      _testSuccess = null;
+    });
+
+    final success = await SettingsController.instance.testGeminiApiKey(keyToTest);
+
+    if (!mounted) return;
+    setState(() {
+      _isTesting = false;
+      _testSuccess = success;
+      _testMessage = success
+          ? 'تم التحقق بنجاح! المفتاح يعمل وجاهز للاستخدام 🚀'
+          : 'فشل التحقق: يرجى التأكد من صحة المفتاح واتصال الإنترنت.';
+    });
+
+    if (success) {
+      await SettingsController.instance.setGeminiApiKey(keyToTest);
+    }
+  }
+
+  Future<void> _pasteFromClipboard() async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    if (data?.text != null && data!.text!.isNotEmpty) {
+      setState(() {
+        _keyController.text = data.text!.trim();
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = SettingsController.instance;
+    final hasKey = settings.hasValidAiKey;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // نبذة توضيحية
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6366F1).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.psychology_rounded,
+                    color: Color(0xFF6366F1),
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'نموذج Google Gemini (BYOK)',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'يعمل المساعد الصوتي بمفتاحك الشخصي المجاني للحفاظ على خصوصية بياناتك وتوفير استخدام غير محدود بدون قيود.',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // زر الحصول على المفتاح مجاناً
+            OutlinedButton.icon(
+              icon: const Icon(Icons.open_in_new, size: 16),
+              label: const Text('الحصول على مفتاح مجاني من Google AI Studio'),
+              onPressed: () {
+                launchUrl(
+                  Uri.parse('https://aistudio.google.com/app/apikey'),
+                  mode: LaunchMode.externalApplication,
+                );
+              },
+            ),
+            const Divider(height: 24),
+
+            // حالة المفتاح الحالية
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(
+                hasKey ? Icons.check_circle_rounded : Icons.warning_amber_rounded,
+                color: hasKey ? Colors.green : Colors.orange,
+              ),
+              title: Text(
+                hasKey ? 'المفتاح مسجل ومجهز' : 'لم يتم تسجيل المفتاح بعد',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
+              ),
+              subtitle: Text(
+                hasKey
+                    ? 'المساعد الصوتي والإدخال الذكي مفعّلان وجاهزان'
+                    : 'سجل مفتاحك بالأسفل لتفعيل المساعد الذكي',
+                style: const TextStyle(fontSize: 11.5),
+              ),
+              trailing: hasKey
+                  ? TextButton(
+                      onPressed: () async {
+                        await settings.clearGeminiApiKey();
+                        _keyController.clear();
+                        setState(() {
+                          _testMessage = null;
+                          _testSuccess = null;
+                        });
+                      },
+                      child: const Text('مسح المفتاح', style: TextStyle(color: Colors.red)),
+                    )
+                  : null,
+            ),
+            const SizedBox(height: 8),
+
+            // حقل إدخال المفتاح
+            TextField(
+              controller: _keyController,
+              obscureText: _obscureKey,
+              decoration: InputDecoration(
+                labelText: 'Google Gemini API Key',
+                hintText: 'ألصق المفتاح هنا (AIzaSy...)',
+                isDense: true,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                prefixIcon: const Icon(Icons.key_rounded, size: 20),
+                suffixIcon: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.content_paste_rounded, size: 20),
+                      tooltip: 'لصق من الحافظة',
+                      onPressed: _pasteFromClipboard,
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        _obscureKey ? Icons.visibility_off : Icons.visibility,
+                        size: 20,
+                      ),
+                      tooltip: _obscureKey ? 'إظهار المفتاح' : 'إخفاء المفتاح',
+                      onPressed: () {
+                        setState(() => _obscureKey = !_obscureKey);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // أزرار الحفظ والاختبار
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    icon: const Icon(Icons.save_rounded, size: 16),
+                    label: const Text('حفظ المفتاح'),
+                    onPressed: () async {
+                      final key = _keyController.text.trim();
+                      if (key.isNotEmpty) {
+                        await settings.setGeminiApiKey(key);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('تم حفظ مفتاح Gemini بنجاح ✓'),
+                              backgroundColor: Colors.green,
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        }
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    icon: _isTesting
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.bolt_rounded, size: 18),
+                    label: const Text('اختبار الاتصال'),
+                    onPressed: _isTesting ? null : _testKey,
+                  ),
+                ),
+              ],
+            ),
+
+            // نتيجة الاختبار
+            if (_testMessage != null) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: (_testSuccess == true ? Colors.green : Colors.red)
+                      .withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: (_testSuccess == true ? Colors.green : Colors.red)
+                        .withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      _testSuccess == true ? Icons.check_circle : Icons.cancel,
+                      size: 18,
+                      color: _testSuccess == true ? Colors.green : Colors.red,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _testMessage!,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: _testSuccess == true ? Colors.green : Colors.red,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
+            const Divider(height: 24),
+
+            // مفتاح تفعيل/تعطيل المساعد
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('تفعيل مساعد الذكاء الاصطناعي'),
+              subtitle: const Text('إظهار زر المساعد الصوتي في الواجهات العلوية والسريعة'),
+              trailing: Switch(
+                value: settings.aiEnabled,
+                onChanged: (val) => settings.setAiEnabled(val),
+              ),
+            ),
+          ],
         ),
       ),
     );

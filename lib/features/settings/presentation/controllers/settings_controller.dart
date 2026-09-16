@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:tasky/core/services/sync_service.dart';
 import 'package:tasky/core/theme/app_theme.dart';
 import 'package:tasky/features/settings/data/models/app_settings_model.dart';
@@ -30,6 +31,13 @@ class SettingsController extends ChangeNotifier {
   String get defaultViewMode => _settings.defaultViewMode;
   String get themeMode => _settings.themeMode;
   String get languageCode => _settings.languageCode;
+
+  // إعدادات الذكاء الاصطناعي (BYOK)
+  String? get geminiApiKey => _settings.geminiApiKey;
+  bool get aiEnabled => _settings.aiEnabled;
+  String get aiModel => _settings.aiModel;
+  bool get hasValidAiKey =>
+      _settings.geminiApiKey != null && _settings.geminiApiKey!.trim().isNotEmpty;
 
   /// اتجاه تخطيط الواجهة: ltr (سايد بار يسار دائماً) أو auto (يتبع اللغة).
   String get layoutDirection => _settings.layoutDirection;
@@ -148,7 +156,7 @@ class SettingsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// تغيير كثافة كروت المهام (comfortable / compact).
+/// تغيير كثافة كروت المهام (comfortable / compact).
   Future<void> setTaskCardDensity(String density) async {
     if (!AppSettingsModel.supportedTaskCardDensities.contains(density)) {
       return;
@@ -163,6 +171,56 @@ class SettingsController extends ChangeNotifier {
   Future<void> toggleTaskCardDensity() async {
     final nextDensity = isCompactCards ? 'comfortable' : 'compact';
     await setTaskCardDensity(nextDensity);
+  }
+
+  // ─── دوال الذكاء الاصطناعي والمفتاح الشخصي (BYOK) ───────────────────────
+
+  /// تعيين مفتاح Google Gemini API وحفظه.
+  Future<void> setGeminiApiKey(String key) async {
+    final trimmed = key.trim();
+    _settings = _settings.copyWith(geminiApiKey: trimmed.isEmpty ? null : trimmed);
+    await _service.save(_settings);
+    notifyListeners();
+  }
+
+  /// مسح مفتاح الذكاء الاصطناعي.
+  Future<void> clearGeminiApiKey() async {
+    _settings = _settings.copyWith(clearGeminiApiKey: true);
+    await _service.save(_settings);
+    notifyListeners();
+  }
+
+  /// تفعيل أو تعطيل مساعد الذكاء الاصطناعي.
+  Future<void> setAiEnabled(bool enabled) async {
+    _settings = _settings.copyWith(aiEnabled: enabled);
+    await _service.save(_settings);
+    notifyListeners();
+  }
+
+  /// تعيين نموذج الذكاء الاصطناعي.
+  Future<void> setAiModel(String model) async {
+    _settings = _settings.copyWith(aiModel: model);
+    await _service.save(_settings);
+    notifyListeners();
+  }
+
+  /// اختبار اتصال مفتاح الـ API والتحقق من صلاحيته فورياً.
+  Future<bool> testGeminiApiKey(String apiKey) async {
+    try {
+      final key = apiKey.trim();
+      if (key.isEmpty) return false;
+      final model = GenerativeModel(
+        model: _settings.aiModel,
+        apiKey: key,
+      );
+      final response = await model.generateContent([
+        Content.text('Hello, respond with OK'),
+      ]);
+      return response.text != null && response.text!.isNotEmpty;
+    } catch (e) {
+      debugPrint('[SettingsController] testGeminiApiKey failed: $e');
+      return false;
+    }
   }
 
   /// استرجاع الوضع الحالي للثيم بصيغة نصية متوافقة مع الافتراضيات.

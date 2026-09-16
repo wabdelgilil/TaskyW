@@ -188,6 +188,12 @@ abstract class AppLocalizations {
   /// **'المظهر والثيم'**
   String get sectionAppearance;
 
+  /// No description provided for @sectionAiAssistant.
+  ///
+  /// In ar, this message translates to:
+  /// **'الذكاء الاصطناعي والمساعد الصوتي'**
+  String get sectionAiAssistant;
+
   /// No description provided for @sectionData.
   ///
   /// In ar, this message translates to:

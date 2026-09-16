@@ -59,6 +59,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sectionAppearance => 'المظهر والثيم';
 
   @override
+  String get sectionAiAssistant => 'الذكاء الاصطناعي والمساعد الصوتي';
+
+  @override
   String get sectionData => 'بيانات التطبيق';
 
   @override
