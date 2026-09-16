@@ -7,6 +7,9 @@ import 'package:tasky/core/theme/app_colors.dart';
 import 'package:tasky/core/widgets/sync_status_button.dart';
 import 'package:tasky/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:tasky/features/auth/presentation/screens/auth_screen.dart';
+import 'package:tasky/features/areas/data/models/area_model.dart';
+import 'package:tasky/features/projects/data/models/project_model.dart';
+import 'package:tasky/features/tasks/data/models/task_model.dart';
 import 'package:tasky/features/tasks/presentation/controllers/audio_briefing_controller.dart';
 import 'package:tasky/features/ai_assistant/presentation/widgets/ai_voice_assistant_sheet.dart';
 import 'package:tasky/features/settings/presentation/controllers/settings_controller.dart';
@@ -30,6 +33,10 @@ class MainTopHeader extends StatelessWidget {
   final VoidCallback onExportCsv;
   final VoidCallback onAddTask;
   final VoidCallback? onAudioBriefing;
+  final List<ProjectModel> projects;
+  final List<AreaModel> areas;
+  final List<TaskModel> tasks;
+  final Function(TaskModel)? onSaveTask;
 
   const MainTopHeader({
     super.key,
@@ -50,6 +57,10 @@ class MainTopHeader extends StatelessWidget {
     required this.onExportCsv,
     required this.onAddTask,
     this.onAudioBriefing,
+    this.projects = const [],
+    this.areas = const [],
+    this.tasks = const [],
+    this.onSaveTask,
   });
 
   @override
@@ -233,7 +244,13 @@ class MainTopHeader extends StatelessWidget {
                             visualDensity: VisualDensity.compact,
                             padding: const EdgeInsets.all(6),
                             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                            onPressed: () => AiVoiceAssistantSheet.show(context),
+                            onPressed: () => AiVoiceAssistantSheet.show(
+                              context,
+                              projects: projects,
+                              areas: areas,
+                              tasks: tasks,
+                              onSaveTask: onSaveTask,
+                            ),
                           ),
                         ],
                         const SizedBox(width: 2),
@@ -383,7 +400,13 @@ class MainTopHeader extends StatelessWidget {
                     color: Color(0xFF6366F1),
                   ),
                   tooltip: 'المساعد الصوتي الذكي (Tasky AI)',
-                  onPressed: () => AiVoiceAssistantSheet.show(context),
+                  onPressed: () => AiVoiceAssistantSheet.show(
+                    context,
+                    projects: projects,
+                    areas: areas,
+                    tasks: tasks,
+                    onSaveTask: onSaveTask,
+                  ),
                 ),
               ],
               const SizedBox(width: 4),

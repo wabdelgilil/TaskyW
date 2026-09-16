@@ -5,7 +5,7 @@ class AppVersion {
   AppVersion._();
 
   /// إصدار التطبيق المعروض في الواجهات (شاشة البروفايل/الإعدادات وحول التطبيق).
-  static const String version = '3.3.1+1';
+  static const String version = '3.3.1+2';
 
   /// رقم الإصدار القرائي (بدون رقم البناء) للعرض المُبسّط.
   static const String shortVersion = '3.3.1';

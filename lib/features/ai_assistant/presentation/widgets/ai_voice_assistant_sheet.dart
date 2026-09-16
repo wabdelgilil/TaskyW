@@ -1,25 +1,46 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:tasky/core/theme/app_colors.dart';
-import 'package:tasky/features/areas/presentation/controllers/areas_controller.dart';
-import 'package:tasky/features/projects/presentation/controllers/projects_controller.dart';
+import 'package:tasky/features/areas/data/models/area_model.dart';
+import 'package:tasky/features/projects/data/models/project_model.dart';
 import 'package:tasky/features/settings/presentation/controllers/settings_controller.dart';
 import 'package:tasky/features/settings/presentation/screens/settings_screen.dart';
-import 'package:tasky/features/tasks/presentation/controllers/tasks_controller.dart';
+import 'package:tasky/features/tasks/data/models/task_model.dart';
 import '../controllers/ai_assistant_controller.dart';
 
 /// نافذة المساعد الصوتي والذكاء الاصطناعي التفاعلية لـ TaskyW
 class AiVoiceAssistantSheet extends StatefulWidget {
-  const AiVoiceAssistantSheet({super.key});
+  final List<ProjectModel> projects;
+  final List<AreaModel> areas;
+  final List<TaskModel> tasks;
+  final Function(TaskModel)? onSaveTask;
 
-  static Future<void> show(BuildContext context) {
+  const AiVoiceAssistantSheet({
+    super.key,
+    this.projects = const [],
+    this.areas = const [],
+    this.tasks = const [],
+    this.onSaveTask,
+  });
+
+  static Future<void> show(
+    BuildContext context, {
+    List<ProjectModel>? projects,
+    List<AreaModel>? areas,
+    List<TaskModel>? tasks,
+    Function(TaskModel)? onSaveTask,
+  }) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => const AiVoiceAssistantSheet(),
+      builder: (ctx) => AiVoiceAssistantSheet(
+        projects: projects ?? const [],
+        areas: areas ?? const [],
+        tasks: tasks ?? const [],
+        onSaveTask: onSaveTask,
+      ),
     );
   }
 
@@ -51,30 +72,26 @@ class _AiVoiceAssistantSheetState extends State<AiVoiceAssistantSheet>
   void _sendText(BuildContext context, String text) {
     if (text.trim().isEmpty) return;
     final aiController = AiAssistantController.instance;
-    final tasksController = context.read<TasksController>();
-    final projects = context.read<ProjectsController>().projects;
-    final areas = context.read<AreasController>().areas;
 
     aiController.processTextCommand(
       text,
-      tasksController: tasksController,
-      projects: projects,
-      areas: areas,
+      projects: widget.projects,
+      areas: widget.areas,
+      tasks: widget.tasks,
+      onSaveTask: widget.onSaveTask,
     );
     _textController.clear();
   }
 
   void _toggleRecording(BuildContext context) async {
     final aiController = AiAssistantController.instance;
-    final tasksController = context.read<TasksController>();
-    final projects = context.read<ProjectsController>().projects;
-    final areas = context.read<AreasController>().areas;
 
     if (aiController.isRecording) {
       await aiController.stopAndProcessRecording(
-        tasksController: tasksController,
-        projects: projects,
-        areas: areas,
+        projects: widget.projects,
+        areas: widget.areas,
+        tasks: widget.tasks,
+        onSaveTask: widget.onSaveTask,
       );
     } else {
       await aiController.startRecording();

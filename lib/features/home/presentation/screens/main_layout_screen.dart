@@ -676,6 +676,10 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
                     onExportCsv: _exportCurrentTasksToCsv,
                     onAddTask: () => _showAddTaskDialog(),
                     onAudioBriefing: _handleAudioBriefing,
+                    projects: widget.projects,
+                    areas: widget.areas,
+                    tasks: widget.tasks,
+                    onSaveTask: widget.onSaveTask,
                   ),
 Expanded(
                   child: MainWorkspaceContent(

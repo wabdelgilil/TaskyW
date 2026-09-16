@@ -1,17 +1,16 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:uuid/uuid.dart';
 
+import 'package:tasky/core/utils/date_time_utils.dart';
 import 'package:tasky/features/areas/data/models/area_model.dart';
 import 'package:tasky/features/projects/data/models/project_model.dart';
 import 'package:tasky/features/settings/presentation/controllers/settings_controller.dart';
 import 'package:tasky/features/tasks/data/models/task_model.dart';
+import 'package:tasky/features/tasks/data/repositories/task_repository_impl.dart';
 import 'package:tasky/features/tasks/presentation/controllers/audio_briefing_controller.dart';
-import 'package:tasky/features/tasks/presentation/controllers/tasks_controller.dart';
 import '../../data/models/ai_intent_model.dart';
 import '../../data/services/gemini_voice_service.dart';
 
@@ -41,7 +40,9 @@ class AiAssistantController extends ChangeNotifier {
   String? _errorMessage;
   AiIntentResult? _lastResult;
   TaskModel? _createdTask;
-  String? _currentRecordingPath;
+
+  final List<int> _recordedChunks = [];
+  StreamSubscription<Uint8List>? _recordSub;
 
   AiAssistantState get state => _state;
   String? get statusMessage => _statusMessage;
@@ -72,9 +73,9 @@ class AiAssistantController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ─── تسجيل الصوت والأوامر الصوتية ────────────────────────────────────────
+  // ─── تسجيل الصوت والأوامر الصوتية (Cross-Platform In-Memory) ───────────
 
-  /// بدء تسجيل الصوت
+  /// بدء تسجيل الصوت عبر Stream مباشر في الذاكرة (يدعم Web وكل الأنظمة)
   Future<bool> startRecording() async {
     try {
       if (!SettingsController.instance.hasValidAiKey) {
@@ -92,17 +93,18 @@ class AiAssistantController extends ChangeNotifier {
         return false;
       }
 
-      final dir = await getTemporaryDirectory();
-      final filePath = '${dir.path}/tasky_ai_cmd_${DateTime.now().millisecondsSinceEpoch}.m4a';
-      _currentRecordingPath = filePath;
-
+      _recordedChunks.clear();
       const config = RecordConfig(
-        encoder: AudioEncoder.aacLc,
-        bitRate: 128000,
-        sampleRate: 44100,
+        encoder: AudioEncoder.pcm16bits,
+        sampleRate: 16000,
+        numChannels: 1,
       );
 
-      await _audioRecorder.start(config, path: filePath);
+      final stream = await _audioRecorder.startStream(config);
+      _recordSub = stream.listen((data) {
+        _recordedChunks.addAll(data);
+      });
+
       _state = AiAssistantState.recording;
       _statusMessage = 'جاري الاستماع... تحدث الآن';
       _errorMessage = null;
@@ -117,38 +119,21 @@ class AiAssistantController extends ChangeNotifier {
     }
   }
 
-  /// إيقاف تسجيل الصوت ومعالجة الأمر
+  /// إيقاف تسجيل الصوت ومعالجة الأمر عبر الذاكرة مباشرة
   Future<void> stopAndProcessRecording({
-    required TasksController tasksController,
     required List<ProjectModel> projects,
     required List<AreaModel> areas,
+    List<TaskModel> tasks = const [],
+    Function(TaskModel)? onSaveTask,
   }) async {
     try {
       if (_state != AiAssistantState.recording) return;
 
-      final path = await _audioRecorder.stop();
-      final filePath = path ?? _currentRecordingPath;
-      if (filePath == null) {
-        _state = AiAssistantState.idle;
-        notifyListeners();
-        return;
-      }
+      await _audioRecorder.stop();
+      await _recordSub?.cancel();
+      _recordSub = null;
 
-      final file = File(filePath);
-      if (!await file.exists()) {
-        _errorMessage = 'تعذر العثور على ملف التسجيل الصوتي.';
-        _state = AiAssistantState.error;
-        notifyListeners();
-        return;
-      }
-
-      final bytes = await file.readAsBytes();
-      // حذف الملف المؤقت بعد قراءته
-      try {
-        await file.delete();
-      } catch (_) {}
-
-      if (bytes.lengthInBytes < 1000) {
+      if (_recordedChunks.length < 1600) {
         _errorMessage = 'التسجيل قصير جداً، يرجى المحاولة مرة أخرى.';
         _state = AiAssistantState.error;
         notifyListeners();
@@ -159,18 +144,22 @@ class AiAssistantController extends ChangeNotifier {
       _statusMessage = 'جاري تحليل وفهم الأمر الصوتي...';
       notifyListeners();
 
+      final pcmBytes = Uint8List.fromList(_recordedChunks);
+      final wavBytes = _pcmToWav(pcmBytes, sampleRate: 16000, channels: 1);
+
       final result = await _service.processAudioCommand(
-        bytes,
-        mimeType: 'audio/mp4',
+        wavBytes,
+        mimeType: 'audio/wav',
         projects: projects,
         areas: areas,
       );
 
       await _executeIntent(
         result,
-        tasksController: tasksController,
         projects: projects,
         areas: areas,
+        tasks: tasks,
+        onSaveTask: onSaveTask,
       );
     } catch (e) {
       debugPrint('[AiAssistantController] stopAndProcessRecording error: $e');
@@ -185,12 +174,9 @@ class AiAssistantController extends ChangeNotifier {
     try {
       if (_state == AiAssistantState.recording) {
         await _audioRecorder.stop();
-        if (_currentRecordingPath != null) {
-          final file = File(_currentRecordingPath!);
-          if (await file.exists()) {
-            await file.delete();
-          }
-        }
+        await _recordSub?.cancel();
+        _recordSub = null;
+        _recordedChunks.clear();
       }
     } catch (_) {}
     _state = AiAssistantState.idle;
@@ -203,9 +189,10 @@ class AiAssistantController extends ChangeNotifier {
   /// معالجة أمر نصي مباشر
   Future<void> processTextCommand(
     String text, {
-    required TasksController tasksController,
     required List<ProjectModel> projects,
     required List<AreaModel> areas,
+    List<TaskModel> tasks = const [],
+    Function(TaskModel)? onSaveTask,
   }) async {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
@@ -231,9 +218,10 @@ class AiAssistantController extends ChangeNotifier {
 
       await _executeIntent(
         result,
-        tasksController: tasksController,
         projects: projects,
         areas: areas,
+        tasks: tasks,
+        onSaveTask: onSaveTask,
       );
     } catch (e) {
       debugPrint('[AiAssistantController] processTextCommand error: $e');
@@ -247,19 +235,20 @@ class AiAssistantController extends ChangeNotifier {
 
   Future<void> _executeIntent(
     AiIntentResult result, {
-    required TasksController tasksController,
     required List<ProjectModel> projects,
     required List<AreaModel> areas,
+    required List<TaskModel> tasks,
+    Function(TaskModel)? onSaveTask,
   }) async {
     _lastResult = result;
 
     switch (result.type) {
       case AiIntentType.createTask:
-        await _handleCreateTask(result, tasksController, projects, areas);
+        await _handleCreateTask(result, projects, areas, onSaveTask);
         break;
 
       case AiIntentType.readTasks:
-        await _handleReadTasks(result, tasksController, projects, areas);
+        await _handleReadTasks(result, projects, areas, tasks);
         break;
 
       case AiIntentType.conversationalHelp:
@@ -280,12 +269,12 @@ class AiAssistantController extends ChangeNotifier {
     }
   }
 
-  /// تنفيذ إنشاء المهمة وحفظها
+  /// تنفيذ إنشاء المهمة وحفظها محلياً وتحديث الواجهة فوراً
   Future<void> _handleCreateTask(
     AiIntentResult result,
-    TasksController tasksController,
     List<ProjectModel> projects,
     List<AreaModel> areas,
+    Function(TaskModel)? onSaveTask,
   ) async {
     final params = result.createTask;
     if (params == null || params.title.isEmpty) {
@@ -322,7 +311,17 @@ class AiAssistantController extends ChangeNotifier {
       syncStatus: 'pending_insert',
     );
 
-    await tasksController.createTask(newTask);
+    // حفظ في قاعدة البيانات المحلية إن أمكن
+    try {
+      final repo = TaskRepositoryImpl();
+      await repo.insertTask(newTask);
+    } catch (e) {
+      debugPrint('[AiAssistantController] DB save fallback error: $e');
+    }
+
+    // تحديث الواجهة عبر callback الحفظ المباشر
+    onSaveTask?.call(newTask);
+
     _createdTask = newTask;
     _state = AiAssistantState.success;
     _statusMessage = result.voiceReply;
@@ -334,23 +333,32 @@ class AiAssistantController extends ChangeNotifier {
   /// تنفيذ قراءة واستعراض المهام عبر AudioBriefingController
   Future<void> _handleReadTasks(
     AiIntentResult result,
-    TasksController tasksController,
     List<ProjectModel> projects,
     List<AreaModel> areas,
+    List<TaskModel> providedTasks,
   ) async {
     final params = result.readTasks ?? const ReadTasksParams(scope: 'today');
+    List<TaskModel> allTasks = providedTasks;
+    if (allTasks.isEmpty) {
+      try {
+        allTasks = await TaskRepositoryImpl().getTasks();
+      } catch (_) {}
+    }
+
     List<TaskModel> targetTasks = [];
     String contextTitle = 'مهام اليوم';
 
     switch (params.scope) {
       case 'today':
-        targetTasks = tasksController.todayTasks;
+        targetTasks = allTasks
+            .where((t) => DateTimeUtils.isToday(t.dueDate) && t.status != 'completed')
+            .toList();
         contextTitle = 'مهام اليوم';
         break;
 
       case 'tomorrow':
         final tomorrow = DateTime.now().add(const Duration(days: 1));
-        targetTasks = tasksController.tasks.where((t) {
+        targetTasks = allTasks.where((t) {
           if (t.dueDate == null) return false;
           return t.dueDate!.year == tomorrow.year &&
               t.dueDate!.month == tomorrow.month &&
@@ -361,25 +369,29 @@ class AiAssistantController extends ChangeNotifier {
         break;
 
       case 'upcoming':
-        targetTasks = tasksController.upcomingTasks;
+        targetTasks = allTasks
+            .where((t) => DateTimeUtils.isUpcoming(t.dueDate) && t.status != 'completed')
+            .toList();
         contextTitle = 'المهام القادمة';
         break;
 
       case 'urgent':
-        targetTasks = tasksController.urgentTasks;
+        targetTasks = allTasks
+            .where((t) => t.priority == 'urgent' && t.status != 'completed')
+            .toList();
         contextTitle = 'المهام العاجلة';
         break;
 
       case 'project':
         if (params.targetId != null) {
-          targetTasks = tasksController.tasks
+          targetTasks = allTasks
               .where((t) => t.projectId == params.targetId && t.status != 'completed')
               .toList();
         } else if (params.targetName != null) {
           final query = params.targetName!.toLowerCase();
           final prj = projects.where((p) => p.name.toLowerCase().contains(query)).firstOrNull;
           if (prj != null) {
-            targetTasks = tasksController.tasks
+            targetTasks = allTasks
                 .where((t) => t.projectId == prj.id && t.status != 'completed')
                 .toList();
             contextTitle = 'مشروع ${prj.name}';
@@ -389,14 +401,14 @@ class AiAssistantController extends ChangeNotifier {
 
       case 'area':
         if (params.targetId != null) {
-          targetTasks = tasksController.tasks
+          targetTasks = allTasks
               .where((t) => t.areaId == params.targetId && t.status != 'completed')
               .toList();
         } else if (params.targetName != null) {
           final query = params.targetName!.toLowerCase();
           final area = areas.where((a) => a.name.toLowerCase().contains(query)).firstOrNull;
           if (area != null) {
-            targetTasks = tasksController.tasks
+            targetTasks = allTasks
                 .where((t) => t.areaId == area.id && t.status != 'completed')
                 .toList();
             contextTitle = 'مجال ${area.name}';
@@ -406,7 +418,7 @@ class AiAssistantController extends ChangeNotifier {
 
       case 'all':
       default:
-        targetTasks = tasksController.tasks.where((t) => t.status != 'completed').toList();
+        targetTasks = allTasks.where((t) => t.status != 'completed').toList();
         contextTitle = 'كافة المهام النشطة';
         break;
     }
@@ -428,6 +440,56 @@ class AiAssistantController extends ChangeNotifier {
       tasks: targetTasks,
       languageCode: 'ar',
     );
+  }
+
+  /// تحويل بيانات PCM 16-bit الخام إلى ملف WAV قياسي في الذاكرة
+  static Uint8List _pcmToWav(
+    Uint8List pcmBytes, {
+    int sampleRate = 16000,
+    int channels = 1,
+    int bitDepth = 16,
+  }) {
+    final byteRate = sampleRate * channels * (bitDepth ~/ 8);
+    final blockAlign = channels * (bitDepth ~/ 8);
+    final dataSize = pcmBytes.length;
+    final chunkSize = 36 + dataSize;
+
+    final header = ByteData(44);
+    // RIFF chunk
+    header.setUint8(0, 0x52); // R
+    header.setUint8(1, 0x49); // I
+    header.setUint8(2, 0x46); // F
+    header.setUint8(3, 0x46); // F
+    header.setUint32(4, chunkSize, Endian.little);
+    header.setUint8(8, 0x57);  // W
+    header.setUint8(9, 0x41);  // A
+    header.setUint8(10, 0x56); // V
+    header.setUint8(11, 0x45); // E
+
+    // fmt sub-chunk
+    header.setUint8(12, 0x66); // f
+    header.setUint8(13, 0x6D); // m
+    header.setUint8(14, 0x74); // t
+    header.setUint8(15, 0x20); // ' '
+    header.setUint32(16, 16, Endian.little); // Subchunk1Size
+    header.setUint16(20, 1, Endian.little);  // PCM format
+    header.setUint16(22, channels, Endian.little);
+    header.setUint32(24, sampleRate, Endian.little);
+    header.setUint32(28, byteRate, Endian.little);
+    header.setUint16(32, blockAlign, Endian.little);
+    header.setUint16(34, bitDepth, Endian.little);
+
+    // data sub-chunk
+    header.setUint8(36, 0x64); // d
+    header.setUint8(37, 0x61); // a
+    header.setUint8(38, 0x74); // t
+    header.setUint8(39, 0x61); // a
+    header.setUint32(40, dataSize, Endian.little);
+
+    final wav = Uint8List(44 + dataSize);
+    wav.setRange(0, 44, header.buffer.asUint8List());
+    wav.setRange(44, 44 + dataSize, pcmBytes);
+    return wav;
   }
 
   /// نطق رد المساعد صوتياً
@@ -452,6 +514,7 @@ class AiAssistantController extends ChangeNotifier {
 
   @override
   void dispose() {
+    _recordSub?.cancel();
     _audioRecorder.dispose();
     super.dispose();
   }
