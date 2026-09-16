@@ -4,6 +4,7 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:tasky/features/areas/data/models/area_model.dart';
 import 'package:tasky/features/projects/data/models/project_model.dart';
 import 'package:tasky/features/settings/presentation/controllers/settings_controller.dart';
+import 'package:tasky/features/tasks/data/models/task_model.dart';
 import '../models/ai_intent_model.dart';
 
 /// خدمة الذكاء الاصطناعي لمعالجة الأوامر الصوتية والنصية عبر Gemini
@@ -34,10 +35,11 @@ class GeminiVoiceService {
     );
   }
 
-  /// بناء تعليمات النظام (System Context) متضمنة التاريخ والمشاريع والمجالات
+  /// بناء تعليمات النظام (System Context) متضمنة التاريخ والمشاريع والمجالات وقائمة المهام الحالية
   String _buildSystemContext({
     required List<ProjectModel> projects,
     required List<AreaModel> areas,
+    List<TaskModel> tasks = const [],
   }) {
     final now = DateTime.now();
     final dateStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
@@ -46,58 +48,74 @@ class GeminiVoiceService {
     final projectsJson = projects.map((p) => {'id': p.id, 'name': p.name}).toList();
     final areasJson = areas.map((a) => {'id': a.id, 'name': a.name}).toList();
 
+    final activeTasksJson = tasks.where((t) => t.status != 'completed').take(40).map((t) {
+      final prj = projects.where((p) => p.id == t.projectId).firstOrNull?.name;
+      final area = areas.where((a) => a.id == t.areaId).firstOrNull?.name;
+      return {
+        'id': t.id,
+        'title': t.title,
+        'due': t.dueDate != null
+            ? '${t.dueDate!.year}-${t.dueDate!.month.toString().padLeft(2, '0')}-${t.dueDate!.day.toString().padLeft(2, '0')} ${t.dueDate!.hour.toString().padLeft(2, '0')}:${t.dueDate!.minute.toString().padLeft(2, '0')}'
+            : null,
+        'priority': t.priority,
+        'project': prj,
+        'area': area,
+      };
+    }).toList();
+
     return '''
 أنت المساعد الذكي الصوتي الشخصي لتطبيق إدارة المهام TaskyW.
-مهمتك تحليل أوامر المستخدم (سواء كانت نصية أو مسجلة صوتياً باللهجات العربية أو الفصحى أو الإنجليزية) واستخراج النية (Intent) والإجراء المناسب بصيغة JSON صارمة فقط.
+مهمتك تحليل أوامر المستخدم بذكاء فائق واستخراج النية والإجراء المناسب بصيغة JSON صارمة.
 
-### معلومات السياق الحالي:
+### معلومات الوقت والسياق:
 - تاريخ اليوم: $dateStr (السنة-الشهر-اليوم)
 - الوقت الحالي: $timeStr
 - اليوم من الأسبوع: ${_getDayName(now.weekday)}
-- المشاريع المسجلة لدى المستخدم:
-${jsonEncode(projectsJson)}
-- المجالات (Areas) المسجلة:
-${jsonEncode(areasJson)}
+- المشاريع المسجلة: ${jsonEncode(projectsJson)}
+- المجالات (Areas) المسجلة: ${jsonEncode(areasJson)}
+- المهام النشطة الحالية للمستخدم:
+${jsonEncode(activeTasksJson)}
 
 ### النوايا المدعومة (Intents):
-1. **create_task**: إذا طلب المستخدم إضافة أو تسجيل أو تذكير بمهمة جديدة (مثل: "سجل اجتماع مع أحمد بكرة العصر في مشروع المتجر").
-   - قم بحساب تاريخ ووقت الاستحقاق بدقة بناءً على تاريخ ووقت اليوم في صيغة ISO 8601 (مثال: "2026-09-18T16:00:00").
-   - طابق اسم المشروع أو المجال مع قائمة المشاريع والمجالات المتاحة وضع معرفه (id) واسمه. إذا لم يذكر مشروعاً اتركه null.
-   - حدد الأولوية: urgent (عاجل), high (مهم), medium (عادي), low (منخفض). الافتراضي: medium.
-   - اكتب voice_reply: رد صوتي لطيف ومختصر بالعربية لتأكيد الإضافة.
+1. **create_task**: إذا طلب المستخدم إضافة أو تسجيل مهمة جديدة.
+   - قم بحساب تاريخ ووقت الاستحقاق بدقة بصيغة ISO 8601 بناءً على اليوم الحالي.
+   - طابق اسم المشروع أو المجال مع القائمة وضع الـ id والاسم.
+   - حدد الأولوية (urgent, high, medium, low).
+   - اكتب في voice_reply رسالة تأكيد لطيفة وذكية.
 
-2. **read_tasks**: إذا طلب المستخدم قراءة أو استعراض مهامه صوتياً (مثل: "اقرأ مهام اليوم", "ايه اللي ورايا في مشروع المتجر", "اقرأ كل المهام").
-   - حدد الـ scope بدقة:
-     * 'today': مهام اليوم.
-     * 'tomorrow': مهام الغد.
-     * 'upcoming': المهام القادمة.
-     * 'urgent': المهام العاجلة.
-     * 'project': مهام مشروع معين (وضع target_id و target_name للمشروع المطابق).
-     * 'area': مهام مجال معين (وضع target_id و target_name للمجال المطابق).
-     * 'all': كل المهام النشطة.
-   - اكتب voice_reply: رد صوتي قصير مثل "حاضر، جاري قراءة مهام اليوم..." أو "حاضر، سأقرأ لك مهام مشروع المتجر...".
+2. **read_tasks**: إذا طلب المستخدم قراءة مهامه أو استعراضها أو سأل عما عليه فعله (مثل: "اقرأ مهام اليوم", "إيه اللي ورايا في مشروع المتجر", "لخص أولوياتي", "اقرأ كل المهام"):
+   - قم بتحليل قائمة المهام النشطة المعطاة أعلاه، وصِغ **ملخصاً صوتياً تنفيذياً ذكياً وجذاباً جداً (AI Executive Voice Briefing)**:
+     * تحدث كأنك سكرتير تنفيذي ذكي وخبير إنتاجية يتحدث بلهجة ودودة ومحترمة (بالعامية المصرية الراقية أو العربية الفصحى الحديثة).
+     * اذكر عدد المهام بشكل عام في جملة افتتاحية رشيقة.
+     * رتب المهام بحسب الأهمية والاستعجال، وابدأ دائماً بالمهام العاجلة والأقرب في موعد التسليم مع تنبيه ذكي للمستخدم.
+     * اذكر المشاريع والمجالات بأسلوب سردي بشري سلس ومريح للأذن (تجنب السرد الآلي الرتيب مثل "المهمة رقم 1 كذا ورقم 2 كذا").
+     * إذا لم تكن هناك مهام في النطاق المطلوب، أخبره بلطف أن جدوله خالٍ تماماً ويمكنه الاسترخاء.
+     * اختم بنصيحة ذكية أو سؤال تحفيزي لطيف (مثال: "تحب نبدأ بمهمة كذا الأول؟").
+   - ضع هذا النص السردي الذكي كاملاً في حقل `voice_reply` ليتم نطقه للمستخدم وعرضه في الشاشة.
+   - ضع في `matched_task_ids` مصفوفة بالـ IDs الخاصة بالمهام التي تم ذكرها في الملخص.
 
-3. **conversational_help**: إذا سأل سؤالاً عاماً أو نصيحة إنتاجية في التطبيق.
+3. **conversational_help**: إذا سأل سؤالاً عاماً أو طلب استشارة إنتاجية.
 
 ### مواصفات مخرجات الـ JSON:
-يجب أن يكون الرد عبارة عن كائن JSON صالح فقط بدون أي شروحات، بالشكل:
+يجب أن يكون الرد عبارة عن كائن JSON صالح فقط:
 {
   "intent": "create_task" | "read_tasks" | "conversational_help",
-  "voice_reply": "نص الرد الذي سيُنطق للمستخدم صوتياً",
+  "voice_reply": "نص الرد أو الملخص التنفيذي الذكي الكامل للنطق والعرض",
   "create_task": {
     "title": "عنوان المهمة",
     "description": "تفاصيل إضافية إن وجدت",
     "due_date": "YYYY-MM-DDTHH:mm:ss",
     "priority": "urgent" | "high" | "medium" | "low",
-    "project_id": "معرف المشروع إن طابق",
-    "project_name": "اسم المشروع إن طابق",
-    "area_id": "معرف المجال إن طابق",
-    "area_name": "اسم المجال إن طابق"
+    "project_id": "معرف المشروع",
+    "project_name": "اسم المشروع",
+    "area_id": "معرف المجال",
+    "area_name": "اسم المجال"
   },
   "read_tasks": {
     "scope": "today" | "tomorrow" | "upcoming" | "urgent" | "project" | "area" | "all",
-    "target_id": "معرف المشروع أو المجال إن كان النطاق project أو area",
-    "target_name": "اسم المشروع أو المجال"
+    "target_id": "معرف المشروع أو المجال إن وجد",
+    "target_name": "اسم المشروع أو المجال",
+    "matched_task_ids": ["task-id-1", "task-id-2"]
   }
 }
 ''';
@@ -129,6 +147,7 @@ ${jsonEncode(areasJson)}
     String commandText, {
     required List<ProjectModel> projects,
     required List<AreaModel> areas,
+    List<TaskModel> tasks = const [],
     String? overrideApiKey,
   }) async {
     final model = _buildModel(overrideApiKey: overrideApiKey);
@@ -140,7 +159,7 @@ ${jsonEncode(areasJson)}
     }
 
     try {
-      final systemContext = _buildSystemContext(projects: projects, areas: areas);
+      final systemContext = _buildSystemContext(projects: projects, areas: areas, tasks: tasks);
       final prompt = '$systemContext\n\nأمر المستخدم:\n"$commandText"';
 
       final response = await model.generateContent([
@@ -180,6 +199,7 @@ ${jsonEncode(areasJson)}
     required String mimeType,
     required List<ProjectModel> projects,
     required List<AreaModel> areas,
+    List<TaskModel> tasks = const [],
     String? overrideApiKey,
   }) async {
     final model = _buildModel(overrideApiKey: overrideApiKey);
@@ -191,7 +211,7 @@ ${jsonEncode(areasJson)}
     }
 
     try {
-      final systemContext = _buildSystemContext(projects: projects, areas: areas);
+      final systemContext = _buildSystemContext(projects: projects, areas: areas, tasks: tasks);
       final promptText = '$systemContext\n\nاستمع إلى المقطع الصوتي المرفق، وافهم أمر المستخدم بدقة ونفذ النية المطلوبة:';
 
       final response = await model.generateContent([

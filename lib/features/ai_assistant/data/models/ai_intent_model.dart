@@ -73,18 +73,27 @@ class ReadTasksParams {
   final String scope;
   final String? targetId;
   final String? targetName;
+  final List<String> matchedTaskIds;
 
   const ReadTasksParams({
     required this.scope,
     this.targetId,
     this.targetName,
+    this.matchedTaskIds = const [],
   });
 
   factory ReadTasksParams.fromJson(Map<String, dynamic> json) {
+    List<String> ids = [];
+    if (json['matched_task_ids'] is List) {
+      ids = (json['matched_task_ids'] as List)
+          .map((e) => e.toString())
+          .toList();
+    }
     return ReadTasksParams(
       scope: (json['scope'] ?? 'today').toString().toLowerCase(),
       targetId: json['target_id']?.toString(),
       targetName: json['target_name']?.toString(),
+      matchedTaskIds: ids,
     );
   }
 
@@ -92,6 +101,7 @@ class ReadTasksParams {
         'scope': scope,
         'target_id': targetId,
         'target_name': targetName,
+        'matched_task_ids': matchedTaskIds,
       };
 }
 

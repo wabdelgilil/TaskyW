@@ -46,12 +46,13 @@
 
 ## 3. التعديلات والملفات المطلوبة (Execution Checklist)
 
-- [ ] **إضافة التبعيات في `pubspec.yaml`**: حزمة `google_generative_ai` و `record`.
-- [ ] **تحديث `AppSettingsModel` و `SettingsService` و `SettingsController`**: دعم تخزين مفتاح الـ API وحالة الـ AI واختبار الاتصال.
-- [ ] **تحديث `SettingsScreen`**: إضافة بطاقة إعدادات الذكاء الاصطناعي مع إمكانية فحص المفتاح وتوجيه المستخدم.
-- [ ] **إنشاء طبقة البيانات `ai_intent_model.dart`**: لتمثيل مخرجات الذكاء الاصطناعي بدقة.
-- [ ] **إنشاء خدمة `gemini_voice_service.dart`**: لبناء الـ System Prompt وتنفيذ أوامر النصوص والصوت.
-- [ ] **إنشاء متحكم `ai_assistant_controller.dart`**: لربط النوايا بـ `TasksController` و `AudioBriefingController`.
-- [ ] **إنشاء واجهة المساعد `ai_voice_assistant_sheet.dart`**: مع دعم الموجات الصوتية والتوجيه للمفتاح.
-- [ ] **تحديث شريط الرأس `main_top_header.dart`**: إضافة زر المساعد الصوتي.
-- [ ] **إضافة مفاتيح التعريب في `app_ar.arb` و `app_en.arb`**.
+- [x] **إضافة التبعيات في `pubspec.yaml`**: حزمة `google_generative_ai` و `record`.
+- [x] **تحديث `AppSettingsModel` و `SettingsService` و `SettingsController`**: دعم تخزين مفتاح الـ API وحالة الـ AI واختبار الاتصال مع دعم Gemini 2.5/3.6 ومفاتيح AQ.
+- [x] **تحديث `SettingsScreen`**: إضافة بطاقة إعدادات الذكاء الاصطناعي مع إمكانية فحص المفتاح وتوجيه المستخدم.
+- [x] **إنشاء طبقة البيانات `ai_intent_model.dart`**: لتمثيل مخرجات الذكاء الاصطناعي بدقة مع `matchedTaskIds`.
+- [x] **إنشاء خدمة `gemini_voice_service.dart`**: لبناء الـ System Prompt وتنفيذ أوامر النصوص والصوت وتوليد الملخص التنفيذي الذكي (AI Executive Briefing).
+- [x] **إنشاء متحكم `ai_assistant_controller.dart`**: لمعالجة النوايا والتسجيل في الذاكرة عبر المنصات ونطق الملخصات الذكية.
+- [x] **إنشاء واجهة المساعد `ai_voice_assistant_sheet.dart`**: مع دعم الموجات الصوتية والتوجيه للمفتاح.
+- [x] **تحديث شريط الرأس `main_top_header.dart`**: إضافة زر المساعد الصوتي وتمرير المعطيات بدون Provider.
+- [x] **إضافة مفاتيح التعريب في `app_ar.arb` و `app_en.arb`**.
+- [x] **ملخص صوتي تنفيذي ذكي للمهام (AI Executive Voice Briefing)**: قراءة المهام بأسلوب سكرتير تنفيذي ذكي يحلل الأولويات ومواعيد التسليم بدلاً من القراءة الميكانيكية الرتيبة.

@@ -10,7 +10,6 @@ import 'package:tasky/features/projects/data/models/project_model.dart';
 import 'package:tasky/features/settings/presentation/controllers/settings_controller.dart';
 import 'package:tasky/features/tasks/data/models/task_model.dart';
 import 'package:tasky/features/tasks/data/repositories/task_repository_impl.dart';
-import 'package:tasky/features/tasks/presentation/controllers/audio_briefing_controller.dart';
 import '../../data/models/ai_intent_model.dart';
 import '../../data/services/gemini_voice_service.dart';
 
@@ -152,6 +151,7 @@ class AiAssistantController extends ChangeNotifier {
         mimeType: 'audio/wav',
         projects: projects,
         areas: areas,
+        tasks: tasks,
       );
 
       await _executeIntent(
@@ -214,6 +214,7 @@ class AiAssistantController extends ChangeNotifier {
         trimmed,
         projects: projects,
         areas: areas,
+        tasks: tasks,
       );
 
       await _executeIntent(
@@ -425,21 +426,25 @@ class AiAssistantController extends ChangeNotifier {
 
     _state = AiAssistantState.success;
     if (targetTasks.isEmpty) {
-      _statusMessage = 'لا توجد مهام في $contextTitle.';
+      final emptyReply = (result.voiceReply.trim().isNotEmpty && !result.voiceReply.startsWith('حاضر'))
+          ? result.voiceReply
+          : 'لا توجد مهام مسجلة في $contextTitle، جدولك فارغ تماماً!';
+      _statusMessage = emptyReply;
       notifyListeners();
-      await _speak('لا توجد مهام مسجلة في $contextTitle، جدولك فارغ!');
+      await _speak(emptyReply);
       return;
     }
 
-    _statusMessage = 'جاري قراءة ${targetTasks.length} مهام في $contextTitle...';
+    // استخدام الملخص التنفيذي الذكي المولّد مباشرة من الذكاء الاصطناعي Gemini
+    final briefingText = (result.voiceReply.trim().isNotEmpty && !result.voiceReply.startsWith('حاضر'))
+        ? result.voiceReply
+        : 'لديك ${targetTasks.length} مهام في $contextTitle.';
+
+    _statusMessage = briefingText;
     notifyListeners();
 
-    // تشغيل القراءة عبر المحرك الصوتي القائم
-    AudioBriefingController.instance.startBriefing(
-      contextTitle: contextTitle,
-      tasks: targetTasks,
-      languageCode: 'ar',
-    );
+    // نطق الملخص التنفيذي الذكي صوتياً
+    await _speak(briefingText);
   }
 
   /// تحويل بيانات PCM 16-bit الخام إلى ملف WAV قياسي في الذاكرة
