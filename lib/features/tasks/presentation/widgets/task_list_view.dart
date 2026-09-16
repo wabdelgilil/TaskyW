@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tasky/core/l10n/localization_x.dart';
+import 'package:tasky/features/settings/presentation/controllers/settings_controller.dart';
 import 'package:tasky/features/tags/data/models/tag_model.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../projects/data/models/project_model.dart';
@@ -68,91 +69,97 @@ class _TaskListViewState extends State<TaskListView> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return ListenableBuilder(
+      listenable: SettingsController.instance,
+      builder: (context, _) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // عزل المهام المكتملة في قسم منفصل
-    final activeTasks = widget.tasks
-        .where((t) => t.status != 'completed')
-        .toList();
-    final completedTasks = widget.tasks
-        .where((t) => t.status == 'completed')
-        .toList();
+        // عزل المهام المكتملة في قسم منفصل
+        final activeTasks = widget.tasks
+            .where((t) => t.status != 'completed')
+            .toList();
+        final completedTasks = widget.tasks
+            .where((t) => t.status == 'completed')
+            .toList();
 
-    final hasAnyTask = widget.tasks.isNotEmpty;
+        final hasAnyTask = widget.tasks.isNotEmpty;
 
-    if (!hasAnyTask) {
-      return _buildEmptyState(context);
-    }
+        if (!hasAnyTask) {
+          return _buildEmptyState(context);
+        }
 
-    // عند تعطيل قسم المكتملة تُعرض كل المهام كقائمة مسطّحة بدون تجميع
-    if (!widget.showCompletedSection) {
-      return ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        children: [
-          if (_canGroupByProject) _buildGroupByToggle(context),
-          ...widget.tasks.map((task) => _buildTaskItem(context, task)),
-        ],
-      );
-    }
+        // عند تعطيل قسم المكتملة تُعرض كل المهام كقائمة مسطّحة بدون تجميع
+        if (!widget.showCompletedSection) {
+          return ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            children: [
+              if (_canGroupByProject) _buildGroupByToggle(context) else _buildDensityBar(context),
+              ...widget.tasks.map((task) => _buildTaskItem(context, task)),
+            ],
+          );
+        }
 
-    if (_groupByProject && _canGroupByProject) {
-      return ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        children: [
-          _buildGroupByToggle(context),
-          ..._buildGroupedSections(context, activeTasks),
-          if (completedTasks.isNotEmpty) ...[
-            _buildCompletedSectionHeader(context, completedTasks.length, isDark),
-            if (_completedExpanded)
-              ...completedTasks.map((task) => _buildTaskItem(context, task)),
-          ],
-        ],
-      );
-    }
-
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      children: [
-        if (_canGroupByProject) _buildGroupByToggle(context),
-        // المهام النشطة (غير المكتملة)
-        ...activeTasks.map((task) => _buildTaskItem(context, task)),
-
-        if (completedTasks.isNotEmpty) ...[
-          // قسم المهام المكتملة القابل للطي
-          _buildCompletedSectionHeader(context, completedTasks.length, isDark),
-          if (_completedExpanded)
-            ...completedTasks.map((task) => _buildTaskItem(context, task)),
-        ],
-
-        // حالة كل المهام مكتملة
-        if (activeTasks.isEmpty && completedTasks.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 6, bottom: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.celebration_rounded,
-                  size: 16,
-                  color: AppColors.statusCompleted,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  context.l10n.allDoneSection,
-                  style: TextStyle(
-                    fontSize: 12.5,
-                    color: AppColors.textSecondary(context),
-                  ),
-                ),
+        if (_groupByProject && _canGroupByProject) {
+          return ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            children: [
+              _buildGroupByToggle(context),
+              ..._buildGroupedSections(context, activeTasks),
+              if (completedTasks.isNotEmpty) ...[
+                _buildCompletedSectionHeader(context, completedTasks.length, isDark),
+                if (_completedExpanded)
+                  ...completedTasks.map((task) => _buildTaskItem(context, task)),
               ],
-            ),
-          ),
-      ],
+            ],
+          );
+        }
+
+        return ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          children: [
+            if (_canGroupByProject) _buildGroupByToggle(context) else _buildDensityBar(context),
+            // المهام النشطة (غير المكتملة)
+            ...activeTasks.map((task) => _buildTaskItem(context, task)),
+
+            if (completedTasks.isNotEmpty) ...[
+              // قسم المهام المكتملة القابل للطي
+              _buildCompletedSectionHeader(context, completedTasks.length, isDark),
+              if (_completedExpanded)
+                ...completedTasks.map((task) => _buildTaskItem(context, task)),
+            ],
+
+            // حالة كل المهام مكتملة
+            if (activeTasks.isEmpty && completedTasks.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 6, bottom: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.celebration_rounded,
+                      size: 16,
+                      color: AppColors.statusCompleted,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      context.l10n.allDoneSection,
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        color: AppColors.textSecondary(context),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 
   Widget _buildGroupByToggle(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isCompact = SettingsController.instance.isCompactCards;
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Material(
@@ -186,6 +193,22 @@ class _TaskListViewState extends State<TaskListView> {
                   ),
                 ),
                 const Spacer(),
+                IconButton(
+                  icon: Icon(
+                    isCompact
+                        ? Icons.view_agenda_outlined
+                        : Icons.density_medium_rounded,
+                    size: 18,
+                    color: isCompact
+                        ? AppColors.primary
+                        : AppColors.textSecondary(context),
+                  ),
+                  tooltip: context.l10n.taskCardDensityTooltip,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  onPressed: () => SettingsController.instance.toggleTaskCardDensity(),
+                ),
+                const SizedBox(width: 6),
                 Switch(
                   value: _groupByProject,
                   onChanged: (val) => setState(() => _groupByProject = val),
@@ -195,6 +218,61 @@ class _TaskListViewState extends State<TaskListView> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildDensityBar(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isCompact = SettingsController.instance.isCompactCards;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => SettingsController.instance.toggleTaskCardDensity(),
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : Colors.black.withValues(alpha: 0.03),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.border(context)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isCompact
+                          ? Icons.view_agenda_outlined
+                          : Icons.density_medium_rounded,
+                      size: 15,
+                      color: isCompact
+                          ? AppColors.primary
+                          : AppColors.textSecondary(context),
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      isCompact
+                          ? context.l10n.taskCardDensityCompact
+                          : context.l10n.taskCardDensityComfortable,
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textSecondary(context),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -375,14 +453,16 @@ class _TaskListViewState extends State<TaskListView> {
 
   Widget _buildTaskItem(BuildContext context, TaskModel task) {
     final isCompleted = task.status == 'completed';
+    final isCompact = SettingsController.instance.isCompactCards;
     final project = _projectOf(task);
     final projectColorHex =
         project != null ? AppColors.fromHex(project.colorHex) : null;
 
     final card = Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: EdgeInsets.only(bottom: isCompact ? 3 : 6),
       child: TaskCard(
         task: task,
+        isCompact: isCompact,
         totalSubtasksCount: widget.subtaskCounts[task.id] ?? 0,
         completedSubtasksCount: widget.completedSubtaskCounts[task.id] ?? 0,
         tags: widget.taskTags[task.id] ?? const [],

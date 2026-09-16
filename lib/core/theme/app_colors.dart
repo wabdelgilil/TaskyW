@@ -175,6 +175,30 @@ class AppColors {
     return Theme.of(context).brightness == Brightness.dark ? darkTextMuted : lightTextMuted;
   }
 
+  /// لون التحويم المتكيف مع أنماط العرض الثلاثة (Light / Dark Slate / OLED)
+  /// يضمن تبايناً واضحاً ومميزاً عن لون الكارت الأصلي عند مرور مؤشر الفأرة (Hover)
+  static Color cardHover(BuildContext context, {Color? customColor}) {
+    if (isOled(context)) {
+      if (customColor != null) {
+        return customColor.withValues(alpha: 0.28);
+      }
+      return brandLight.withValues(alpha: 0.18);
+    }
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    if (isDark) {
+      if (customColor != null) {
+        return customColor.withValues(alpha: 0.24);
+      }
+      return brandLight.withValues(alpha: 0.14);
+    } else {
+      if (customColor != null) {
+        return customColor.withValues(alpha: 0.16);
+      }
+      return brandPrimary.withValues(alpha: 0.085);
+    }
+  }
+
   // --- لوحة الألوان المقترحة للاختيار الحر (Custom Color Palette Presets) ---
   static const List<String> presetHexColors = [
     '#3B82F6', // Blue

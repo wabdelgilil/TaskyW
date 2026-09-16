@@ -137,76 +137,99 @@ class MainTopHeader extends StatelessWidget {
                     icon: const Icon(Icons.menu),
                     tooltip: context.l10n.sidebarMenu,
                     onPressed: () => Scaffold.of(ctx).openDrawer(),
+                    visualDensity: VisualDensity.compact,
                   ),
                 ),
                 Expanded(
                   child: Text(
                     currentContextTitle,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.search, size: 22),
-                  tooltip: context.l10n.commonSearch,
-                  onPressed: onOpenMobileSearch,
-                ),
-                IconButton(
-                  icon: Icon(
-                    viewMode == 'list'
-                        ? Icons.view_kanban_rounded
-                        : viewMode == 'kanban'
-                            ? Icons.table_chart_rounded
-                            : Icons.view_list_rounded,
-                    size: 20,
-                  ),
-                  tooltip: viewMode == 'list'
-                      ? context.l10n.viewKanban
-                      : viewMode == 'kanban'
-                          ? context.l10n.viewTable
-                          : context.l10n.viewList,
-                  onPressed: () {
-                    if (viewMode == 'list') {
-                      onViewModeChanged('kanban');
-                    } else if (viewMode == 'kanban') {
-                      onViewModeChanged('table');
-                    } else {
-                      onViewModeChanged('list');
-                    }
-                  },
-                ),
-                const SizedBox(width: 2),
-                IconButton(
-                  icon: const Icon(Icons.download_rounded, size: 20),
-                  tooltip: context.l10n.exportCsvTooltip,
-                  onPressed: onExportCsv,
-                ),
-                if (onAudioBriefing != null) ...[
-                  const SizedBox(width: 2),
-                  ListenableBuilder(
-                    listenable: AudioBriefingController.instance,
-                    builder: (context, _) {
-                      final isBriefing = AudioBriefingController.instance.isActive;
-                      final isPlaying = AudioBriefingController.instance.isPlaying;
-                      return IconButton(
-                        icon: Icon(
-                          isPlaying ? Icons.graphic_eq_rounded : Icons.record_voice_over_rounded,
-                          size: 20,
-                          color: isBriefing ? AppColors.primary : null,
+                Flexible(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.search, size: 20),
+                          tooltip: context.l10n.commonSearch,
+                          visualDensity: VisualDensity.compact,
+                          padding: const EdgeInsets.all(6),
+                          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                          onPressed: onOpenMobileSearch,
                         ),
-                        tooltip: context.l10n.readTasksAloud,
-                        onPressed: onAudioBriefing,
-                      );
-                    },
+                        IconButton(
+                          icon: Icon(
+                            viewMode == 'list'
+                                ? Icons.view_kanban_rounded
+                                : viewMode == 'kanban'
+                                    ? Icons.table_chart_rounded
+                                    : Icons.view_list_rounded,
+                            size: 20,
+                          ),
+                          tooltip: viewMode == 'list'
+                              ? context.l10n.viewKanban
+                              : viewMode == 'kanban'
+                                  ? context.l10n.viewTable
+                                  : context.l10n.viewList,
+                          visualDensity: VisualDensity.compact,
+                          padding: const EdgeInsets.all(6),
+                          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                          onPressed: () {
+                            if (viewMode == 'list') {
+                              onViewModeChanged('kanban');
+                            } else if (viewMode == 'kanban') {
+                              onViewModeChanged('table');
+                            } else {
+                              onViewModeChanged('list');
+                            }
+                          },
+                        ),
+                        const SizedBox(width: 2),
+                        IconButton(
+                          icon: const Icon(Icons.download_rounded, size: 20),
+                          tooltip: context.l10n.exportCsvTooltip,
+                          visualDensity: VisualDensity.compact,
+                          padding: const EdgeInsets.all(6),
+                          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                          onPressed: onExportCsv,
+                        ),
+                        if (onAudioBriefing != null) ...[
+                          const SizedBox(width: 2),
+                          ListenableBuilder(
+                            listenable: AudioBriefingController.instance,
+                            builder: (context, _) {
+                              final isBriefing = AudioBriefingController.instance.isActive;
+                              final isPlaying = AudioBriefingController.instance.isPlaying;
+                              return IconButton(
+                                icon: Icon(
+                                  isPlaying ? Icons.graphic_eq_rounded : Icons.record_voice_over_rounded,
+                                  size: 20,
+                                  color: isBriefing ? AppColors.primary : null,
+                                ),
+                                tooltip: context.l10n.readTasksAloud,
+                                visualDensity: VisualDensity.compact,
+                                padding: const EdgeInsets.all(6),
+                                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                                onPressed: onAudioBriefing,
+                              );
+                            },
+                          ),
+                        ],
+                        const SizedBox(width: 2),
+                        SyncStatusButton(
+                          onTriggerSync: onSyncRequested,
+                          compact: true,
+                        ),
+                        const SizedBox(width: 4),
+                        _buildAuthButton(context, isCompact: true),
+                      ],
+                    ),
                   ),
-                ],
-                const SizedBox(width: 2),
-                SyncStatusButton(
-                  onTriggerSync: onSyncRequested,
-                  compact: true,
                 ),
-                const SizedBox(width: 4),
-                _buildAuthButton(context, isCompact: true),
               ],
             ),
           );

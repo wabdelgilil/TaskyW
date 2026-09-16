@@ -257,6 +257,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get navHome => 'اليوم';
 
   @override
+  String get navTasks => 'المهام';
+
+  @override
   String get navProjects => 'المشاريع';
 
   @override
@@ -267,6 +270,18 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get navSettings => 'الإعدادات';
+
+  @override
+  String get taskCardDensityTitle => 'كثافة كروت المهام';
+
+  @override
+  String get taskCardDensityComfortable => 'عرض مريح';
+
+  @override
+  String get taskCardDensityCompact => 'عرض مضغوط';
+
+  @override
+  String get taskCardDensityTooltip => 'تبديل كثافة العرض (مريح / مضغوط)';
 
   @override
   String get newTask => 'مهمة جديدة';

@@ -290,6 +290,34 @@ class SettingsScreen extends StatelessWidget {
                           ),
                         ],
                       ),
+                      const Divider(height: 24),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(l10n.taskCardDensityTitle),
+                        subtitle: Text(
+                          settings.isCompactCards
+                              ? l10n.taskCardDensityCompact
+                              : l10n.taskCardDensityComfortable,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          _ChoiceCard(
+                            label: l10n.taskCardDensityComfortable,
+                            icon: Icons.view_agenda_outlined,
+                            selected: !settings.isCompactCards,
+                            onTap: () => settings.setTaskCardDensity('comfortable'),
+                          ),
+                          const SizedBox(width: 8),
+                          _ChoiceCard(
+                            label: l10n.taskCardDensityCompact,
+                            icon: Icons.density_medium_rounded,
+                            selected: settings.isCompactCards,
+                            onTap: () => settings.setTaskCardDensity('compact'),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),

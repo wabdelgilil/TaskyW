@@ -479,6 +479,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
       urgentCount: urgentCount,
       onSelectFilter: (filter) {
         setState(() {
+          _bottomNavIndex = 0;
           _activeFilter = filter;
           _selectedAreaId = null;
           _selectedProjectId = null;
@@ -493,6 +494,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
       },
       onSelectArea: (area) {
         setState(() {
+          _bottomNavIndex = 0;
           _selectedAreaId = area.id;
           _selectedProjectId = null;
           _selectedTagId = null;
@@ -506,6 +508,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
       },
       onSelectProject: (project) {
         setState(() {
+          _bottomNavIndex = 0;
           _selectedProjectId = project.id;
           _selectedAreaId = project.areaId;
           _selectedTagId = null;
@@ -519,6 +522,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
       },
       onSelectTag: (tagId) {
         setState(() {
+          _bottomNavIndex = 0;
           _selectedTagId = tagId;
           if (tagId != null) {
             _selectedAreaId = null;
@@ -537,6 +541,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
       onAddTag: _showCreateTagDialog,
       onSelectNotes: () {
         setState(() {
+          _bottomNavIndex = 1;
           _showNotes = true;
           _showFinance = false;
           _showArchive = false;
@@ -550,6 +555,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
       },
       onSelectFinance: () {
         setState(() {
+          _bottomNavIndex = 2;
           _showFinance = true;
           _showNotes = false;
           _showArchive = false;
@@ -793,34 +799,31 @@ Expanded(
           : NavigationBar(
               selectedIndex: _bottomNavIndex,
               onDestinationSelected: (idx) {
-                if (idx == 4) {
+                if (idx == 3) {
                   Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const SettingsScreen()),
                   );
                   return;
                 }
-                if (idx == 1) {
-                  _scaffoldKey.currentState?.openDrawer();
-                  setState(() {
-                    _bottomNavIndex = idx;
-                  });
-                  return;
-                }
                 setState(() {
                   _bottomNavIndex = idx;
-                  if (idx == 0) {
-                    _activeFilter = 'today';
-                  } else if (idx == 2) {
-                    _showNotes = true;
-                  } else if (idx == 3) {
-                    _showFinance = true;
-                  }
                   _selectedAreaId = null;
                   _selectedProjectId = null;
                   _selectedTagId = null;
-                  if (idx != 2 && idx != 3) {
+                  if (idx == 0) {
+                    _activeFilter = 'all';
                     _showNotes = false;
                     _showFinance = false;
+                    _showArchive = false;
+                    _showTrash = false;
+                  } else if (idx == 1) {
+                    _showNotes = true;
+                    _showFinance = false;
+                    _showArchive = false;
+                    _showTrash = false;
+                  } else if (idx == 2) {
+                    _showFinance = true;
+                    _showNotes = false;
                     _showArchive = false;
                     _showTrash = false;
                   }
@@ -828,24 +831,20 @@ Expanded(
               },
               destinations: [
                 NavigationDestination(
-                    icon: Icon(Icons.wb_sunny_outlined),
-                    selectedIcon: Icon(Icons.wb_sunny),
-                    label: context.l10n.navHome),
+                    icon: const Icon(Icons.task_alt_outlined),
+                    selectedIcon: const Icon(Icons.task_alt),
+                    label: context.l10n.navTasks),
                 NavigationDestination(
-                    icon: Icon(Icons.folder_open_outlined),
-                    selectedIcon: Icon(Icons.folder),
-                    label: context.l10n.navProjects),
-                NavigationDestination(
-                    icon: Icon(Icons.edit_note_outlined),
-                    selectedIcon: Icon(Icons.edit_note),
+                    icon: const Icon(Icons.edit_note_outlined),
+                    selectedIcon: const Icon(Icons.edit_note),
                     label: context.l10n.navNotes),
                 NavigationDestination(
-                    icon: Icon(Icons.account_balance_wallet_outlined),
-                    selectedIcon: Icon(Icons.account_balance_wallet),
+                    icon: const Icon(Icons.account_balance_wallet_outlined),
+                    selectedIcon: const Icon(Icons.account_balance_wallet),
                     label: context.l10n.navFinance),
                 NavigationDestination(
-                    icon: Icon(Icons.settings_outlined),
-                    selectedIcon: Icon(Icons.settings),
+                    icon: const Icon(Icons.settings_outlined),
+                    selectedIcon: const Icon(Icons.settings),
                     label: context.l10n.navSettings),
               ],
             ),

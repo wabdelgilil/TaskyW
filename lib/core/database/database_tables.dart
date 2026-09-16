@@ -279,6 +279,7 @@ class DatabaseTables {
       theme_mode TEXT NOT NULL DEFAULT 'light',
       language_code TEXT NOT NULL DEFAULT 'system',
       layout_direction TEXT NOT NULL DEFAULT 'ltr',
+      task_card_density TEXT NOT NULL DEFAULT 'comfortable',
       sync_status TEXT NOT NULL DEFAULT 'synced',
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL,

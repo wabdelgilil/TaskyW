@@ -45,6 +45,7 @@ class AppDatabase {
             await _ensureTaskColumns(db);
             await _ensureTaskTagColumns(db);
             await _ensureProjectColumns(db);
+            await _ensureUserSettingsColumns(db);
           },
         ),
       );
@@ -77,6 +78,7 @@ class AppDatabase {
         await _ensureTaskColumns(db);
         await _ensureTaskTagColumns(db);
         await _ensureProjectColumns(db);
+        await _ensureUserSettingsColumns(db);
       },
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
@@ -149,6 +151,18 @@ class AppDatabase {
     if (!existing.contains('notifications_enabled')) {
       await db.execute(
         'ALTER TABLE projects ADD COLUMN notifications_enabled INTEGER NOT NULL DEFAULT 1',
+      );
+    }
+  }
+
+  /// إضافة أعمدة مرحلة الترقية لجدول إعدادات المستخدم دون تكرار (كثافة كروت المهام).
+  Future<void> _ensureUserSettingsColumns(Database db) async {
+    final columns = await db.rawQuery('PRAGMA table_info(user_settings)');
+    final existing = columns.map((c) => c['name'] as String).toSet();
+
+    if (!existing.contains('task_card_density')) {
+      await db.execute(
+        "ALTER TABLE user_settings ADD COLUMN task_card_density TEXT NOT NULL DEFAULT 'comfortable'",
       );
     }
   }

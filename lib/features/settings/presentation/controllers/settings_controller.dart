@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
+import 'package:tasky/core/services/sync_service.dart';
 import 'package:tasky/core/theme/app_theme.dart';
 import 'package:tasky/features/settings/data/models/app_settings_model.dart';
 import 'package:tasky/features/settings/data/services/settings_service.dart';
@@ -34,6 +36,12 @@ class SettingsController extends ChangeNotifier {
 
   /// هل الواجهة مُجبرة على الاتجاه الأيسر (LTR) بغض النظر عن اللغة؟
   bool get isForcedLtr => _settings.layoutDirection == 'ltr';
+
+  /// كثافة كروت المهام: comfortable أو compact.
+  String get taskCardDensity => _settings.taskCardDensity;
+
+  /// هل العرض الحالي لكروت المهام مضغوط (compact)؟
+  bool get isCompactCards => _settings.taskCardDensity == 'compact';
 
   /// اللغة النشطة: null = تلقائي (لغة الجهاز)، أو `Locale('ar')` / `Locale('en')`.
   Locale? get activeLocale {
@@ -83,6 +91,7 @@ class SettingsController extends ChangeNotifier {
   Future<void> setNotificationsEnabled(bool value) async {
     _settings = _settings.copyWith(notificationsEnabled: value);
     await _service.save(_settings);
+    unawaited(SyncService.instance.syncSettingsOnly());
     notifyListeners();
   }
 
@@ -90,6 +99,7 @@ class SettingsController extends ChangeNotifier {
   Future<void> setDefaultReminderMinutes(int minutes) async {
     _settings = _settings.copyWith(defaultReminderMinutes: minutes);
     await _service.save(_settings);
+    unawaited(SyncService.instance.syncSettingsOnly());
     notifyListeners();
   }
 
@@ -97,6 +107,7 @@ class SettingsController extends ChangeNotifier {
   Future<void> setDefaultCurrency(String currency) async {
     _settings = _settings.copyWith(defaultCurrency: currency);
     await _service.save(_settings);
+    unawaited(SyncService.instance.syncSettingsOnly());
     notifyListeners();
   }
 
@@ -104,6 +115,7 @@ class SettingsController extends ChangeNotifier {
   Future<void> setDefaultViewMode(String viewMode) async {
     _settings = _settings.copyWith(defaultViewMode: viewMode);
     await _service.save(_settings);
+    unawaited(SyncService.instance.syncSettingsOnly());
     notifyListeners();
   }
 
@@ -112,6 +124,7 @@ class SettingsController extends ChangeNotifier {
     _settings = _settings.copyWith(themeMode: mode);
     ThemeController.instance.setStyle(_themeStyleFromString(mode));
     await _service.save(_settings);
+    unawaited(SyncService.instance.syncSettingsOnly());
     notifyListeners();
   }
 
@@ -120,6 +133,7 @@ class SettingsController extends ChangeNotifier {
     if (!AppSettingsModel.supportedLanguages.contains(code)) return;
     _settings = _settings.copyWith(languageCode: code);
     await _service.save(_settings);
+    unawaited(SyncService.instance.syncSettingsOnly());
     notifyListeners();
   }
 
@@ -130,7 +144,25 @@ class SettingsController extends ChangeNotifier {
     }
     _settings = _settings.copyWith(layoutDirection: direction);
     await _service.save(_settings);
+    unawaited(SyncService.instance.syncSettingsOnly());
     notifyListeners();
+  }
+
+  /// تغيير كثافة كروت المهام (comfortable / compact).
+  Future<void> setTaskCardDensity(String density) async {
+    if (!AppSettingsModel.supportedTaskCardDensities.contains(density)) {
+      return;
+    }
+    _settings = _settings.copyWith(taskCardDensity: density);
+    await _service.save(_settings);
+    unawaited(SyncService.instance.syncSettingsOnly());
+    notifyListeners();
+  }
+
+  /// التبديل السريع بين الوضع العادي (comfortable) والمضغوط (compact).
+  Future<void> toggleTaskCardDensity() async {
+    final nextDensity = isCompactCards ? 'comfortable' : 'compact';
+    await setTaskCardDensity(nextDensity);
   }
 
   /// استرجاع الوضع الحالي للثيم بصيغة نصية متوافقة مع الافتراضيات.

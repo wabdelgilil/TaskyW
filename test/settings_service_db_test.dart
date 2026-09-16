@@ -53,7 +53,7 @@ void main() {
       expect(row['theme_mode'], 'oled');
       expect(row['language_code'], 'en');
       expect(row['layout_direction'], 'auto');
-      expect(row['sync_status'], 'synced');
+      expect(row['sync_status'], 'pending_update');
       expect(row['updated_at'], isNotEmpty);
     });
 

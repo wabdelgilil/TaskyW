@@ -258,6 +258,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navHome => 'Today';
 
   @override
+  String get navTasks => 'Tasks';
+
+  @override
   String get navProjects => 'Projects';
 
   @override
@@ -268,6 +271,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get navSettings => 'Settings';
+
+  @override
+  String get taskCardDensityTitle => 'Task Card Density';
+
+  @override
+  String get taskCardDensityComfortable => 'Comfortable';
+
+  @override
+  String get taskCardDensityCompact => 'Compact';
+
+  @override
+  String get taskCardDensityTooltip =>
+      'Toggle card density (Comfortable / Compact)';
 
   @override
   String get newTask => 'New Task';

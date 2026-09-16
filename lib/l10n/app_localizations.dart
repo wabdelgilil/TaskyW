@@ -548,6 +548,12 @@ abstract class AppLocalizations {
   /// **'اليوم'**
   String get navHome;
 
+  /// No description provided for @navTasks.
+  ///
+  /// In ar, this message translates to:
+  /// **'المهام'**
+  String get navTasks;
+
   /// No description provided for @navProjects.
   ///
   /// In ar, this message translates to:
@@ -571,6 +577,30 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'الإعدادات'**
   String get navSettings;
+
+  /// No description provided for @taskCardDensityTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'كثافة كروت المهام'**
+  String get taskCardDensityTitle;
+
+  /// No description provided for @taskCardDensityComfortable.
+  ///
+  /// In ar, this message translates to:
+  /// **'عرض مريح'**
+  String get taskCardDensityComfortable;
+
+  /// No description provided for @taskCardDensityCompact.
+  ///
+  /// In ar, this message translates to:
+  /// **'عرض مضغوط'**
+  String get taskCardDensityCompact;
+
+  /// No description provided for @taskCardDensityTooltip.
+  ///
+  /// In ar, this message translates to:
+  /// **'تبديل كثافة العرض (مريح / مضغوط)'**
+  String get taskCardDensityTooltip;
 
   /// No description provided for @newTask.
   ///

@@ -47,6 +47,9 @@ enum _SortColumn { title, status, priority, dueDate }
 class _TasksTableViewState extends State<TasksTableView> {
   _SortColumn _sortColumn = _SortColumn.dueDate;
   bool _sortAscending = true;
+  bool _groupByProject = false;
+  final Set<String> _collapsedProjects = {};
+  bool _unassignedCollapsed = false;
   final ScrollController _horizontalScrollController = ScrollController();
   final ScrollController _verticalScrollController = ScrollController();
 
@@ -56,6 +59,10 @@ class _TasksTableViewState extends State<TasksTableView> {
     _verticalScrollController.dispose();
     super.dispose();
   }
+
+  bool get _canGroupByProject =>
+      widget.projects.isNotEmpty &&
+      widget.tasks.any((t) => t.projectId != null);
 
   void _onSort(_SortColumn column) {
     setState(() {
@@ -141,100 +148,406 @@ class _TasksTableViewState extends State<TasksTableView> {
       child: SingleChildScrollView(
         controller: _verticalScrollController,
         scrollDirection: Axis.vertical,
-        child: Scrollbar(
-          controller: _horizontalScrollController,
-          thumbVisibility: true,
-          trackVisibility: true,
-          notificationPredicate: (notif) => notif.metrics.axis == Axis.horizontal,
-          child: SingleChildScrollView(
-            controller: _horizontalScrollController,
-            scrollDirection: Axis.horizontal,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 950),
-              child: DataTable(
-            showCheckboxColumn: false,
-            headingRowColor: WidgetStateProperty.all(
-              isDark ? AppColors.surface(context) : Colors.grey.shade100,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (_canGroupByProject) _buildGroupByToggle(context),
+            Scrollbar(
+              controller: _horizontalScrollController,
+              thumbVisibility: true,
+              trackVisibility: true,
+              notificationPredicate: (notif) => notif.metrics.axis == Axis.horizontal,
+              child: SingleChildScrollView(
+                controller: _horizontalScrollController,
+                scrollDirection: Axis.horizontal,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minWidth: 950),
+                  child: _groupByProject && _canGroupByProject
+                      ? _buildGroupedTables(context, sorted, isDark, projectMap, areaMap)
+                      : _buildTableContainer(
+                          _buildDataTable(
+                            context: context,
+                            tasks: sorted,
+                            isDark: isDark,
+                            projectMap: projectMap,
+                            areaMap: areaMap,
+                          ),
+                          context,
+                          isDark,
+                        ),
+                ),
+              ),
             ),
-            dataRowColor: WidgetStateProperty.resolveWith<Color?>((states) {
-              if (states.contains(WidgetState.hovered)) {
-                return Theme.of(context).colorScheme.primary.withValues(alpha: 0.05);
-              }
-              return null;
-            }),
-            columnSpacing: 18,
-            horizontalMargin: 16,
-            dividerThickness: 1.0,
-            columns: [
-              const DataColumn(
-                label: SizedBox(
-                  width: 32,
-                  child: Text('#', style: TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGroupByToggle(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.05)
+              : Colors.black.withValues(alpha: 0.03),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppColors.border(context)),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              _groupByProject ? Icons.grid_view_rounded : Icons.view_headline,
+              size: 17,
+              color: AppColors.textSecondary(context),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              context.l10n.groupByProject,
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary(context),
+              ),
+            ),
+            const Spacer(),
+            Switch(
+              value: _groupByProject,
+              onChanged: (val) => setState(() => _groupByProject = val),
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGroupedTables(
+    BuildContext context,
+    List<TaskModel> sortedTasks,
+    bool isDark,
+    Map<String, ProjectModel> projectMap,
+    Map<String, AreaModel> areaMap,
+  ) {
+    final ordered = [...widget.projects];
+    final unassigned = sortedTasks.where((t) => t.projectId == null).toList();
+    final children = <Widget>[];
+
+    for (final project in ordered) {
+      final projectTasks = sortedTasks.where((t) => t.projectId == project.id).toList();
+      if (projectTasks.isEmpty) continue;
+
+      final isCollapsed = _collapsedProjects.contains(project.id);
+      children.add(_buildProjectTableHeader(context, project, projectTasks, isDark));
+      if (!isCollapsed) {
+        children.add(const SizedBox(height: 8));
+        children.add(
+          _buildTableContainer(
+            _buildDataTable(
+              context: context,
+              tasks: projectTasks,
+              isDark: isDark,
+              projectMap: projectMap,
+              areaMap: areaMap,
+              isProjectSpecific: true,
+            ),
+            context,
+            isDark,
+          ),
+        );
+      }
+      children.add(const SizedBox(height: 20));
+    }
+
+    if (unassigned.isNotEmpty) {
+      children.add(_buildUnassignedTableHeader(context, unassigned.length, isDark));
+      if (!_unassignedCollapsed) {
+        children.add(const SizedBox(height: 8));
+        children.add(
+          _buildTableContainer(
+            _buildDataTable(
+              context: context,
+              tasks: unassigned,
+              isDark: isDark,
+              projectMap: projectMap,
+              areaMap: areaMap,
+              isProjectSpecific: false,
+            ),
+            context,
+            isDark,
+          ),
+        );
+      }
+      children.add(const SizedBox(height: 20));
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: children,
+    );
+  }
+
+  Widget _buildProjectTableHeader(
+    BuildContext context,
+    ProjectModel project,
+    List<TaskModel> projectTasks,
+    bool isDark,
+  ) {
+    final color = AppColors.adaptiveCustomColor(AppColors.fromHex(project.colorHex), isDark);
+    final total = projectTasks.length;
+    final done = projectTasks.where((t) => t.status == 'completed').length;
+    final percent = total == 0 ? 0 : ((done / total) * 100).toInt();
+    final isCollapsed = _collapsedProjects.contains(project.id);
+
+    return InkWell(
+      onTap: () {
+        setState(() {
+          if (isCollapsed) {
+            _collapsedProjects.remove(project.id);
+          } else {
+            _collapsedProjects.add(project.id);
+          }
+        });
+      },
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        constraints: const BoxConstraints(minWidth: 950),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: isDark ? 0.15 : 0.08),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: color.withValues(alpha: isDark ? 0.4 : 0.25)),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              isCollapsed ? Icons.expand_more : Icons.expand_less,
+              size: 20,
+              color: color,
+            ),
+            const SizedBox(width: 6),
+            Icon(
+              project.notificationsEnabled
+                  ? Icons.notifications_active_outlined
+                  : Icons.notifications_off_outlined,
+              size: 16,
+              color: color,
+            ),
+            const SizedBox(width: 8),
+            Text(project.iconEmoji, style: const TextStyle(fontSize: 16)),
+            const SizedBox(width: 8),
+            Text(
+              project.name,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary(context),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                '$done/$total ($percent%)',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: color,
                 ),
               ),
-              DataColumn(
-                label: InkWell(
-                  onTap: () => _onSort(_SortColumn.title),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(context.l10n.columnTitle, style: TextStyle(fontWeight: FontWeight.bold)),
-                      if (_sortColumn == _SortColumn.title)
-                        Icon(_sortAscending ? Icons.arrow_upward : Icons.arrow_downward, size: 14),
-                    ],
-                  ),
+            ),
+            const SizedBox(width: 16),
+            SizedBox(
+              width: 140,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: total == 0 ? 0.0 : done / total,
+                  backgroundColor: color.withValues(alpha: 0.15),
+                  valueColor: AlwaysStoppedAnimation<Color>(color),
+                  minHeight: 6,
                 ),
               ),
-              DataColumn(
-                label: InkWell(
-                  onTap: () => _onSort(_SortColumn.status),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(context.l10n.statusLabel, style: TextStyle(fontWeight: FontWeight.bold)),
-                      if (_sortColumn == _SortColumn.status)
-                        Icon(_sortAscending ? Icons.arrow_upward : Icons.arrow_downward, size: 14),
-                    ],
-                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUnassignedTableHeader(
+    BuildContext context,
+    int count,
+    bool isDark,
+  ) {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _unassignedCollapsed = !_unassignedCollapsed;
+        });
+      },
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        constraints: const BoxConstraints(minWidth: 950),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppColors.border(context)),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              _unassignedCollapsed ? Icons.expand_more : Icons.expand_less,
+              size: 20,
+              color: AppColors.textSecondary(context),
+            ),
+            const SizedBox(width: 6),
+            Icon(Icons.inbox_outlined, size: 16, color: AppColors.textSecondary(context)),
+            const SizedBox(width: 8),
+            Text(
+              context.l10n.noProject,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary(context),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                '$count',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textSecondary(context),
                 ),
               ),
-              DataColumn(
-                label: InkWell(
-                  onTap: () => _onSort(_SortColumn.priority),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(context.l10n.priorityLabel, style: TextStyle(fontWeight: FontWeight.bold)),
-                      if (_sortColumn == _SortColumn.priority)
-                        Icon(_sortAscending ? Icons.arrow_upward : Icons.arrow_downward, size: 14),
-                    ],
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: InkWell(
-                  onTap: () => _onSort(_SortColumn.dueDate),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(context.l10n.dueDateColumn, style: TextStyle(fontWeight: FontWeight.bold)),
-                      if (_sortColumn == _SortColumn.dueDate)
-                        Icon(_sortAscending ? Icons.arrow_upward : Icons.arrow_downward, size: 14),
-                    ],
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Text(context.l10n.areaProjectColumn, style: TextStyle(fontWeight: FontWeight.bold)),
-              ),
-              DataColumn(
-                label: Text(context.l10n.tagsColumn, style: TextStyle(fontWeight: FontWeight.bold)),
-              ),
-              DataColumn(
-                label: Text(context.l10n.subtasksColumn, style: TextStyle(fontWeight: FontWeight.bold)),
-              ),
-            ],
-            rows: sorted.map((task) {
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTableContainer(Widget tableWidget, BuildContext context, bool isDark) {
+    return Container(
+      constraints: const BoxConstraints(minWidth: 950),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surface(context) : Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.border(context)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: tableWidget,
+    );
+  }
+
+  Widget _buildDataTable({
+    required BuildContext context,
+    required List<TaskModel> tasks,
+    required bool isDark,
+    required Map<String, ProjectModel> projectMap,
+    required Map<String, AreaModel> areaMap,
+    bool isProjectSpecific = false,
+  }) {
+    return DataTable(
+      showCheckboxColumn: false,
+      headingRowColor: WidgetStateProperty.all(
+        isDark ? AppColors.surface(context) : Colors.grey.shade100,
+      ),
+      dataRowColor: WidgetStateProperty.resolveWith<Color?>((states) {
+        if (states.contains(WidgetState.hovered)) {
+          return Theme.of(context).colorScheme.primary.withValues(alpha: isDark ? 0.18 : 0.09);
+        }
+        return null;
+      }),
+      columnSpacing: 18,
+      horizontalMargin: 16,
+      dividerThickness: 1.0,
+      columns: [
+        const DataColumn(
+          label: SizedBox(
+            width: 32,
+            child: Text('#', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ),
+        DataColumn(
+          label: InkWell(
+            onTap: () => _onSort(_SortColumn.title),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(context.l10n.columnTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
+                if (_sortColumn == _SortColumn.title)
+                  Icon(_sortAscending ? Icons.arrow_upward : Icons.arrow_downward, size: 14),
+              ],
+            ),
+          ),
+        ),
+        DataColumn(
+          label: InkWell(
+            onTap: () => _onSort(_SortColumn.status),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(context.l10n.statusLabel, style: const TextStyle(fontWeight: FontWeight.bold)),
+                if (_sortColumn == _SortColumn.status)
+                  Icon(_sortAscending ? Icons.arrow_upward : Icons.arrow_downward, size: 14),
+              ],
+            ),
+          ),
+        ),
+        DataColumn(
+          label: InkWell(
+            onTap: () => _onSort(_SortColumn.priority),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(context.l10n.priorityLabel, style: const TextStyle(fontWeight: FontWeight.bold)),
+                if (_sortColumn == _SortColumn.priority)
+                  Icon(_sortAscending ? Icons.arrow_upward : Icons.arrow_downward, size: 14),
+              ],
+            ),
+          ),
+        ),
+        DataColumn(
+          label: InkWell(
+            onTap: () => _onSort(_SortColumn.dueDate),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(context.l10n.dueDateColumn, style: const TextStyle(fontWeight: FontWeight.bold)),
+                if (_sortColumn == _SortColumn.dueDate)
+                  Icon(_sortAscending ? Icons.arrow_upward : Icons.arrow_downward, size: 14),
+              ],
+            ),
+          ),
+        ),
+        DataColumn(
+          label: Text(context.l10n.areaProjectColumn, style: const TextStyle(fontWeight: FontWeight.bold)),
+        ),
+        DataColumn(
+          label: Text(context.l10n.tagsColumn, style: const TextStyle(fontWeight: FontWeight.bold)),
+        ),
+        DataColumn(
+          label: Text(context.l10n.subtasksColumn, style: const TextStyle(fontWeight: FontWeight.bold)),
+        ),
+      ],
+      rows: tasks.map((task) {
               final isCompleted = task.status == 'completed';
               final totalSubs = widget.subtaskCounts[task.id] ?? 0;
               final doneSubs = widget.completedSubtaskCounts[task.id] ?? 0;
@@ -354,28 +667,43 @@ class _TasksTableViewState extends State<TasksTableView> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (project != null) ...[
-                            Text(project.iconEmoji, style: const TextStyle(fontSize: 13)),
-                            const SizedBox(width: 4),
-                            Flexible(
-                              child: Text(
-                                project.name,
-                                style: const TextStyle(fontSize: 12),
-                                overflow: TextOverflow.ellipsis,
+                          if (isProjectSpecific) ...[
+                            if (area != null) ...[
+                              Text(area.iconEmoji, style: const TextStyle(fontSize: 13)),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  area.name,
+                                  style: const TextStyle(fontSize: 12),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                            ),
-                          ] else if (area != null) ...[
-                            Text(area.iconEmoji, style: const TextStyle(fontSize: 13)),
-                            const SizedBox(width: 4),
-                            Flexible(
-                              child: Text(
-                                area.name,
-                                style: const TextStyle(fontSize: 12),
-                                overflow: TextOverflow.ellipsis,
+                            ] else
+                              Text('-', style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor)),
+                          ] else ...[
+                            if (project != null) ...[
+                              Text(project.iconEmoji, style: const TextStyle(fontSize: 13)),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  project.name,
+                                  style: const TextStyle(fontSize: 12),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                            ),
-                          ] else
-                            Text('-', style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor)),
+                            ] else if (area != null) ...[
+                              Text(area.iconEmoji, style: const TextStyle(fontSize: 13)),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  area.name,
+                                  style: const TextStyle(fontSize: 12),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ] else
+                              Text('-', style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor)),
+                          ],
                         ],
                       ),
                     ),
@@ -449,12 +777,7 @@ class _TasksTableViewState extends State<TasksTableView> {
                 ],
               );
             }).toList(),
-          ),
-        ),
-      ),
-    ),
-  ),
-);
+    );
   }
 
   Widget _buildDueDateCell(DateTime dueDate, bool isCompleted, BuildContext context) {

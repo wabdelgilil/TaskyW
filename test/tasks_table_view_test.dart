@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:tasky/features/projects/data/models/project_model.dart';
 import 'package:tasky/features/tasks/data/models/task_model.dart';
 import 'package:tasky/features/tasks/presentation/widgets/tasks_table_view.dart';
+import 'package:tasky/l10n/app_localizations.dart';
 
 void main() {
   final sampleTasks = [
@@ -40,6 +43,14 @@ void main() {
 
   Widget buildTestableWidget(Widget child) {
     return MaterialApp(
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('ar'), Locale('en')],
+      locale: const Locale('ar'),
       home: Scaffold(
         body: child,
       ),
@@ -132,5 +143,106 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byIcon(Icons.arrow_upward), findsOneWidget);
+  });
+
+  testWidgets('TasksTableView shows group by project toggle and splits into multiple tables', (tester) async {
+    final projects = [
+      ProjectModel(
+        id: 'proj-1',
+        areaId: 'area-1',
+        name: 'مشروع الواجهات',
+        iconEmoji: '🎨',
+        colorHex: '#3B82F6',
+        createdAt: DateTime(2026, 9, 1),
+        updatedAt: DateTime(2026, 9, 1),
+      ),
+      ProjectModel(
+        id: 'proj-2',
+        areaId: 'area-1',
+        name: 'مشروع الخوادم',
+        iconEmoji: '⚙️',
+        colorHex: '#10B981',
+        createdAt: DateTime(2026, 9, 1),
+        updatedAt: DateTime(2026, 9, 1),
+      ),
+    ];
+
+    final tasksWithProjects = [
+      TaskModel(
+        id: 'task-p1',
+        areaId: 'area-1',
+        projectId: 'proj-1',
+        title: 'مهمة تصميم الأزرار',
+        status: 'completed',
+        priority: 'high',
+        createdAt: DateTime(2026, 9, 1),
+        updatedAt: DateTime(2026, 9, 1),
+      ),
+      TaskModel(
+        id: 'task-p2',
+        areaId: 'area-1',
+        projectId: 'proj-2',
+        title: 'مهمة تهيئة API',
+        status: 'in_progress',
+        priority: 'urgent',
+        createdAt: DateTime(2026, 9, 2),
+        updatedAt: DateTime(2026, 9, 2),
+      ),
+      TaskModel(
+        id: 'task-standalone',
+        areaId: 'area-1',
+        title: 'مهمة مستقلة بدون مشروع',
+        status: 'todo',
+        priority: 'low',
+        createdAt: DateTime(2026, 9, 3),
+        updatedAt: DateTime(2026, 9, 3),
+      ),
+    ];
+
+    await tester.pumpWidget(
+      buildTestableWidget(
+        TasksTableView(
+          tasks: tasksWithProjects,
+          projects: projects,
+        ),
+      ),
+    );
+
+    // Verify group by project toggle is visible
+    expect(find.text('تجميع بحسب المشروع'), findsOneWidget);
+
+    // Initially single table contains all tasks
+    expect(find.byType(DataTable), findsOneWidget);
+
+    // Tap switch to enable group by project
+    final switchFinder = find.byType(Switch);
+    expect(switchFinder, findsOneWidget);
+    await tester.tap(switchFinder);
+    await tester.pumpAndSettle();
+
+    // Now multiple tables should be rendered (proj-1, proj-2, and unassigned)
+    expect(find.byType(DataTable), findsNWidgets(3));
+
+    // Verify project headers
+    expect(find.text('مشروع الواجهات'), findsOneWidget);
+    expect(find.text('مشروع الخوادم'), findsOneWidget);
+    expect(find.text('بدون مشروع'), findsOneWidget);
+
+    // Verify progress badge for proj-1 (1 done of 1)
+    expect(find.text('1/1 (100%)'), findsOneWidget);
+    // Verify progress badge for proj-2 (0 done of 1)
+    expect(find.text('0/1 (0%)'), findsOneWidget);
+
+    // Tap project 1 header to collapse it
+    await tester.tap(find.text('مشروع الواجهات'));
+    await tester.pumpAndSettle();
+
+    // Now DataTable count should decrease to 2 because proj-1 table is collapsed
+    expect(find.byType(DataTable), findsNWidgets(2));
+
+    // Tap project 1 header again to expand
+    await tester.tap(find.text('مشروع الواجهات'));
+    await tester.pumpAndSettle();
+    expect(find.byType(DataTable), findsNWidgets(3));
   });
 }

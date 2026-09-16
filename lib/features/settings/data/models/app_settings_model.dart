@@ -27,6 +27,9 @@ class AppSettingsModel {
   /// بترتيب اليسار→يمين حتى لو كانت اللغة العربية، بينما `auto` يتبعه لاتجاه اللغة.
   final String layoutDirection;
 
+  /// كثافة كروت المهام: comfortable (مريح، افتراضي) أو compact (مضغوط).
+  final String taskCardDensity;
+
   const AppSettingsModel({
     this.notificationsEnabled = true,
     this.defaultReminderMinutes = 15,
@@ -35,6 +38,7 @@ class AppSettingsModel {
     this.themeMode = 'light',
     this.languageCode = 'system',
     this.layoutDirection = 'ltr',
+    this.taskCardDensity = 'comfortable',
   });
 
   AppSettingsModel copyWith({
@@ -45,6 +49,7 @@ class AppSettingsModel {
     String? themeMode,
     String? languageCode,
     String? layoutDirection,
+    String? taskCardDensity,
   }) {
     return AppSettingsModel(
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
@@ -55,6 +60,7 @@ class AppSettingsModel {
       themeMode: themeMode ?? this.themeMode,
       languageCode: languageCode ?? this.languageCode,
       layoutDirection: layoutDirection ?? this.layoutDirection,
+      taskCardDensity: taskCardDensity ?? this.taskCardDensity,
     );
   }
 
@@ -80,4 +86,10 @@ class AppSettingsModel {
 
   /// اتجاهات تخطيط الواجهة المدعومة (مفصولة عن اللغة).
   static const List<String> supportedLayoutDirections = ['ltr', 'auto'];
+
+  /// خيارات كثافة كروت المهام المدعومة.
+  static const List<String> supportedTaskCardDensities = [
+    'comfortable',
+    'compact',
+  ];
 }

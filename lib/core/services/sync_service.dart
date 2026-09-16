@@ -9,6 +9,7 @@ import '../database/database_tables.dart';
 import '../../features/tasks/services/attachment_service.dart';
 import '../../features/settings/data/models/app_settings_model.dart';
 import '../../features/settings/data/services/settings_service.dart';
+import '../../features/settings/presentation/controllers/settings_controller.dart';
 import 'supabase_service.dart';
 
 /// نتيجة عملية المزامنة.
@@ -342,6 +343,24 @@ class SyncService {
     );
   }
 
+  /// مزامنة إعدادات المستخدم فقط بشكل فوري مع السحابة (خفيف وسريع).
+  Future<bool> syncSettingsOnly() async {
+    final userId = _tryGetUserId();
+    if (userId == null) return false;
+    final client = _tryGetClient();
+    if (client == null) return false;
+    final db = await AppDatabase.instance.database;
+
+    try {
+      await _pushUserSettings(db, client, userId);
+      await _pullUserSettings(db, client, userId);
+      return true;
+    } catch (e) {
+      debugPrint('[SyncService] syncSettingsOnly error: $e');
+      return false;
+    }
+  }
+
   // ─── مزامنة إعدادات المستخدم (سطر واحد لكل مستخدم) ─────────────────────
 
   /// رفع الإعدادات المحلية إلى سحابة المستخدم إن كانت أحدث أو غير موجودة.
@@ -388,8 +407,17 @@ class SyncService {
       'theme_mode': (local['theme_mode'] as String?) ?? 'light',
       'language_code': (local['language_code'] as String?) ?? 'system',
       'layout_direction': (local['layout_direction'] as String?) ?? 'ltr',
+      'task_card_density':
+          (local['task_card_density'] as String?) ?? 'comfortable',
       'updated_at': local['updated_at'] ?? '',
     }, onConflict: 'user_id');
+
+    await db.update(
+      table,
+      {'sync_status': 'synced'},
+      where: 'id = ?',
+      whereArgs: ['default'],
+    );
   }
 
   /// تنزيل إعدادات المستخدم من السحابة وتطبيقها محلياً إن كانت أحدث.
@@ -432,8 +460,21 @@ class SyncService {
       themeMode: (cloud['theme_mode'] as String?) ?? 'light',
       languageCode: (cloud['language_code'] as String?) ?? 'system',
       layoutDirection: (cloud['layout_direction'] as String?) ?? 'ltr',
+      taskCardDensity:
+          (cloud['task_card_density'] as String?) ?? 'comfortable',
     );
     await SettingsService().save(model);
+    try {
+      await SettingsController.instance.load();
+    } catch (e) {
+      debugPrint('[SyncService] Failed to reload SettingsController: $e');
+    }
+    await db.update(
+      table,
+      {'sync_status': 'synced'},
+      where: 'id = ?',
+      whereArgs: ['default'],
+    );
     return true;
   }
 

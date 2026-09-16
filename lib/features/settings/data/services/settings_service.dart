@@ -19,6 +19,7 @@ class SettingsService {
   static const String _keyThemeMode = 'settings.theme_mode';
   static const String _keyLanguageCode = 'settings.language_code';
   static const String _keyLayoutDirection = 'settings.layout_direction';
+  static const String _keyTaskCardDensity = 'settings.task_card_density';
 
   static const String _dbRowId = 'default';
 
@@ -32,7 +33,8 @@ class SettingsService {
         prefs.containsKey(_keyViewMode) ||
         prefs.containsKey(_keyThemeMode) ||
         prefs.containsKey(_keyLanguageCode) ||
-        prefs.containsKey(_keyLayoutDirection);
+        prefs.containsKey(_keyLayoutDirection) ||
+        prefs.containsKey(_keyTaskCardDensity);
     if (hasPrefs) {
       final model = _fromPrefs(prefs);
       // عكسها إلى قاعدة SQLite لتحضيرها للمزامنة السحابية.
@@ -64,6 +66,7 @@ class SettingsService {
     await prefs.remove(_keyThemeMode);
     await prefs.remove(_keyLanguageCode);
     await prefs.remove(_keyLayoutDirection);
+    await prefs.remove(_keyTaskCardDensity);
 
     try {
       final db = await AppDatabase.instance.database;
@@ -88,6 +91,7 @@ class SettingsService {
     await prefs.setString(_keyThemeMode, model.themeMode);
     await prefs.setString(_keyLanguageCode, model.languageCode);
     await prefs.setString(_keyLayoutDirection, model.layoutDirection);
+    await prefs.setString(_keyTaskCardDensity, model.taskCardDensity);
   }
 
   AppSettingsModel _fromPrefs(SharedPreferences prefs) {
@@ -99,16 +103,31 @@ class SettingsService {
       themeMode: prefs.getString(_keyThemeMode) ?? 'light',
       languageCode: prefs.getString(_keyLanguageCode) ?? 'system',
       layoutDirection: prefs.getString(_keyLayoutDirection) ?? 'ltr',
+      taskCardDensity: prefs.getString(_keyTaskCardDensity) ?? 'comfortable',
     );
   }
 
   // ─── طبقة SQLite ───────────────────────────────────────────────────────
 
-  /// عكس الإعدادات إلى صف SQLite الوحيد (id = 'default') بعلامة `synced`.
+  /// عكس الإعدادات إلى صف SQLite الوحيد (id = 'default') بعلامة `pending_update`.
   Future<void> _mirrorToDb(AppSettingsModel model) async {
     try {
       final db = await AppDatabase.instance.database;
       final now = DateTime.now().toUtc().toIso8601String();
+
+      // ضمان وجود عمود task_card_density في الجداول الحالية دون أخطاء
+      final columns = await db.rawQuery(
+        'PRAGMA table_info(${DatabaseTables.userSettingsTable})',
+      );
+      final columnNames = columns.map((c) => c['name'] as String).toSet();
+      if (!columnNames.contains('task_card_density')) {
+        try {
+          await db.execute(
+            "ALTER TABLE ${DatabaseTables.userSettingsTable} ADD COLUMN task_card_density TEXT NOT NULL DEFAULT 'comfortable'",
+          );
+          columnNames.add('task_card_density');
+        } catch (_) {}
+      }
 
       final existing = await db.query(
         DatabaseTables.userSettingsTable,
@@ -126,9 +145,13 @@ class SettingsService {
         'theme_mode': model.themeMode,
         'language_code': model.languageCode,
         'layout_direction': model.layoutDirection,
-        'sync_status': 'synced',
+        'sync_status': 'pending_update',
         'updated_at': now,
       };
+
+      if (columnNames.contains('task_card_density')) {
+        values['task_card_density'] = model.taskCardDensity;
+      }
 
       if (existing.isEmpty) {
         values['created_at'] = now;
@@ -167,6 +190,7 @@ class SettingsService {
         themeMode: r['theme_mode'] as String? ?? 'light',
         languageCode: r['language_code'] as String? ?? 'system',
         layoutDirection: r['layout_direction'] as String? ?? 'ltr',
+        taskCardDensity: r['task_card_density'] as String? ?? 'comfortable',
       );
     } catch (e) {
       debugPrint('[SettingsService] DB read failed: $e');
