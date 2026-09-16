@@ -50,7 +50,7 @@ class AppSettingsModel {
     this.taskCardDensity = 'comfortable',
     this.geminiApiKey,
     this.aiEnabled = true,
-    this.aiModel = 'gemini-2.0-flash',
+    this.aiModel = 'gemini-2.5-flash',
   });
 
   AppSettingsModel copyWith({
@@ -110,5 +110,12 @@ class AppSettingsModel {
   static const List<String> supportedTaskCardDensities = [
     'comfortable',
     'compact',
+  ];
+
+  /// نماذج Gemini المدعومة.
+  static const List<String> supportedAiModels = [
+    'gemini-2.5-flash',
+    'gemini-3.6-flash',
+    'gemini-2.5-pro',
   ];
 }

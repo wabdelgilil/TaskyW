@@ -90,6 +90,10 @@ class SettingsController extends ChangeNotifier {
   /// تحميل الإعدادات المحفوظة وتطبيق الثيم المحفوظ على `ThemeController`.
   Future<void> load() async {
     _settings = await _service.load();
+    if (_settings.aiModel == 'gemini-2.0-flash' || _settings.aiModel == 'gemini-1.5-flash') {
+      _settings = _settings.copyWith(aiModel: 'gemini-2.5-flash');
+      await _service.save(_settings);
+    }
     _loaded = true;
     ThemeController.instance.setStyle(_themeStyleFromString(_settings.themeMode));
     notifyListeners();
@@ -204,23 +208,61 @@ class SettingsController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// اختبار اتصال مفتاح الـ API والتحقق من صلاحيته وتحديد أفضل نموذج شغال تلقائياً.
+  Future<({bool success, String? error, String? workingModel})> testGeminiApiKeyDetailed(String apiKey) async {
+    final key = apiKey.trim();
+    if (key.isEmpty) {
+      return (success: false, error: 'يرجى إدخال مفتاح الـ API أولاً.', workingModel: null);
+    }
+
+    final candidateModels = <String>{
+      _settings.aiModel,
+      'gemini-2.5-flash',
+      'gemini-3.6-flash',
+      'gemini-2.5-pro',
+    }.toList();
+
+    String? lastError;
+
+    for (final modelName in candidateModels) {
+      try {
+        final model = GenerativeModel(
+          model: modelName,
+          apiKey: key,
+        );
+        final response = await model.generateContent([
+          Content.text('Hello'),
+        ]);
+        if (response.text != null && response.text!.isNotEmpty) {
+          if (_settings.aiModel != modelName) {
+            await setAiModel(modelName);
+          }
+          return (success: true, error: null, workingModel: modelName);
+        }
+      } catch (e) {
+        lastError = e.toString();
+        debugPrint('[SettingsController] test failed for model $modelName: $e');
+      }
+    }
+
+    String userFriendlyError = 'فشل التحقق من المفتاح';
+    if (lastError != null) {
+      if (lastError.contains('API_KEY_INVALID') || lastError.contains('400') || lastError.contains('invalid')) {
+        userFriendlyError = 'مفتاح الـ API غير صالح، يرجى التأكد من نسخه بشكل صحيح من Google AI Studio';
+      } else if (lastError.contains('Failed to fetch') || lastError.contains('Network') || lastError.contains('SocketException')) {
+        userFriendlyError = 'تعذر الاتصال بالخادم، يرجى التأكد من اتصال الإنترنت';
+      } else {
+        userFriendlyError = lastError;
+      }
+    }
+
+    return (success: false, error: userFriendlyError, workingModel: null);
+  }
+
   /// اختبار اتصال مفتاح الـ API والتحقق من صلاحيته فورياً.
   Future<bool> testGeminiApiKey(String apiKey) async {
-    try {
-      final key = apiKey.trim();
-      if (key.isEmpty) return false;
-      final model = GenerativeModel(
-        model: _settings.aiModel,
-        apiKey: key,
-      );
-      final response = await model.generateContent([
-        Content.text('Hello, respond with OK'),
-      ]);
-      return response.text != null && response.text!.isNotEmpty;
-    } catch (e) {
-      debugPrint('[SettingsController] testGeminiApiKey failed: $e');
-      return false;
-    }
+    final res = await testGeminiApiKeyDetailed(apiKey);
+    return res.success;
   }
 
   /// استرجاع الوضع الحالي للثيم بصيغة نصية متوافقة مع الافتراضيات.

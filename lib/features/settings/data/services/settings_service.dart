@@ -120,8 +120,18 @@ class SettingsService {
       taskCardDensity: prefs.getString(_keyTaskCardDensity) ?? 'comfortable',
       geminiApiKey: prefs.getString(_keyGeminiApiKey),
       aiEnabled: prefs.getBool(_keyAiEnabled) ?? true,
-      aiModel: prefs.getString(_keyAiModel) ?? 'gemini-2.0-flash',
+      aiModel: _sanitizeAiModel(prefs.getString(_keyAiModel)),
     );
+  }
+
+  String _sanitizeAiModel(String? model) {
+    if (model == null ||
+        model.trim().isEmpty ||
+        model == 'gemini-2.0-flash' ||
+        model == 'gemini-1.5-flash') {
+      return 'gemini-2.5-flash';
+    }
+    return model;
   }
 
   // ─── طبقة SQLite ───────────────────────────────────────────────────────

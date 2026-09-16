@@ -516,18 +516,20 @@ class _AiSettingsCardState extends State<_AiSettingsCard> {
       _testSuccess = null;
     });
 
-    final success = await SettingsController.instance.testGeminiApiKey(keyToTest);
+    final result = await SettingsController.instance.testGeminiApiKeyDetailed(keyToTest);
 
     if (!mounted) return;
     setState(() {
       _isTesting = false;
-      _testSuccess = success;
-      _testMessage = success
-          ? 'تم التحقق بنجاح! المفتاح يعمل وجاهز للاستخدام 🚀'
-          : 'فشل التحقق: يرجى التأكد من صحة المفتاح واتصال الإنترنت.';
+      _testSuccess = result.success;
+      if (result.success) {
+        _testMessage = 'تم التحقق بنجاح! المفتاح يعمل ومربوط بنموذج ${result.workingModel} 🚀';
+      } else {
+        _testMessage = 'فشل التحقق: ${result.error ?? "يرجى التأكد من صحة المفتاح واتصال الإنترنت."}';
+      }
     });
 
-    if (success) {
+    if (result.success) {
       await SettingsController.instance.setGeminiApiKey(keyToTest);
     }
   }
@@ -641,7 +643,7 @@ class _AiSettingsCardState extends State<_AiSettingsCard> {
               obscureText: _obscureKey,
               decoration: InputDecoration(
                 labelText: 'Google Gemini API Key',
-                hintText: 'ألصق المفتاح هنا (AIzaSy...)',
+                hintText: 'ألصق المفتاح هنا (AIzaSy... أو AQ...)',
                 isDense: true,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),

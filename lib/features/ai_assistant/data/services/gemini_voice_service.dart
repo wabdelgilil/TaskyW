@@ -13,13 +13,16 @@ class GeminiVoiceService {
   GeminiVoiceService._internal();
 
   /// تجهيز النموذج المولد مع تكوين إخراج JSON صارم
-  GenerativeModel? _buildModel({String? overrideApiKey}) {
+  GenerativeModel? _buildModel({String? overrideApiKey, String? overrideModel}) {
     final apiKey = overrideApiKey ?? SettingsController.instance.geminiApiKey;
     if (apiKey == null || apiKey.trim().isEmpty) {
       return null;
     }
 
-    final modelName = SettingsController.instance.aiModel;
+    String modelName = overrideModel ?? SettingsController.instance.aiModel;
+    if (modelName == 'gemini-2.0-flash' || modelName == 'gemini-1.5-flash') {
+      modelName = 'gemini-2.5-flash';
+    }
 
     return GenerativeModel(
       model: modelName,
