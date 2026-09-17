@@ -409,6 +409,10 @@ class SyncService {
       'layout_direction': (local['layout_direction'] as String?) ?? 'ltr',
       'task_card_density':
           (local['task_card_density'] as String?) ?? 'comfortable',
+      'gemini_api_key': local['gemini_api_key'] as String?,
+      'ai_enabled': ((local['ai_enabled'] as int?) ?? 1) != 0,
+      'ai_model': (local['ai_model'] as String?) ?? 'gemini-2.5-flash',
+      'ai_voice': (local['ai_voice'] as String?) ?? 'Puck',
       'updated_at': local['updated_at'] ?? '',
     }, onConflict: 'user_id');
 
@@ -462,6 +466,10 @@ class SyncService {
       layoutDirection: (cloud['layout_direction'] as String?) ?? 'ltr',
       taskCardDensity:
           (cloud['task_card_density'] as String?) ?? 'comfortable',
+      geminiApiKey: cloud['gemini_api_key'] as String?,
+      aiEnabled: (cloud['ai_enabled'] as bool?) ?? true,
+      aiModel: (cloud['ai_model'] as String?) ?? 'gemini-2.5-flash',
+      aiVoice: (cloud['ai_voice'] as String?) ?? 'Puck',
     );
     await SettingsService().save(model);
     try {

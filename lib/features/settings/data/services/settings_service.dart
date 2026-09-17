@@ -159,6 +159,38 @@ class SettingsService {
           columnNames.add('task_card_density');
         } catch (_) {}
       }
+      if (!columnNames.contains('gemini_api_key')) {
+        try {
+          await db.execute(
+            "ALTER TABLE ${DatabaseTables.userSettingsTable} ADD COLUMN gemini_api_key TEXT",
+          );
+          columnNames.add('gemini_api_key');
+        } catch (_) {}
+      }
+      if (!columnNames.contains('ai_enabled')) {
+        try {
+          await db.execute(
+            "ALTER TABLE ${DatabaseTables.userSettingsTable} ADD COLUMN ai_enabled INTEGER NOT NULL DEFAULT 1",
+          );
+          columnNames.add('ai_enabled');
+        } catch (_) {}
+      }
+      if (!columnNames.contains('ai_model')) {
+        try {
+          await db.execute(
+            "ALTER TABLE ${DatabaseTables.userSettingsTable} ADD COLUMN ai_model TEXT NOT NULL DEFAULT 'gemini-2.5-flash'",
+          );
+          columnNames.add('ai_model');
+        } catch (_) {}
+      }
+      if (!columnNames.contains('ai_voice')) {
+        try {
+          await db.execute(
+            "ALTER TABLE ${DatabaseTables.userSettingsTable} ADD COLUMN ai_voice TEXT NOT NULL DEFAULT 'Puck'",
+          );
+          columnNames.add('ai_voice');
+        } catch (_) {}
+      }
 
       final existing = await db.query(
         DatabaseTables.userSettingsTable,
@@ -182,6 +214,18 @@ class SettingsService {
 
       if (columnNames.contains('task_card_density')) {
         values['task_card_density'] = model.taskCardDensity;
+      }
+      if (columnNames.contains('gemini_api_key')) {
+        values['gemini_api_key'] = model.geminiApiKey;
+      }
+      if (columnNames.contains('ai_enabled')) {
+        values['ai_enabled'] = model.aiEnabled ? 1 : 0;
+      }
+      if (columnNames.contains('ai_model')) {
+        values['ai_model'] = model.aiModel;
+      }
+      if (columnNames.contains('ai_voice')) {
+        values['ai_voice'] = model.aiVoice;
       }
 
       if (existing.isEmpty) {
@@ -222,6 +266,10 @@ class SettingsService {
         languageCode: r['language_code'] as String? ?? 'system',
         layoutDirection: r['layout_direction'] as String? ?? 'ltr',
         taskCardDensity: r['task_card_density'] as String? ?? 'comfortable',
+        geminiApiKey: r['gemini_api_key'] as String?,
+        aiEnabled: (r['ai_enabled'] as int? ?? 1) != 0,
+        aiModel: _sanitizeAiModel(r['ai_model'] as String?),
+        aiVoice: (r['ai_voice'] as String?) ?? 'Puck',
       );
     } catch (e) {
       debugPrint('[SettingsService] DB read failed: $e');

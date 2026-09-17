@@ -2,6 +2,18 @@
 
 ## سجل الإنجازات والمهام المكتملة
 
+### [2026-09-18] - حفظ ومزامنة مفتاح وإعدادات الذكاء الاصطناعي في SQLite والسحابة (v3.3.4+1)
+- **الحفظ والمزامنة السحابية لإعدادات الذكاء الاصطناعي (AI Settings Cloud & SQLite Persistence)**:
+  - إضافة أعمدة `gemini_api_key`, `ai_enabled`, `ai_model`, `ai_voice` لجدول `user_settings` محلياً وسحابياً.
+  - تجهيز ملف ترحيل Supabase السحابي `supabase/migrations/20260918000100_add_ai_settings.sql` لمشروع Tasky الرسمي.
+  - ترقية دالة الهجرة التلقائية `_ensureUserSettingsColumns` في `AppDatabase` و `_mirrorToDb` / `_readFromDb` في `SettingsService` لعكس واسترجاع المفتاح والإعدادات من وإلى SQLite عند كل تشغيل أو تسجيل دخول بجهاز جديد.
+  - تحديث `SyncService` لرفع (`_pushUserSettings`) وسحب (`_pullUserSettings`) المفتاح والصوت المفضل مع حساب المستخدم في Supabase.
+  - ربط كافة دوال التعديل في `SettingsController` بالمزامنة الفورية في الخلفية `unawaited(SyncService.instance.syncSettingsOnly())`.
+- **الفحص والتحقق**:
+  - `flutter analyze`: **0 issues found!** بنجاح كامل.
+  - اختبارات الوحدة والواجهات: **31/31 اختباراً ناجحاً بنسبة 100%**.
+  - ترقية الإصدار إلى **v3.3.4+1** في `pubspec.yaml` و `app_version.dart`.
+
 ### [2026-09-17] - محادثة صوتية بشرية حقيقية بالذكاء الاصطناعي (Gemini Generative AI Voice) (v3.3.3+1)
 - **صوت بشري أصلي من الذكاء الاصطناعي (Generative Speech عبر Gemini 2.5 Flash TTS)**:
   - الاستغناء التام عن المحركات الروبوتية الميكانيكية الباردة لنظام التشغيل (`flutter_tts`).

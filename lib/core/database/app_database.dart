@@ -155,7 +155,7 @@ class AppDatabase {
     }
   }
 
-  /// إضافة أعمدة مرحلة الترقية لجدول إعدادات المستخدم دون تكرار (كثافة كروت المهام).
+  /// إضافة أعمدة مرحلة الترقية لجدول إعدادات المستخدم دون تكرار (كثافة كروت المهام وإعدادات الذكاء الاصطناعي).
   Future<void> _ensureUserSettingsColumns(Database db) async {
     final columns = await db.rawQuery('PRAGMA table_info(user_settings)');
     final existing = columns.map((c) => c['name'] as String).toSet();
@@ -163,6 +163,26 @@ class AppDatabase {
     if (!existing.contains('task_card_density')) {
       await db.execute(
         "ALTER TABLE user_settings ADD COLUMN task_card_density TEXT NOT NULL DEFAULT 'comfortable'",
+      );
+    }
+    if (!existing.contains('gemini_api_key')) {
+      await db.execute(
+        "ALTER TABLE user_settings ADD COLUMN gemini_api_key TEXT",
+      );
+    }
+    if (!existing.contains('ai_enabled')) {
+      await db.execute(
+        "ALTER TABLE user_settings ADD COLUMN ai_enabled INTEGER NOT NULL DEFAULT 1",
+      );
+    }
+    if (!existing.contains('ai_model')) {
+      await db.execute(
+        "ALTER TABLE user_settings ADD COLUMN ai_model TEXT NOT NULL DEFAULT 'gemini-2.5-flash'",
+      );
+    }
+    if (!existing.contains('ai_voice')) {
+      await db.execute(
+        "ALTER TABLE user_settings ADD COLUMN ai_voice TEXT NOT NULL DEFAULT 'Puck'",
       );
     }
   }

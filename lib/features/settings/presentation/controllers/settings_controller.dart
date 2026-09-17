@@ -185,6 +185,7 @@ class SettingsController extends ChangeNotifier {
     final trimmed = key.trim();
     _settings = _settings.copyWith(geminiApiKey: trimmed.isEmpty ? null : trimmed);
     await _service.save(_settings);
+    unawaited(SyncService.instance.syncSettingsOnly());
     notifyListeners();
   }
 
@@ -192,6 +193,7 @@ class SettingsController extends ChangeNotifier {
   Future<void> clearGeminiApiKey() async {
     _settings = _settings.copyWith(clearGeminiApiKey: true);
     await _service.save(_settings);
+    unawaited(SyncService.instance.syncSettingsOnly());
     notifyListeners();
   }
 
@@ -199,6 +201,7 @@ class SettingsController extends ChangeNotifier {
   Future<void> setAiEnabled(bool enabled) async {
     _settings = _settings.copyWith(aiEnabled: enabled);
     await _service.save(_settings);
+    unawaited(SyncService.instance.syncSettingsOnly());
     notifyListeners();
   }
 
@@ -206,6 +209,7 @@ class SettingsController extends ChangeNotifier {
   Future<void> setAiModel(String model) async {
     _settings = _settings.copyWith(aiModel: model);
     await _service.save(_settings);
+    unawaited(SyncService.instance.syncSettingsOnly());
     notifyListeners();
   }
 
@@ -214,6 +218,7 @@ class SettingsController extends ChangeNotifier {
     if (!AppSettingsModel.supportedAiVoices.contains(voice)) return;
     _settings = _settings.copyWith(aiVoice: voice);
     await _service.save(_settings);
+    unawaited(SyncService.instance.syncSettingsOnly());
     notifyListeners();
   }
 

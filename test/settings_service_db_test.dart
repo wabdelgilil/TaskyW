@@ -130,5 +130,30 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.getString('settings.language_code'), isNull);
     });
+
+    test('save() and load() يحفظ ويستعيد إعدادات ومفتاح الذكاء الاصطناعي من SQLite', () async {
+      const model = AppSettingsModel(
+        geminiApiKey: 'AIzaSyTestApiKey123',
+        aiEnabled: true,
+        aiModel: 'gemini-2.5-flash',
+        aiVoice: 'Aoede',
+      );
+      await service.save(model);
+
+      final row = await dbRow('default');
+      expect(row, isNotNull);
+      expect(row!['gemini_api_key'], 'AIzaSyTestApiKey123');
+      expect(row['ai_enabled'], 1);
+      expect(row['ai_model'], 'gemini-2.5-flash');
+      expect(row['ai_voice'], 'Aoede');
+
+      // محاكاة جهاز جديد: تفريغ الـ prefs واسترجاع الإعدادات من SQLite
+      SharedPreferences.setMockInitialValues({});
+      final restored = await service.load();
+      expect(restored.geminiApiKey, 'AIzaSyTestApiKey123');
+      expect(restored.aiEnabled, true);
+      expect(restored.aiModel, 'gemini-2.5-flash');
+      expect(restored.aiVoice, 'Aoede');
+    });
   });
 }
