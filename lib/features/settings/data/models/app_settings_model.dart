@@ -39,6 +39,9 @@ class AppSettingsModel {
   /// نموذج الذكاء الاصطناعي الافتراضي.
   final String aiModel;
 
+  /// شخصية وصوت الذكاء الاصطناعي البشري التوليدي: Puck (حيوي)، Aoede (هادئ)، Kore (ودود)، Fenrir (رصين).
+  final String aiVoice;
+
   const AppSettingsModel({
     this.notificationsEnabled = true,
     this.defaultReminderMinutes = 15,
@@ -51,6 +54,7 @@ class AppSettingsModel {
     this.geminiApiKey,
     this.aiEnabled = true,
     this.aiModel = 'gemini-2.5-flash',
+    this.aiVoice = 'Puck',
   });
 
   AppSettingsModel copyWith({
@@ -66,6 +70,7 @@ class AppSettingsModel {
     bool clearGeminiApiKey = false,
     bool? aiEnabled,
     String? aiModel,
+    String? aiVoice,
   }) {
     return AppSettingsModel(
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
@@ -80,6 +85,7 @@ class AppSettingsModel {
       geminiApiKey: clearGeminiApiKey ? null : (geminiApiKey ?? this.geminiApiKey),
       aiEnabled: aiEnabled ?? this.aiEnabled,
       aiModel: aiModel ?? this.aiModel,
+      aiVoice: aiVoice ?? this.aiVoice,
     );
   }
 
@@ -117,5 +123,13 @@ class AppSettingsModel {
     'gemini-2.5-flash',
     'gemini-3.6-flash',
     'gemini-2.5-pro',
+  ];
+
+  /// أصوات الذكاء الاصطناعي التوليدي المدعومة من Gemini.
+  static const List<String> supportedAiVoices = [
+    'Puck',
+    'Aoede',
+    'Kore',
+    'Fenrir',
   ];
 }

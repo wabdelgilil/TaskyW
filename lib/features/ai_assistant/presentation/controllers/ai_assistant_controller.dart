@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:record/record.dart';
@@ -28,11 +29,13 @@ class AiAssistantController extends ChangeNotifier {
 
   AiAssistantController._internal() {
     _initTts();
+    _initAudioPlayer();
   }
 
   final GeminiVoiceService _service = GeminiVoiceService.instance;
   final AudioRecorder _audioRecorder = AudioRecorder();
   final FlutterTts _tts = FlutterTts();
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
   AiAssistantState _state = AiAssistantState.idle;
   String? _statusMessage;
@@ -63,7 +66,34 @@ class AiAssistantController extends ChangeNotifier {
     }
   }
 
+  void _initAudioPlayer() {
+    _audioPlayer.onPlayerStateChanged.listen((playerState) {
+      if (playerState == PlayerState.completed || playerState == PlayerState.stopped) {
+        if (_state == AiAssistantState.speaking) {
+          _state = AiAssistantState.idle;
+          notifyListeners();
+        }
+      }
+    });
+  }
+
+  /// إيقاف أي صوت يتم تشغيله حالياً فوراً
+  Future<void> stopSpeaking() async {
+    try {
+      await _audioPlayer.stop();
+      await _tts.stop();
+    } catch (e) {
+      debugPrint('[AiAssistantController] stopSpeaking error: $e');
+    } finally {
+      if (_state == AiAssistantState.speaking) {
+        _state = AiAssistantState.idle;
+        notifyListeners();
+      }
+    }
+  }
+
   void reset() {
+    unawaited(stopSpeaking());
     _state = AiAssistantState.idle;
     _statusMessage = null;
     _errorMessage = null;
@@ -77,6 +107,7 @@ class AiAssistantController extends ChangeNotifier {
   /// بدء تسجيل الصوت عبر Stream مباشر في الذاكرة (يدعم Web وكل الأنظمة)
   Future<bool> startRecording() async {
     try {
+      await stopSpeaking();
       if (!SettingsController.instance.hasValidAiKey) {
         _errorMessage = 'يرجى إدخال مفتاح Gemini API في الإعدادات أولاً.';
         _state = AiAssistantState.error;
@@ -196,6 +227,8 @@ class AiAssistantController extends ChangeNotifier {
   }) async {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
+
+    await stopSpeaking();
 
     if (!SettingsController.instance.hasValidAiKey) {
       _errorMessage = 'يرجى إدخال مفتاح Gemini API في الإعدادات أولاً.';
@@ -497,16 +530,31 @@ class AiAssistantController extends ChangeNotifier {
     return wav;
   }
 
-  /// نطق رد المساعد صوتياً
+  /// نطق رد المساعد صوتياً بصوت الذكاء الاصطناعي البشري التوليدي (Gemini Generative Voice)
   Future<void> _speak(String text) async {
-    if (text.trim().isEmpty) return;
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) return;
     try {
       _state = AiAssistantState.speaking;
       notifyListeners();
 
-      final isArabic = RegExp(r'[\u0600-\u06FF]').hasMatch(text);
+      // 1) توليد صوت بشري طبيعي حقيقي من نموذج Gemini TTS الذكي
+      final wavBytes = await _service.generateAiSpeech(trimmed);
+      if (wavBytes != null && wavBytes.isNotEmpty) {
+        final dataUri = Uri.dataFromBytes(wavBytes, mimeType: 'audio/wav').toString();
+        await _audioPlayer.play(UrlSource(dataUri));
+        // ننتظر حتى انتهاء تشغيل الصوت البشري بالكامل
+        await _audioPlayer.onPlayerComplete.first.timeout(
+          const Duration(seconds: 60),
+          onTimeout: () => null,
+        );
+        return;
+      }
+
+      // 2) بديل احتياطي في حال تعذر الاتصال بنموذج الصوت
+      final isArabic = RegExp(r'[\u0600-\u06FF]').hasMatch(trimmed);
       await _tts.setLanguage(isArabic ? 'ar' : 'en-US');
-      await _tts.speak(text);
+      await _tts.speak(trimmed);
     } catch (e) {
       debugPrint('[AiAssistantController] speak error: $e');
     } finally {
@@ -521,6 +569,7 @@ class AiAssistantController extends ChangeNotifier {
   void dispose() {
     _recordSub?.cancel();
     _audioRecorder.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 }

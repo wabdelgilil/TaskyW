@@ -763,9 +763,67 @@ class _AiSettingsCardState extends State<_AiSettingsCard> {
                 onChanged: (val) => settings.setAiEnabled(val),
               ),
             ),
+
+            const Divider(height: 24),
+
+            // اختيار شخصية وصوت الذكاء الاصطناعي (AI Voice Persona)
+            const Text(
+              'صوت ونبرة الذكاء الاصطناعي (AI Voice Persona)',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'اختر النبرة الصوتية البشرية التوليدية للمحادثة واستعراض المهام:',
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _buildVoiceChip(
+                  label: 'Puck (حيوي وطبيعي)',
+                  voice: 'Puck',
+                  selected: settings.aiVoice == 'Puck',
+                  onSelected: () => settings.setAiVoice('Puck'),
+                ),
+                _buildVoiceChip(
+                  label: 'Aoede (هادئ وواضح)',
+                  voice: 'Aoede',
+                  selected: settings.aiVoice == 'Aoede',
+                  onSelected: () => settings.setAiVoice('Aoede'),
+                ),
+                _buildVoiceChip(
+                  label: 'Kore (ودود ومتزن)',
+                  voice: 'Kore',
+                  selected: settings.aiVoice == 'Kore',
+                  onSelected: () => settings.setAiVoice('Kore'),
+                ),
+                _buildVoiceChip(
+                  label: 'Fenrir (عميق ورصين)',
+                  voice: 'Fenrir',
+                  selected: settings.aiVoice == 'Fenrir',
+                  onSelected: () => settings.setAiVoice('Fenrir'),
+                ),
+              ],
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildVoiceChip({
+    required String label,
+    required String voice,
+    required bool selected,
+    required VoidCallback onSelected,
+  }) {
+    return ChoiceChip(
+      label: Text(label, style: const TextStyle(fontSize: 12)),
+      selected: selected,
+      onSelected: (_) => onSelected(),
+      avatar: selected ? const Icon(Icons.record_voice_over_rounded, size: 16) : null,
     );
   }
 }

@@ -23,6 +23,7 @@ class SettingsService {
   static const String _keyGeminiApiKey = 'settings.gemini_api_key';
   static const String _keyAiEnabled = 'settings.ai_enabled';
   static const String _keyAiModel = 'settings.ai_model';
+  static const String _keyAiVoice = 'settings.ai_voice';
 
   static const String _dbRowId = 'default';
 
@@ -74,6 +75,7 @@ class SettingsService {
     await prefs.remove(_keyGeminiApiKey);
     await prefs.remove(_keyAiEnabled);
     await prefs.remove(_keyAiModel);
+    await prefs.remove(_keyAiVoice);
 
     try {
       final db = await AppDatabase.instance.database;
@@ -106,6 +108,7 @@ class SettingsService {
     }
     await prefs.setBool(_keyAiEnabled, model.aiEnabled);
     await prefs.setString(_keyAiModel, model.aiModel);
+    await prefs.setString(_keyAiVoice, model.aiVoice);
   }
 
   AppSettingsModel _fromPrefs(SharedPreferences prefs) {
@@ -121,6 +124,7 @@ class SettingsService {
       geminiApiKey: prefs.getString(_keyGeminiApiKey),
       aiEnabled: prefs.getBool(_keyAiEnabled) ?? true,
       aiModel: _sanitizeAiModel(prefs.getString(_keyAiModel)),
+      aiVoice: prefs.getString(_keyAiVoice) ?? 'Puck',
     );
   }
 

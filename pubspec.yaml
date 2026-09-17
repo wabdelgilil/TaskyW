@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 3.3.2+1
+version: 3.3.3+1
 
 environment:
   sdk: ^3.13.0
@@ -74,9 +74,11 @@ dependencies:
   # محرك النطق وقراءة المهام صوتياً (Text-to-Speech)
   flutter_tts: ^4.2.5
 
-  # المساعد الذكي وتسجيل الصوت (AI & Voice Assistant)
+  # المساعد الذكي وتسجيل الصوت وتشغيل الصوت البشري التوليدي (AI & Voice Assistant)
   google_generative_ai: ^0.4.6
   record: ^5.2.0
+  audioplayers: ^6.1.0
+  http: ^1.2.0
 
 dependency_overrides:
   # نسخة محلية من flutter_timezone (مثبّتة ضمن third_party) بدون أي مرجع

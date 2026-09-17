@@ -36,6 +36,7 @@ class SettingsController extends ChangeNotifier {
   String? get geminiApiKey => _settings.geminiApiKey;
   bool get aiEnabled => _settings.aiEnabled;
   String get aiModel => _settings.aiModel;
+  String get aiVoice => _settings.aiVoice;
   bool get hasValidAiKey =>
       _settings.geminiApiKey != null && _settings.geminiApiKey!.trim().isNotEmpty;
 
@@ -204,6 +205,14 @@ class SettingsController extends ChangeNotifier {
   /// تعيين نموذج الذكاء الاصطناعي.
   Future<void> setAiModel(String model) async {
     _settings = _settings.copyWith(aiModel: model);
+    await _service.save(_settings);
+    notifyListeners();
+  }
+
+  /// تعيين شخصية وصوت الذكاء الاصطناعي (Puck / Aoede / Kore / Fenrir).
+  Future<void> setAiVoice(String voice) async {
+    if (!AppSettingsModel.supportedAiVoices.contains(voice)) return;
+    _settings = _settings.copyWith(aiVoice: voice);
     await _service.save(_settings);
     notifyListeners();
   }

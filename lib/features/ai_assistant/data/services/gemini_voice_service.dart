@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:http/http.dart' as http;
 import 'package:tasky/features/areas/data/models/area_model.dart';
 import 'package:tasky/features/projects/data/models/project_model.dart';
 import 'package:tasky/features/settings/presentation/controllers/settings_controller.dart';
@@ -243,6 +244,135 @@ ${jsonEncode(activeTasksJson)}
         type: AiIntentType.unknown,
         voiceReply: 'حدث خطأ أثناء الاستماع للأمر الصوتي: ${e.toString()}',
       );
+    }
+  }
+
+  /// تحويل مصفوفة بايتات PCM الخام إلى ملف WAV قياسي في الذاكرة
+  static Uint8List pcmToWav(
+    Uint8List pcmBytes, {
+    int sampleRate = 24000,
+    int channels = 1,
+    int bitDepth = 16,
+  }) {
+    final byteRate = sampleRate * channels * (bitDepth ~/ 8);
+    final blockAlign = channels * (bitDepth ~/ 8);
+    final dataSize = pcmBytes.length;
+    final chunkSize = 36 + dataSize;
+
+    final header = ByteData(44);
+    header.setUint8(0, 0x52); // R
+    header.setUint8(1, 0x49); // I
+    header.setUint8(2, 0x46); // F
+    header.setUint8(3, 0x46); // F
+    header.setUint32(4, chunkSize, Endian.little);
+    header.setUint8(8, 0x57);  // W
+    header.setUint8(9, 0x41);  // A
+    header.setUint8(10, 0x56); // V
+    header.setUint8(11, 0x45); // E
+
+    header.setUint8(12, 0x66); // f
+    header.setUint8(13, 0x6D); // m
+    header.setUint8(14, 0x74); // t
+    header.setUint8(15, 0x20); // ' '
+    header.setUint32(16, 16, Endian.little);
+    header.setUint16(20, 1, Endian.little);  // PCM format
+    header.setUint16(22, channels, Endian.little);
+    header.setUint32(24, sampleRate, Endian.little);
+    header.setUint32(28, byteRate, Endian.little);
+    header.setUint16(32, blockAlign, Endian.little);
+    header.setUint16(34, bitDepth, Endian.little);
+
+    header.setUint8(36, 0x64); // d
+    header.setUint8(37, 0x61); // a
+    header.setUint8(38, 0x74); // t
+    header.setUint8(39, 0x61); // a
+    header.setUint32(40, dataSize, Endian.little);
+
+    final wav = Uint8List(44 + dataSize);
+    wav.setRange(0, 44, header.buffer.asUint8List());
+    wav.setRange(44, 44 + dataSize, pcmBytes);
+    return wav;
+  }
+
+  /// توليد صوت بشري طبيعي حقيقي مباشرة من نموذج Gemini (Generative Voice AI)
+  ///
+  /// يرسل النص إلى نموذج `gemini-2.5-flash-preview-tts` ويعيد ملف صوتي بصيغة WAV
+  /// جاهز للتشغيل مباشرة في المتصفح أو الويندوز أو الموبايل بدون أي تحويل روبوتي.
+  Future<Uint8List?> generateAiSpeech(
+    String text, {
+    String? voiceName,
+    String? overrideApiKey,
+  }) async {
+    final apiKey = overrideApiKey ?? SettingsController.instance.geminiApiKey;
+    if (apiKey == null || apiKey.trim().isEmpty) return null;
+
+    final trimmedText = text.trim();
+    if (trimmedText.isEmpty) return null;
+
+    final selectedVoice = voiceName ?? SettingsController.instance.aiVoice;
+
+    // استخدام نموذج Gemini TTS الصوتي المتطور
+    const ttsModel = 'gemini-2.5-flash-preview-tts';
+    final url = Uri.parse(
+      'https://generativelanguage.googleapis.com/v1beta/models/$ttsModel:generateContent?key=${apiKey.trim()}',
+    );
+
+    final payload = {
+      "contents": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "text": trimmedText,
+            }
+          ]
+        }
+      ],
+      "generationConfig": {
+        "responseModalities": ["AUDIO"],
+        "speechConfig": {
+          "voiceConfig": {
+            "prebuiltVoiceConfig": {
+              "voiceName": selectedVoice,
+            }
+          }
+        }
+      }
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json; charset=utf-8'},
+        body: jsonEncode(payload),
+      ).timeout(const Duration(seconds: 25));
+
+      if (response.statusCode != 200) {
+        debugPrint('[GeminiVoiceService] TTS request failed (${response.statusCode}): ${response.body}');
+        return null;
+      }
+
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      final candidates = data['candidates'] as List?;
+      if (candidates == null || candidates.isEmpty) return null;
+
+      final parts = candidates[0]['content']?['parts'] as List?;
+      if (parts == null) return null;
+
+      for (final part in parts) {
+        if (part['inlineData'] != null) {
+          final base64Data = part['inlineData']['data'] as String?;
+          if (base64Data != null && base64Data.isNotEmpty) {
+            final pcmBytes = base64Decode(base64Data);
+            // تحويل دفق PCM 24000Hz إلى WAV نقي متوافق مع كافة المشغلات
+            return pcmToWav(pcmBytes, sampleRate: 24000, channels: 1, bitDepth: 16);
+          }
+        }
+      }
+      return null;
+    } catch (e) {
+      debugPrint('[GeminiVoiceService] generateAiSpeech error: $e');
+      return null;
     }
   }
 }
