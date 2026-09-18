@@ -84,16 +84,17 @@ ${jsonEncode(activeTasksJson)}
    - حدد الأولوية (urgent, high, medium, low).
    - اكتب في voice_reply رسالة تأكيد لطيفة وذكية.
 
-2. **read_tasks**: إذا طلب المستخدم قراءة مهامه أو استعراضها أو سأل عما عليه فعله (مثل: "اقرأ مهام اليوم", "إيه اللي ورايا في مشروع المتجر", "لخص أولوياتي", "اقرأ كل المهام"):
-   - قم بتحليل قائمة المهام النشطة المعطاة أعلاه، وصِغ **ملخصاً صوتياً تنفيذياً ذكياً وجذاباً جداً (AI Executive Voice Briefing)**:
-     * تحدث كأنك سكرتير تنفيذي ذكي وخبير إنتاجية يتحدث بلهجة ودودة ومحترمة (بالعامية المصرية الراقية أو العربية الفصحى الحديثة).
-     * اذكر عدد المهام بشكل عام في جملة افتتاحية رشيقة.
-     * رتب المهام بحسب الأهمية والاستعجال، وابدأ دائماً بالمهام العاجلة والأقرب في موعد التسليم مع تنبيه ذكي للمستخدم.
-     * اذكر المشاريع والمجالات بأسلوب سردي بشري سلس ومريح للأذن (تجنب السرد الآلي الرتيب مثل "المهمة رقم 1 كذا ورقم 2 كذا").
-     * إذا لم تكن هناك مهام في النطاق المطلوب، أخبره بلطف أن جدوله خالٍ تماماً ويمكنه الاسترخاء.
-     * اختم بنصيحة ذكية أو سؤال تحفيزي لطيف (مثال: "تحب نبدأ بمهمة كذا الأول؟").
-   - ضع هذا النص السردي الذكي كاملاً في حقل `voice_reply` ليتم نطقه للمستخدم وعرضه في الشاشة.
-   - ضع في `matched_task_ids` مصفوفة بالـ IDs الخاصة بالمهام التي تم ذكرها في الملخص.
+2. **read_tasks**: إذا طلب المستخدم قراءة مهامه أو استعراضها أو سأل عما عليه فعله (مثل: "اقرأ مهام اليوم", "إيه اللي ورايا", "لخص أولوياتي", "اقرأ كل المهام"):
+   - قم بتحليل قائمة المهام النشطة المعطاة أعلاه، وصِغ **ملخصاً صوتياً تنفيذيًا حياً يتحدث بروح وفهم عميق للسياق (Executive Voice Briefing)**:
+     * **تحدث بروح بشرية واعية:** تصرف كأنك مدير تنفيذي ذكي ومستشار شخصي ودود جالس مباشرة مع المستخدم، فاهم أولوياته وبيكلمه بروح تفاعلية محترمة وذكية (بالعامية المصرية الراقية أو العربية الفصحى السلسة).
+     * **الإيجاز الصوتي الشديد (قاعدة ذهبية صارمة):** الرد الصوتي `voice_reply` يجب ألا يتجاوز **3 إلى 4 جُمل مركزة فقط (حوالي 35 إلى 55 كلمة كحد أقصى)**! تجنب تماماً المط أو الإطالة.
+     * **التركيز على الأهم والعاجل فقط:** اذكر إجمالي عدد المهام بشكل عام وموجز جداً في البداية (مثال: "عندك 27 مهمة نشطة"). ثم سلّط الضوء فوراً على **أهم مهمة أو مهمتين فقط** التي تتطلب تدخله الفوري (مثل المهام المتأخرة أو الحرجة العاجلة).
+     * **منع سرد قائمة المهام نهائياً:** ممنوع منعاً باتاً قراءة عناوين المهام واحدة وراء الأخرى كقائمة بضائع! باقي المهام الروتينية لخصها في شطر جملة سريع (مثال: "وباقي المهام روتينية وفواتير نعدي عليها براحتنا"). المهام بأكملها ستُعرض أمامه على الشاشة بصرياً ككروت تفاعلية.
+     * **نطق سلس للأذن:** لا تنطق الكلمات الإنجليزية بطريقة مقحمة أو مشوهة، واجعل الكلام منساباً وسهلاً وممتعاً في الاستماع.
+     * إذا لم تكن هناك مهام، أخبره بلطف وابتسامة أن جدوله حر تماماً ويمكنه الاسترخاء.
+     * **خاتمة تفاعلية حية:** اختم بسؤال ذكي موجّه للعمل (مثال: "تحب نبدأ بمهمة كذا العاجلة الأول؟").
+   - ضع هذا النص السردي الذكي والحي بالكامل في حقل `voice_reply`.
+   - ضع في `matched_task_ids` مصفوفة بالـ IDs لجميع المهام ذات الصلة ليتم عرضها كبطاقات في الشاشة أسفل الرد الصوتي.
 
 3. **conversational_help**: إذا سأل سؤالاً عاماً أو طلب استشارة إنتاجية.
 
@@ -101,7 +102,7 @@ ${jsonEncode(activeTasksJson)}
 يجب أن يكون الرد عبارة عن كائن JSON صالح فقط:
 {
   "intent": "create_task" | "read_tasks" | "conversational_help",
-  "voice_reply": "نص الرد أو الملخص التنفيذي الذكي الكامل للنطق والعرض",
+  "voice_reply": "نص الرد أو الملخص التنفيذي الذكي المركز (3-4 جمل فقط)",
   "create_task": {
     "title": "عنوان المهمة",
     "description": "تفاصيل إضافية إن وجدت",
@@ -296,6 +297,11 @@ ${jsonEncode(activeTasksJson)}
 
   /// توليد صوت بشري طبيعي حقيقي مباشرة من نموذج Gemini (Generative Voice AI)
   ///
+  String? _lastSpeechError;
+  String? get lastSpeechError => _lastSpeechError;
+
+  /// توليد صوت بشري طبيعي حقيقي مباشرة من نموذج Gemini (Generative Voice AI)
+  ///
   /// يرسل النص إلى نموذج `gemini-2.5-flash-preview-tts` ويعيد ملف صوتي بصيغة WAV
   /// جاهز للتشغيل مباشرة في المتصفح أو الويندوز أو الموبايل بدون أي تحويل روبوتي.
   Future<Uint8List?> generateAiSpeech(
@@ -303,19 +309,43 @@ ${jsonEncode(activeTasksJson)}
     String? voiceName,
     String? overrideApiKey,
   }) async {
+    _lastSpeechError = null;
     final apiKey = overrideApiKey ?? SettingsController.instance.geminiApiKey;
-    if (apiKey == null || apiKey.trim().isEmpty) return null;
+    if (apiKey == null || apiKey.trim().isEmpty) {
+      _lastSpeechError = 'يرجى إدخال مفتاح Gemini API أولاً';
+      return null;
+    }
 
-    final trimmedText = text.trim();
-    if (trimmedText.isEmpty) return null;
+    var speechText = text.trim();
+    if (speechText.isEmpty) return null;
+
+    // حماية طول النص الصوتي لضمان توليد فوري في ثانية واحدة وتجنب أي انقطاع
+    if (speechText.length > 320) {
+      final sentences = speechText.split(RegExp(r'[.!؟\n]'));
+      final buffer = StringBuffer();
+      for (final s in sentences) {
+        final st = s.trim();
+        if (st.isEmpty) continue;
+        if (buffer.length + st.length + 2 <= 320) {
+          if (buffer.isNotEmpty) buffer.write(' ');
+          buffer.write(st);
+          buffer.write('.');
+        } else {
+          break;
+        }
+      }
+      speechText = buffer.isNotEmpty ? buffer.toString() : speechText.substring(0, 310);
+    }
 
     final selectedVoice = voiceName ?? SettingsController.instance.aiVoice;
+    final cleanKey = apiKey.trim();
 
-    // استخدام نموذج Gemini TTS الصوتي المتطور
-    const ttsModel = 'gemini-2.5-flash-preview-tts';
-    final url = Uri.parse(
-      'https://generativelanguage.googleapis.com/v1beta/models/$ttsModel:generateContent?key=${apiKey.trim()}',
-    );
+    // الترويسات الرسمية المتوافقة تماماً مع مفاتيح AQ الحديثة ومفاتيح AIza
+    final headers = {
+      'Content-Type': 'application/json; charset=utf-8',
+      'x-goog-api-key': cleanKey,
+      'x-goog-api-client': 'genai-dart/0.4.7',
+    };
 
     final payload = {
       "contents": [
@@ -323,7 +353,7 @@ ${jsonEncode(activeTasksJson)}
           "role": "user",
           "parts": [
             {
-              "text": trimmedText,
+              "text": speechText,
             }
           ]
         }
@@ -340,39 +370,53 @@ ${jsonEncode(activeTasksJson)}
       }
     };
 
-    try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json; charset=utf-8'},
-        body: jsonEncode(payload),
-      ).timeout(const Duration(seconds: 25));
+    final modelsToTry = [
+      'gemini-2.5-flash-preview-tts',
+      'gemini-2.5-flash',
+    ];
 
-      if (response.statusCode != 200) {
-        debugPrint('[GeminiVoiceService] TTS request failed (${response.statusCode}): ${response.body}');
-        return null;
-      }
+    for (final ttsModel in modelsToTry) {
+      try {
+        final url = Uri.parse(
+          'https://generativelanguage.googleapis.com/v1beta/models/$ttsModel:generateContent',
+        );
 
-      final data = jsonDecode(utf8.decode(response.bodyBytes));
-      final candidates = data['candidates'] as List?;
-      if (candidates == null || candidates.isEmpty) return null;
+        final response = await http.post(
+          url,
+          headers: headers,
+          body: jsonEncode(payload),
+        ).timeout(const Duration(seconds: 20));
 
-      final parts = candidates[0]['content']?['parts'] as List?;
-      if (parts == null) return null;
+        if (response.statusCode != 200) {
+          debugPrint('[GeminiVoiceService] Model $ttsModel failed (${response.statusCode}): ${response.body}');
+          _lastSpeechError = 'فشل خادم الصوت (${response.statusCode})';
+          continue;
+        }
 
-      for (final part in parts) {
-        if (part['inlineData'] != null) {
-          final base64Data = part['inlineData']['data'] as String?;
-          if (base64Data != null && base64Data.isNotEmpty) {
-            final pcmBytes = base64Decode(base64Data);
-            // تحويل دفق PCM 24000Hz إلى WAV نقي متوافق مع كافة المشغلات
-            return pcmToWav(pcmBytes, sampleRate: 24000, channels: 1, bitDepth: 16);
+        final data = jsonDecode(utf8.decode(response.bodyBytes));
+        final candidates = data['candidates'] as List?;
+        if (candidates == null || candidates.isEmpty) continue;
+
+        final parts = candidates[0]['content']?['parts'] as List?;
+        if (parts == null) continue;
+
+        for (final part in parts) {
+          if (part['inlineData'] != null) {
+            final base64Data = part['inlineData']['data'] as String?;
+            if (base64Data != null && base64Data.isNotEmpty) {
+              final pcmBytes = base64Decode(base64Data);
+              // تحويل دفق PCM 24000Hz إلى WAV نقي متوافق مع كافة المشغلات
+              _lastSpeechError = null;
+              return pcmToWav(pcmBytes, sampleRate: 24000, channels: 1, bitDepth: 16);
+            }
           }
         }
+      } catch (e) {
+        debugPrint('[GeminiVoiceService] generateAiSpeech ($ttsModel) error: $e');
+        _lastSpeechError = e.toString();
       }
-      return null;
-    } catch (e) {
-      debugPrint('[GeminiVoiceService] generateAiSpeech error: $e');
-      return null;
     }
+
+    return null;
   }
 }

@@ -215,7 +215,8 @@ class _AiVoiceAssistantSheetState extends State<AiVoiceAssistantSheet>
       case AiAssistantState.processing:
         return '⚡ جاري التحليل والتنفيذ...';
       case AiAssistantState.speaking:
-        return '🔊 يتحدث الآن...';
+        final voice = SettingsController.instance.aiVoice;
+        return '🎙️ صوت الذكاء التوليدي ($voice) يتحدث الآن...';
       case AiAssistantState.success:
         return '✅ تم تنفيذ الأمر بنجاح';
       case AiAssistantState.error:

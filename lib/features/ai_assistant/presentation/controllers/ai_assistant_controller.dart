@@ -104,10 +104,19 @@ class AiAssistantController extends ChangeNotifier {
 
   // ─── تسجيل الصوت والأوامر الصوتية (Cross-Platform In-Memory) ───────────
 
+  Future<void> _primeAudioContext() async {
+    if (kIsWeb) {
+      try {
+        await _audioPlayer.setVolume(1.0);
+      } catch (_) {}
+    }
+  }
+
   /// بدء تسجيل الصوت عبر Stream مباشر في الذاكرة (يدعم Web وكل الأنظمة)
   Future<bool> startRecording() async {
     try {
       await stopSpeaking();
+      unawaited(_primeAudioContext());
       if (!SettingsController.instance.hasValidAiKey) {
         _errorMessage = 'يرجى إدخال مفتاح Gemini API في الإعدادات أولاً.';
         _state = AiAssistantState.error;
@@ -229,6 +238,7 @@ class AiAssistantController extends ChangeNotifier {
     if (trimmed.isEmpty) return;
 
     await stopSpeaking();
+    unawaited(_primeAudioContext());
 
     if (!SettingsController.instance.hasValidAiKey) {
       _errorMessage = 'يرجى إدخال مفتاح Gemini API في الإعدادات أولاً.';
@@ -541,20 +551,32 @@ class AiAssistantController extends ChangeNotifier {
       // 1) توليد صوت بشري طبيعي حقيقي من نموذج Gemini TTS الذكي
       final wavBytes = await _service.generateAiSpeech(trimmed);
       if (wavBytes != null && wavBytes.isNotEmpty) {
-        final dataUri = Uri.dataFromBytes(wavBytes, mimeType: 'audio/wav').toString();
-        await _audioPlayer.play(UrlSource(dataUri));
+        await _audioPlayer.play(BytesSource(wavBytes, mimeType: 'audio/wav'));
         // ننتظر حتى انتهاء تشغيل الصوت البشري بالكامل
         await _audioPlayer.onPlayerComplete.first.timeout(
-          const Duration(seconds: 60),
+          const Duration(seconds: 45),
           onTimeout: () => null,
         );
         return;
       }
 
-      // 2) بديل احتياطي في حال تعذر الاتصال بنموذج الصوت
-      final isArabic = RegExp(r'[\u0600-\u06FF]').hasMatch(trimmed);
-      await _tts.setLanguage(isArabic ? 'ar' : 'en-US');
-      await _tts.speak(trimmed);
+      // 2) في حال تعذر التوليد الصوتي البشري: لا نقرأ نصاً طويلاً بصوت الآلة الروبوتي القديم
+      final err = _service.lastSpeechError;
+      if (err != null) {
+        debugPrint('[AiAssistantController] Generative voice failed: $err');
+      }
+
+      // إذا كان النص قصيراً جداً (تأكيد أو جملة واحدة أقل من 60 حرف) يمكن نطقه، عدا ذلك نكتفي بالعرض النصي مع نطق تنبيه صوتي رقيق
+      if (trimmed.length <= 60) {
+        final isArabic = RegExp(r'[\u0600-\u06FF]').hasMatch(trimmed);
+        await _tts.setLanguage(isArabic ? 'ar' : 'en-US');
+        await _tts.speak(trimmed);
+      } else {
+        // تنبيه صوتي مختصر جداً بدون قراءة المقال بالروبوت
+        final isArabic = RegExp(r'[\u0600-\u06FF]').hasMatch(trimmed);
+        await _tts.setLanguage(isArabic ? 'ar' : 'en-US');
+        await _tts.speak('تم إعداد ملخص المهام، يمكنك مراجعته على الشاشة.');
+      }
     } catch (e) {
       debugPrint('[AiAssistantController] speak error: $e');
     } finally {

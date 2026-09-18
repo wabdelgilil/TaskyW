@@ -1,7 +1,9 @@
+import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tasky/core/database/app_database.dart';
 import 'package:tasky/features/ai_assistant/data/models/ai_intent_model.dart';
+import 'package:tasky/features/ai_assistant/data/services/gemini_voice_service.dart';
 import 'package:tasky/features/ai_assistant/presentation/controllers/ai_assistant_controller.dart';
 import 'package:tasky/features/settings/presentation/controllers/settings_controller.dart';
 
@@ -157,6 +159,35 @@ void main() {
       expect(started, isFalse);
       expect(controller.state, equals(AiAssistantState.error));
       expect(controller.errorMessage, contains('مفتاح Gemini API'));
+    });
+
+    test('GeminiVoiceService pcmToWav produces valid RIFF WAVE header', () {
+      final dummyPcm = List<int>.generate(100, (i) => i % 256);
+      final wav = GeminiVoiceService.pcmToWav(
+        Uint8List.fromList(dummyPcm),
+        sampleRate: 24000,
+        channels: 1,
+        bitDepth: 16,
+      );
+
+      expect(wav.length, equals(44 + 100));
+      // RIFF header magic bytes
+      expect(String.fromCharCodes(wav.sublist(0, 4)), equals('RIFF'));
+      // WAVE header magic bytes
+      expect(String.fromCharCodes(wav.sublist(8, 12)), equals('WAVE'));
+      // fmt sub-chunk
+      expect(String.fromCharCodes(wav.sublist(12, 16)), equals('fmt '));
+      // data sub-chunk
+      expect(String.fromCharCodes(wav.sublist(36, 40)), equals('data'));
+    });
+
+    test('GeminiVoiceService tracks lastSpeechError when key is missing', () async {
+      final settings = SettingsController.instance;
+      await settings.clearGeminiApiKey();
+
+      final result = await GeminiVoiceService.instance.generateAiSpeech('مرحبا');
+      expect(result, isNull);
+      expect(GeminiVoiceService.instance.lastSpeechError, contains('مفتاح Gemini API'));
     });
   });
 }
