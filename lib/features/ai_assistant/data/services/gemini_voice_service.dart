@@ -310,14 +310,24 @@ ${jsonEncode(activeTasksJson)}
     String? overrideApiKey,
   }) async {
     _lastSpeechError = null;
+    debugPrint('AI TTS START');
+
     final apiKey = overrideApiKey ?? SettingsController.instance.geminiApiKey;
     if (apiKey == null || apiKey.trim().isEmpty) {
+      debugPrint('AI TTS FAILED');
+      debugPrint('AI TTS ERROR TYPE: MISSING_API_KEY');
       _lastSpeechError = 'يرجى إدخال مفتاح Gemini API أولاً';
       return null;
     }
 
     var speechText = text.trim();
-    if (speechText.isEmpty) return null;
+    if (speechText.isEmpty) {
+      debugPrint('AI TTS FAILED');
+      debugPrint('AI TTS ERROR TYPE: EMPTY_TEXT');
+      return null;
+    }
+
+    debugPrint('AI TTS TEXT LENGTH: ${speechText.length}');
 
     // حماية طول النص الصوتي لضمان توليد فوري في ثانية واحدة وتجنب أي انقطاع
     if (speechText.length > 320) {
@@ -376,6 +386,8 @@ ${jsonEncode(activeTasksJson)}
     ];
 
     for (final ttsModel in modelsToTry) {
+      debugPrint('AI TTS MODEL: $ttsModel');
+      debugPrint('AI TTS REQUEST STARTED');
       try {
         final url = Uri.parse(
           'https://generativelanguage.googleapis.com/v1beta/models/$ttsModel:generateContent',
@@ -388,31 +400,54 @@ ${jsonEncode(activeTasksJson)}
         ).timeout(const Duration(seconds: 20));
 
         if (response.statusCode != 200) {
-          debugPrint('[GeminiVoiceService] Model $ttsModel failed (${response.statusCode}): ${response.body}');
-          _lastSpeechError = 'فشل خادم الصوت (${response.statusCode})';
+          debugPrint('AI TTS FAILED');
+          debugPrint('AI TTS ERROR TYPE: HTTP_ERROR');
+          debugPrint('AI TTS HTTP STATUS: ${response.statusCode}');
+          debugPrint('AI TTS RESPONSE: ${response.body}');
+          _lastSpeechError = 'HTTP ${response.statusCode}: ${response.body}';
           continue;
         }
 
         final data = jsonDecode(utf8.decode(response.bodyBytes));
         final candidates = data['candidates'] as List?;
-        if (candidates == null || candidates.isEmpty) continue;
+        if (candidates == null || candidates.isEmpty) {
+          debugPrint('AI TTS FAILED');
+          debugPrint('AI TTS ERROR TYPE: EMPTY_CANDIDATES');
+          debugPrint('AI TTS RESPONSE: ${response.body}');
+          _lastSpeechError = 'No candidates in response';
+          continue;
+        }
 
         final parts = candidates[0]['content']?['parts'] as List?;
-        if (parts == null) continue;
+        if (parts == null || parts.isEmpty) {
+          debugPrint('AI TTS FAILED');
+          debugPrint('AI TTS ERROR TYPE: EMPTY_PARTS');
+          _lastSpeechError = 'No parts in candidate';
+          continue;
+        }
 
         for (final part in parts) {
           if (part['inlineData'] != null) {
             final base64Data = part['inlineData']['data'] as String?;
             if (base64Data != null && base64Data.isNotEmpty) {
               final pcmBytes = base64Decode(base64Data);
-              // تحويل دفق PCM 24000Hz إلى WAV نقي متوافق مع كافة المشغلات
+              final wavBytes = pcmToWav(pcmBytes, sampleRate: 24000, channels: 1, bitDepth: 16);
+              debugPrint('AI TTS SUCCESS');
+              debugPrint('AI TTS AUDIO BYTES: ${wavBytes.length}');
               _lastSpeechError = null;
-              return pcmToWav(pcmBytes, sampleRate: 24000, channels: 1, bitDepth: 16);
+              return wavBytes;
             }
           }
         }
-      } catch (e) {
-        debugPrint('[GeminiVoiceService] generateAiSpeech ($ttsModel) error: $e');
+
+        debugPrint('AI TTS FAILED');
+        debugPrint('AI TTS ERROR TYPE: NO_AUDIO_INLINE_DATA');
+        _lastSpeechError = 'No inline audio data returned by model';
+      } catch (e, stackTrace) {
+        debugPrint('AI TTS FAILED');
+        debugPrint('AI TTS ERROR TYPE: CLIENT_EXCEPTION');
+        debugPrint('AI TTS EXCEPTION: $e');
+        debugPrint('AI TTS STACK TRACE: $stackTrace');
         _lastSpeechError = e.toString();
       }
     }

@@ -972,8 +972,18 @@
   - دالتا `auto_link_collaborators` و `auto_link_collaborator_current` أصبحتا تطابقان البريد بـ `lower()` (غير حساسة لحالة الأحرف).
   - ربط خلفي لمرة واحدة: أي دعوة `pending` بريدها موجود كحساب → `collaborator_id` + `status='active'` (عُيّن لحساب wael1 على مشروع Elbalad فعلياً).
 
-
-
-
-
+### [2026-09-20] - إزالة الارتداد للنطق الروبوتي القديم من المساعد الصوتي الذكي (Remove Legacy TTS Fallback)
+- **[AiAssistantController](file:///d:/programming/Tasky3.0/TaskyW/lib/features/ai_assistant/presentation/controllers/ai_assistant_controller.dart)**:
+  - إزالة استيراد واستخدام حزمة `flutter_tts` تماماً من المتحكم.
+  - إلغاء دالة `_initTts` ومثيل `FlutterTts _tts`.
+  - تعديل الدالة `_speak`: قصر التشغيل حصرياً على الصوت البشري التوليدي الصادر من `GeminiVoiceService.generateAiSpeech`.
+  - في حال تعذر التوليد الصوتي أو حدوث خطأ، لا يتم استدعاء أي محرك نطق آلي بديل؛ بل يتم وسم الحالة بـ `AiAssistantState.error` وتوليد سجلات تشخيصية دقيقة تفصل سبب التعذر دون إخفائه.
+- **[GeminiVoiceService](file:///d:/programming/Tasky3.0/TaskyW/lib/features/ai_assistant/data/services/gemini_voice_service.dart)**:
+  - إضافة سجلات تشخيصية هيكلية مفصلة: `AI TTS START`، `AI TTS TEXT LENGTH`، `AI TTS MODEL`، `AI TTS REQUEST STARTED`، `AI TTS SUCCESS`، `AI TTS AUDIO BYTES`، وفي حال الفشل: `AI TTS FAILED`، `AI TTS ERROR TYPE`، `AI TTS HTTP STATUS`، `AI TTS RESPONSE`، `AI TTS EXCEPTION`، `AI TTS STACK TRACE`.
+  - حماية تامة لسرية مفتاح الـ API بعدم طباعته إطلاقاً في السجلات.
+- **[AiVoiceAssistantSheet](file:///d:/programming/Tasky3.0/TaskyW/lib/features/ai_assistant/presentation/widgets/ai_voice_assistant_sheet.dart)**:
+  - تحديث نص الحالة في حال التعذر لعرض `⚠️ فشل تشغيل الصوت.` مع الاحتفاظ بالرد النصي وتفاصيل المهام معروضة أمام المستخدم بوضوح.
+- **التحقق والاختبارات**:
+  - `flutter analyze`: **0 issues found!**
+  - `flutter test test/ai_assistant_test.dart`: **12/12 passed بنجاح 100%**.
 

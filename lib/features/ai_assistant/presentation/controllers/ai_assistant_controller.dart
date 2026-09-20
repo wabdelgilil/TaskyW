@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:record/record.dart';
 import 'package:uuid/uuid.dart';
 
@@ -28,13 +27,11 @@ class AiAssistantController extends ChangeNotifier {
   static final AiAssistantController instance = AiAssistantController._internal();
 
   AiAssistantController._internal() {
-    _initTts();
     _initAudioPlayer();
   }
 
   final GeminiVoiceService _service = GeminiVoiceService.instance;
   final AudioRecorder _audioRecorder = AudioRecorder();
-  final FlutterTts _tts = FlutterTts();
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   AiAssistantState _state = AiAssistantState.idle;
@@ -55,17 +52,6 @@ class AiAssistantController extends ChangeNotifier {
   bool get isProcessing => _state == AiAssistantState.processing;
   bool get isSpeaking => _state == AiAssistantState.speaking;
 
-  Future<void> _initTts() async {
-    try {
-      await _tts.awaitSpeakCompletion(true);
-      await _tts.setSpeechRate(0.5);
-      await _tts.setVolume(1.0);
-      await _tts.setPitch(1.0);
-    } catch (e) {
-      debugPrint('[AiAssistantController] TTS init error: $e');
-    }
-  }
-
   void _initAudioPlayer() {
     _audioPlayer.onPlayerStateChanged.listen((playerState) {
       if (playerState == PlayerState.completed || playerState == PlayerState.stopped) {
@@ -81,7 +67,6 @@ class AiAssistantController extends ChangeNotifier {
   Future<void> stopSpeaking() async {
     try {
       await _audioPlayer.stop();
-      await _tts.stop();
     } catch (e) {
       debugPrint('[AiAssistantController] stopSpeaking error: $e');
     } finally {
@@ -540,7 +525,7 @@ class AiAssistantController extends ChangeNotifier {
     return wav;
   }
 
-  /// نطق رد المساعد صوتياً بصوت الذكاء الاصطناعي البشري التوليدي (Gemini Generative Voice)
+  /// نطق رد المساعد صوتياً بصوت الذكاء الاصطناعي البشري التوليدي (Gemini Generative Voice) فقط
   Future<void> _speak(String text) async {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
@@ -551,6 +536,7 @@ class AiAssistantController extends ChangeNotifier {
       // 1) توليد صوت بشري طبيعي حقيقي من نموذج Gemini TTS الذكي
       final wavBytes = await _service.generateAiSpeech(trimmed);
       if (wavBytes != null && wavBytes.isNotEmpty) {
+        debugPrint('[AiAssistantController] AI TTS SUCCESS — Playing ${wavBytes.length} bytes');
         await _audioPlayer.play(BytesSource(wavBytes, mimeType: 'audio/wav'));
         // ننتظر حتى انتهاء تشغيل الصوت البشري بالكامل
         await _audioPlayer.onPlayerComplete.first.timeout(
@@ -560,25 +546,17 @@ class AiAssistantController extends ChangeNotifier {
         return;
       }
 
-      // 2) في حال تعذر التوليد الصوتي البشري: لا نقرأ نصاً طويلاً بصوت الآلة الروبوتي القديم
-      final err = _service.lastSpeechError;
-      if (err != null) {
-        debugPrint('[AiAssistantController] Generative voice failed: $err');
-      }
-
-      // إذا كان النص قصيراً جداً (تأكيد أو جملة واحدة أقل من 60 حرف) يمكن نطقه، عدا ذلك نكتفي بالعرض النصي مع نطق تنبيه صوتي رقيق
-      if (trimmed.length <= 60) {
-        final isArabic = RegExp(r'[\u0600-\u06FF]').hasMatch(trimmed);
-        await _tts.setLanguage(isArabic ? 'ar' : 'en-US');
-        await _tts.speak(trimmed);
-      } else {
-        // تنبيه صوتي مختصر جداً بدون قراءة المقال بالروبوت
-        final isArabic = RegExp(r'[\u0600-\u06FF]').hasMatch(trimmed);
-        await _tts.setLanguage(isArabic ? 'ar' : 'en-US');
-        await _tts.speak('تم إعداد ملخص المهام، يمكنك مراجعته على الشاشة.');
-      }
-    } catch (e) {
-      debugPrint('[AiAssistantController] speak error: $e');
+      // 2) في حال فشل التوليد الصوتي: لا نستخدم أي بديل تقليدي إطلاقاً
+      debugPrint('[AiAssistantController] AI TTS FAILED — NO FALLBACK ALLOWED');
+      debugPrint('[AiAssistantController] AI TTS ERROR: ${_service.lastSpeechError ?? "Unknown error"}');
+      _state = AiAssistantState.error;
+      notifyListeners();
+    } catch (e, stackTrace) {
+      debugPrint('[AiAssistantController] AI TTS FAILED');
+      debugPrint('[AiAssistantController] AI TTS EXCEPTION: $e');
+      debugPrint('[AiAssistantController] AI TTS STACK TRACE: $stackTrace');
+      _state = AiAssistantState.error;
+      notifyListeners();
     } finally {
       if (_state == AiAssistantState.speaking) {
         _state = AiAssistantState.idle;

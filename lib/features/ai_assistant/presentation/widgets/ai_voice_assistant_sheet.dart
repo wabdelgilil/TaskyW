@@ -220,7 +220,7 @@ class _AiVoiceAssistantSheetState extends State<AiVoiceAssistantSheet>
       case AiAssistantState.success:
         return '✅ تم تنفيذ الأمر بنجاح';
       case AiAssistantState.error:
-        return '⚠️ تعذر إكمال الأمر';
+        return '⚠️ فشل تشغيل الصوت.';
       case AiAssistantState.idle:
         return 'تحدث بصوتك أو اكتب أمرك بالأسفل';
     }
