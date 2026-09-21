@@ -995,3 +995,25 @@
 - **التحقق والاختبارات**:
   - `flutter analyze`: **0 issues found!**
   - `flutter test test/ai_assistant_test.dart`: **12/12 passed بنجاح 100%**.
+
+### [2026-09-21] - تجميع السرد الصوتي حسب المشاريع وتخصيص الاستماع لمشروع/مجال معين
+- **[GeminiVoiceService](file:///d:/programming/Tasky3.0/TaskyW/lib/features/ai_assistant/data/services/gemini_voice_service.dart)**:
+  - إيقاف حشو الكلام بالساعات والتواريخ الدقيقة لتفادي التشتيت الذهني أثناء القيادة.
+  - تجميع المهام صوتياً تحت أسماء مشاريعها بنمط منظم ومريح للأذن: (أولاً في مشروع كذا: مهمة كذا وكذا، ثانياً في مشروع كذا: مهمة كذا...).
+  - إضافة دعم كامل لصوتيات المشاريع والمجالات المخصصة: عزل وقراءة مهام مشروع معين أو مجال معين بالاسم ("اقرأ مهام مشروع المتجر"، "سمعني مهام التسويق"، "مهام مجال العمل").
+- **[AiAssistantController](file:///d:/programming/Tasky3.0/TaskyW/lib/features/ai_assistant/presentation/controllers/ai_assistant_controller.dart)**:
+  - تعزيز مطابقة المشاريع والمجالات في `_handleReadTasksIntent` لتشمل معرّف المشروع `targetId`، والاسم المرن `targetName`، ومصفوفة المهام المطابقة `matchedTaskIds` لعرضها كبطاقات بدقة.
+- **التحقق والاختبارات**:
+  - `flutter analyze`: **0 issues found!**
+  - `flutter test test/ai_assistant_test.dart`: **12/12 passed بنجاح 100%**.
+
+### [2026-09-21] - إصلاح حفظ وتحديث المهام المضافة عبر المساعد (AI Task Creation & UI Sync Fix)
+- **[TaskRepositoryImpl](file:///d:/programming/Tasky3.0/TaskyW/lib/features/tasks/data/repositories/task_repository_impl.dart)**:
+  - إضافة `conflictAlgorithm: ConflictAlgorithm.replace` إلى دالة `insertTask` في SQLite لحل خطأ `UNIQUE constraint failed: tasks.id` ومنع تعطل عمليات الحفظ المتتابعة.
+- **[AiAssistantController](file:///d:/programming/Tasky3.0/TaskyW/lib/features/ai_assistant/presentation/controllers/ai_assistant_controller.dart)**:
+  - إزالة محاولة الإدراج المزدوجة التي كانت تتسبب في تعطل تحديث القوائم.
+  - استدعاء وانتظار callback الحفظ `await onSaveTask(newTask)` مباشرة ليعمل `TasksController.createTask` ويحدث القوائم وشاشات التطبيق وسحابة المزامنة فورياً.
+  - دعم مطابقة اسم المشروع `projectName` لاستخراج `projectId` الصحيح في حال لم يرجعه الذكاء الاصطناعي كـ UUID مباشر.
+- **التحقق والاختبارات**:
+  - `flutter analyze`: **0 issues found!**
+  - `flutter test test/ai_assistant_test.dart`: **12/12 passed بنجاح 100%**.

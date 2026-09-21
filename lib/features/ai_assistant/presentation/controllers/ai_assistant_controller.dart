@@ -313,12 +313,35 @@ class AiAssistantController extends ChangeNotifier {
       return;
     }
 
+    // مطابقة المشروع إذا أرجع الاسم ولم يُرجع الـ ID أو العكس
+    String? matchedProjectId = params.projectId;
+    if (matchedProjectId == null && params.projectName != null && params.projectName!.isNotEmpty) {
+      final query = params.projectName!.toLowerCase().trim();
+      final prj = projects.where((p) {
+        final name = p.name.toLowerCase().trim();
+        return name == query || name.contains(query) || query.contains(name);
+      }).firstOrNull;
+      if (prj != null) {
+        matchedProjectId = prj.id;
+      }
+    }
+
     // مطابقة المجال إن لم يكن محدداً ولكن حُدد المشروع
     String? matchedAreaId = params.areaId;
-    if (matchedAreaId == null && params.projectId != null) {
-      final prj = projects.where((p) => p.id == params.projectId).firstOrNull;
+    if (matchedAreaId == null && matchedProjectId != null) {
+      final prj = projects.where((p) => p.id == matchedProjectId).firstOrNull;
       if (prj != null) {
         matchedAreaId = prj.areaId;
+      }
+    }
+    if (matchedAreaId == null && params.areaName != null && params.areaName!.isNotEmpty) {
+      final query = params.areaName!.toLowerCase().trim();
+      final a = areas.where((ar) {
+        final name = ar.name.toLowerCase().trim();
+        return name == query || name.contains(query) || query.contains(name);
+      }).firstOrNull;
+      if (a != null) {
+        matchedAreaId = a.id;
       }
     }
     // إذا لم يتوفر أي مجال، نربطها بأول مجال متاح
@@ -331,7 +354,7 @@ class AiAssistantController extends ChangeNotifier {
       title: params.title,
       description: params.description,
       areaId: matchedAreaId ?? 'general',
-      projectId: params.projectId,
+      projectId: matchedProjectId,
       priority: params.priority,
       status: 'todo',
       dueDate: params.dueDate,
@@ -340,16 +363,29 @@ class AiAssistantController extends ChangeNotifier {
       syncStatus: 'pending_insert',
     );
 
-    // حفظ في قاعدة البيانات المحلية إن أمكن
-    try {
-      final repo = TaskRepositoryImpl();
-      await repo.insertTask(newTask);
-    } catch (e) {
-      debugPrint('[AiAssistantController] DB save fallback error: $e');
+    // حفظ في قاعدة البيانات وتحديث قائمة المهام والواجهة
+    if (onSaveTask != null) {
+      try {
+        final res = onSaveTask(newTask);
+        if (res is Future) {
+          await res;
+        }
+      } catch (e) {
+        debugPrint('[AiAssistantController] onSaveTask error: $e');
+        // في حال فشل الـ callback نحفظ محلياً كاحتياط
+        try {
+          final repo = TaskRepositoryImpl();
+          await repo.insertTask(newTask);
+        } catch (_) {}
+      }
+    } else {
+      try {
+        final repo = TaskRepositoryImpl();
+        await repo.insertTask(newTask);
+      } catch (e) {
+        debugPrint('[AiAssistantController] DB save fallback error: $e');
+      }
     }
-
-    // تحديث الواجهة عبر callback الحفظ المباشر
-    onSaveTask?.call(newTask);
 
     _createdTask = newTask;
     _state = AiAssistantState.success;
@@ -412,13 +448,19 @@ class AiAssistantController extends ChangeNotifier {
         break;
 
       case 'project':
-        if (params.targetId != null) {
+        if (params.targetId != null && params.targetId!.isNotEmpty) {
           targetTasks = allTasks
               .where((t) => t.projectId == params.targetId && t.status != 'completed')
               .toList();
-        } else if (params.targetName != null) {
-          final query = params.targetName!.toLowerCase();
-          final prj = projects.where((p) => p.name.toLowerCase().contains(query)).firstOrNull;
+          final prj = projects.where((p) => p.id == params.targetId).firstOrNull;
+          if (prj != null) contextTitle = 'مشروع ${prj.name}';
+        }
+        if (targetTasks.isEmpty && params.targetName != null && params.targetName!.isNotEmpty) {
+          final query = params.targetName!.toLowerCase().trim();
+          final prj = projects.where((p) {
+            final pName = p.name.toLowerCase().trim();
+            return pName == query || pName.contains(query) || query.contains(pName);
+          }).firstOrNull;
           if (prj != null) {
             targetTasks = allTasks
                 .where((t) => t.projectId == prj.id && t.status != 'completed')
@@ -426,21 +468,41 @@ class AiAssistantController extends ChangeNotifier {
             contextTitle = 'مشروع ${prj.name}';
           }
         }
+        if (targetTasks.isEmpty && params.matchedTaskIds.isNotEmpty) {
+          final matchedIds = params.matchedTaskIds.toSet();
+          targetTasks = allTasks.where((t) => matchedIds.contains(t.id)).toList();
+          if (params.targetName != null) {
+            contextTitle = 'مشروع ${params.targetName}';
+          }
+        }
         break;
 
       case 'area':
-        if (params.targetId != null) {
+        if (params.targetId != null && params.targetId!.isNotEmpty) {
           targetTasks = allTasks
               .where((t) => t.areaId == params.targetId && t.status != 'completed')
               .toList();
-        } else if (params.targetName != null) {
-          final query = params.targetName!.toLowerCase();
-          final area = areas.where((a) => a.name.toLowerCase().contains(query)).firstOrNull;
+          final area = areas.where((a) => a.id == params.targetId).firstOrNull;
+          if (area != null) contextTitle = 'مجال ${area.name}';
+        }
+        if (targetTasks.isEmpty && params.targetName != null && params.targetName!.isNotEmpty) {
+          final query = params.targetName!.toLowerCase().trim();
+          final area = areas.where((a) {
+            final aName = a.name.toLowerCase().trim();
+            return aName == query || aName.contains(query) || query.contains(aName);
+          }).firstOrNull;
           if (area != null) {
             targetTasks = allTasks
                 .where((t) => t.areaId == area.id && t.status != 'completed')
                 .toList();
             contextTitle = 'مجال ${area.name}';
+          }
+        }
+        if (targetTasks.isEmpty && params.matchedTaskIds.isNotEmpty) {
+          final matchedIds = params.matchedTaskIds.toSet();
+          targetTasks = allTasks.where((t) => matchedIds.contains(t.id)).toList();
+          if (params.targetName != null) {
+            contextTitle = 'مجال ${params.targetName}';
           }
         }
         break;

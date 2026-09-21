@@ -73,7 +73,11 @@ class TaskRepositoryImpl implements ITaskRepository {
   @override
   Future<void> insertTask(TaskModel task) async {
     final db = await _db;
-    await db.insert(DatabaseTables.taskTable, task.toMap());
+    await db.insert(
+      DatabaseTables.taskTable,
+      task.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   @override
