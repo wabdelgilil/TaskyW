@@ -983,7 +983,15 @@
   - حماية تامة لسرية مفتاح الـ API بعدم طباعته إطلاقاً في السجلات.
 - **[AiVoiceAssistantSheet](file:///d:/programming/Tasky3.0/TaskyW/lib/features/ai_assistant/presentation/widgets/ai_voice_assistant_sheet.dart)**:
   - تحديث نص الحالة في حال التعذر لعرض `⚠️ فشل تشغيل الصوت.` مع الاحتفاظ بالرد النصي وتفاصيل المهام معروضة أمام المستخدم بوضوح.
+### [2026-09-21] - نمط السرد التتابعي للمهام في السيارة دون الحاجة للشاشة (Hands-Free Car Reading Mode)
+- **[GeminiVoiceService](file:///d:/programming/Tasky3.0/TaskyW/lib/features/ai_assistant/data/services/gemini_voice_service.dart)**:
+  - ترتيب المهام النشطة زمنياً وحسب الأولوية قبل تمريرها في الـ Prompt، لتبدأ بالمهام الصباحية والمواعيد الحرجة ثم العاجلة فالأقل استعجالاً.
+  - ترقية وتحديث الـ System Prompt للتمييز الدقيق بين:
+    1. **طلب القراءة أو الاستعراض الكامل للمهام ("اقرأ المهام", "اقرأ كل المهام", "سمعني مهامي"):** سرد المهام واحدة تلو الأخرى بنظام صوتي تتابعي واضح (أولاً، ثانياً، ...) يذكر العنوان والوقت والأولوية والمشروع بصوت بشري ممتع، ومنع الاكتفاء بمقدمة عامة أو سؤال ختامي معطل.
+    2. **طلب التلخيص السريع فقط ("لخص لي يومي", "إيه أهم حاجة"):** تقديم ملخص تنفيذي موجز في 3-4 جمل.
+  - رفع سقف توليد الصوت في `generateAiSpeech` من 320 حرفاً إلى 1800 حرف لمنع أي اقتطاع للصوت أثناء قراءة قائمة المهام المتتابعة، مع زيادة مهلة الشبكة إلى 40 ثانية.
+- **[AiAssistantController](file:///d:/programming/Tasky3.0/TaskyW/lib/features/ai_assistant/presentation/controllers/ai_assistant_controller.dart)**:
+  - زيادة مهلة انتظار انتهاء المشغل الصوتي `onPlayerComplete` من 45 ثانية إلى 3 دقائق لضمان اكتمال الاستماع لكافة المهام بسلاسة دون مقاطعة.
 - **التحقق والاختبارات**:
   - `flutter analyze`: **0 issues found!**
   - `flutter test test/ai_assistant_test.dart`: **12/12 passed بنجاح 100%**.
-

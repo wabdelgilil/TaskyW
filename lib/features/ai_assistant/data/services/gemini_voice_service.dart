@@ -49,7 +49,21 @@ class GeminiVoiceService {
     final projectsJson = projects.map((p) => {'id': p.id, 'name': p.name}).toList();
     final areasJson = areas.map((a) => {'id': a.id, 'name': a.name}).toList();
 
-    final activeTasksJson = tasks.where((t) => t.status != 'completed').take(40).map((t) {
+    final sortedTasks = tasks.where((t) => t.status != 'completed').toList();
+    sortedTasks.sort((a, b) {
+      if (a.dueDate != null && b.dueDate != null) {
+        return a.dueDate!.compareTo(b.dueDate!);
+      }
+      if (a.dueDate != null && b.dueDate == null) return -1;
+      if (a.dueDate == null && b.dueDate != null) return 1;
+
+      final priorityWeight = {'urgent': 4, 'high': 3, 'medium': 2, 'low': 1};
+      final weightA = priorityWeight[a.priority] ?? 0;
+      final weightB = priorityWeight[b.priority] ?? 0;
+      return weightB.compareTo(weightA);
+    });
+
+    final activeTasksJson = sortedTasks.take(40).map((t) {
       final prj = projects.where((p) => p.id == t.projectId).firstOrNull?.name;
       final area = areas.where((a) => a.id == t.areaId).firstOrNull?.name;
       return {
@@ -74,7 +88,7 @@ class GeminiVoiceService {
 - اليوم من الأسبوع: ${_getDayName(now.weekday)}
 - المشاريع المسجلة: ${jsonEncode(projectsJson)}
 - المجالات (Areas) المسجلة: ${jsonEncode(areasJson)}
-- المهام النشطة الحالية للمستخدم:
+- المهام النشطة الحالية للمستخدم (مرتبة حسب الوقت والأولوية):
 ${jsonEncode(activeTasksJson)}
 
 ### النوايا المدعومة (Intents):
@@ -84,16 +98,28 @@ ${jsonEncode(activeTasksJson)}
    - حدد الأولوية (urgent, high, medium, low).
    - اكتب في voice_reply رسالة تأكيد لطيفة وذكية.
 
-2. **read_tasks**: إذا طلب المستخدم قراءة مهامه أو استعراضها أو سأل عما عليه فعله (مثل: "اقرأ مهام اليوم", "إيه اللي ورايا", "لخص أولوياتي", "اقرأ كل المهام"):
-   - قم بتحليل قائمة المهام النشطة المعطاة أعلاه، وصِغ **ملخصاً صوتياً تنفيذيًا حياً يتحدث بروح وفهم عميق للسياق (Executive Voice Briefing)**:
-     * **تحدث بروح بشرية واعية:** تصرف كأنك مدير تنفيذي ذكي ومستشار شخصي ودود جالس مباشرة مع المستخدم، فاهم أولوياته وبيكلمه بروح تفاعلية محترمة وذكية (بالعامية المصرية الراقية أو العربية الفصحى السلسة).
-     * **الإيجاز الصوتي الشديد (قاعدة ذهبية صارمة):** الرد الصوتي `voice_reply` يجب ألا يتجاوز **3 إلى 4 جُمل مركزة فقط (حوالي 35 إلى 55 كلمة كحد أقصى)**! تجنب تماماً المط أو الإطالة.
-     * **التركيز على الأهم والعاجل فقط:** اذكر إجمالي عدد المهام بشكل عام وموجز جداً في البداية (مثال: "عندك 27 مهمة نشطة"). ثم سلّط الضوء فوراً على **أهم مهمة أو مهمتين فقط** التي تتطلب تدخله الفوري (مثل المهام المتأخرة أو الحرجة العاجلة).
-     * **منع سرد قائمة المهام نهائياً:** ممنوع منعاً باتاً قراءة عناوين المهام واحدة وراء الأخرى كقائمة بضائع! باقي المهام الروتينية لخصها في شطر جملة سريع (مثال: "وباقي المهام روتينية وفواتير نعدي عليها براحتنا"). المهام بأكملها ستُعرض أمامه على الشاشة بصرياً ككروت تفاعلية.
-     * **نطق سلس للأذن:** لا تنطق الكلمات الإنجليزية بطريقة مقحمة أو مشوهة، واجعل الكلام منساباً وسهلاً وممتعاً في الاستماع.
-     * إذا لم تكن هناك مهام، أخبره بلطف وابتسامة أن جدوله حر تماماً ويمكنه الاسترخاء.
-     * **خاتمة تفاعلية حية:** اختم بسؤال ذكي موجّه للعمل (مثال: "تحب نبدأ بمهمة كذا العاجلة الأول؟").
-   - ضع هذا النص السردي الذكي والحي بالكامل في حقل `voice_reply`.
+2. **read_tasks**: إذا طلب المستخدم قراءة مهامه أو استعراضها أو سأل عما عليه فعله (مثل: "اقرأ مهام اليوم", "اقرأ كل المهام", "اقرأ المهام", "إيه اللي ورايا", "سمعني مهامي", "لخص أولوياتي"):
+   - حلل قائمة المهام النشطة المعطاة أعلاه، وميّز بذكاء بين حالتين:
+
+     **الحالة الأولى (أ): طلب القراءة أو الاستعراض المباشر (مثل: "اقرأ المهام", "اقرأ كل المهام", "اقرأ مهام اليوم", "سمعني مهامي", "إيه اللي عندي"):**
+     * هذا النمط مخصص للاستماع أثناء القيادة في السيارة أو الانشغال دون النظر للشاشة (Eyes-free / Hands-free).
+     * **ممنوع الاكتفاء بمقدمة إحصائية عامة أو سؤال "تحب نبدأ بإيه؟" بدلاً من القراءة.**
+     * ادخل فوراً في صلب وسرد المهام واحدة تلو الأخرى بنظام وترتيب صوتي بشري ممتع وسلس ومريح للأذن:
+       1. افتتاحية موجزة جداً وطبيعية (مثال: "صباح الخير، عندك اليوم 4 مهام:" أو "جاهز، عندك 5 مهام نشطة:").
+       2. اسرد المهام تتابعياً واحدة تلو الأخرى:
+          - اذكر رقم أو تسلسل المهمة (أولاً: ...، ثانياً: ...، ثالثاً: ...).
+          - اذكر عنوان المهمة بوضوح وسلاسة.
+          - اذكر موعدها أو وقت استحقاقها إن وجد (مثال: "الساعة 10 صباحاً" أو "قبل نهاية اليوم").
+          - إذا كانت المهمة عاجلة (urgent) أو ذات أولوية عالية أو تابعة لمشروع معين اذكر ذلك باختصار وانسيابية (مثال: "ودي أولوية عاجلة في مشروع كذا").
+       3. إذا كان إجمالي المهام كبيراً (أكثر من 8 مهام)، اسرد أهم 6 إلى 8 مهام الأكثر أهمية وعجلة بالتفصيل، ثم اختم بـ: "وهناك [X] مهام أخرى مسجلة في جدولك".
+       4. اختم بجملة تشجيعية سريعة ومختصرة (مثال: "أتمنى لك يوماً موفقاً ومثمراً").
+
+     **الحالة الثانية (ب): طلب التلخيص أو التركيز فقط (مثل: "لخص لي يومي", "إيه أهم حاجة أركز عليها", "موجز المهام"):**
+     * هنا فقط تصيغ ملخصاً تنفيذياً سريعاً وموجزاً في 3-4 جمل يركز على إجمالي المهام وأهم مهمة أو مهمتين تتطلبان التدخل الفوري، وتختم بسؤال ذكي.
+
+     * في حال لم تكن هناك أي مهام مطابقة: أخبره بلطف أن جدوله خالٍ تماماً اليوم ويمكنه الاسترخاء.
+
+   - ضع هذا النص الصوتي البشري السلس والواضح بالكامل في حقل `voice_reply`.
    - ضع في `matched_task_ids` مصفوفة بالـ IDs لجميع المهام ذات الصلة ليتم عرضها كبطاقات في الشاشة أسفل الرد الصوتي.
 
 3. **conversational_help**: إذا سأل سؤالاً عاماً أو طلب استشارة إنتاجية.
@@ -102,7 +128,7 @@ ${jsonEncode(activeTasksJson)}
 يجب أن يكون الرد عبارة عن كائن JSON صالح فقط:
 {
   "intent": "create_task" | "read_tasks" | "conversational_help",
-  "voice_reply": "نص الرد أو الملخص التنفيذي الذكي المركز (3-4 جمل فقط)",
+  "voice_reply": "نص الرد الصوتي المنساب (سواء سرد تتابعي للمهام أو ملخص تنفيذي حسب طلب المستخدم)",
   "create_task": {
     "title": "عنوان المهمة",
     "description": "تفاصيل إضافية إن وجدت",
@@ -329,14 +355,14 @@ ${jsonEncode(activeTasksJson)}
 
     debugPrint('AI TTS TEXT LENGTH: ${speechText.length}');
 
-    // حماية طول النص الصوتي لضمان توليد فوري في ثانية واحدة وتجنب أي انقطاع
-    if (speechText.length > 320) {
+    // حماية طول النص الصوتي لضمان اكتمال قراءة كافة المهام تتابعياً دون انقطاع
+    if (speechText.length > 1800) {
       final sentences = speechText.split(RegExp(r'[.!؟\n]'));
       final buffer = StringBuffer();
       for (final s in sentences) {
         final st = s.trim();
         if (st.isEmpty) continue;
-        if (buffer.length + st.length + 2 <= 320) {
+        if (buffer.length + st.length + 2 <= 1800) {
           if (buffer.isNotEmpty) buffer.write(' ');
           buffer.write(st);
           buffer.write('.');
@@ -344,7 +370,7 @@ ${jsonEncode(activeTasksJson)}
           break;
         }
       }
-      speechText = buffer.isNotEmpty ? buffer.toString() : speechText.substring(0, 310);
+      speechText = buffer.isNotEmpty ? buffer.toString() : speechText.substring(0, 1750);
     }
 
     final selectedVoice = voiceName ?? SettingsController.instance.aiVoice;
@@ -397,7 +423,7 @@ ${jsonEncode(activeTasksJson)}
           url,
           headers: headers,
           body: jsonEncode(payload),
-        ).timeout(const Duration(seconds: 20));
+        ).timeout(const Duration(seconds: 40));
 
         if (response.statusCode != 200) {
           debugPrint('AI TTS FAILED');

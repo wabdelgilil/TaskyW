@@ -538,9 +538,9 @@ class AiAssistantController extends ChangeNotifier {
       if (wavBytes != null && wavBytes.isNotEmpty) {
         debugPrint('[AiAssistantController] AI TTS SUCCESS — Playing ${wavBytes.length} bytes');
         await _audioPlayer.play(BytesSource(wavBytes, mimeType: 'audio/wav'));
-        // ننتظر حتى انتهاء تشغيل الصوت البشري بالكامل
+        // ننتظر حتى انتهاء تشغيل الصوت البشري بالكامل (مهلة كافية لقراءة كافة المهام)
         await _audioPlayer.onPlayerComplete.first.timeout(
-          const Duration(seconds: 45),
+          const Duration(minutes: 3),
           onTimeout: () => null,
         );
         return;
