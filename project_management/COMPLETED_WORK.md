@@ -1036,3 +1036,25 @@
 - **التحقق والاختبارات**:
   - `flutter analyze`: **No issues found (0 errors, 0 warnings)**.
   - جميع الاختبارات اجتازت بنجاح: `settings_controller_test.dart` (21/21 passed)، `sync_service_test.dart` (10/10 passed)، `network_service_test.dart` (3/3 passed)، `tasks_table_view_test.dart` و `task_list_view_test.dart` (14/14 passed).
+
+### [2026-10-11] - تطوير شاشة المجال بالنمطين المتكاملين (مهام ومشاريع تفاعلية + مركز إدارة المشاريع)
+- **[AreaDetailScreen](file:///d:/programming/Tasky3.0/TaskyW/lib/features/areas/presentation/screens/area_detail_screen.dart)**:
+  - تحويل شاشة المجال إلى `StatefulWidget` مزود بشريط تبويب عصري (Modern Segmented Tab Bar) يتيح للمستخدم التبديل المرن بين نمطين وفق تفضيلاته:
+    1. **تبويب مهام ومشاريع المجال (Tasks & Projects View)**:
+       - عرض كافة مشاريع المجال وتحت كل مشروع مهامه التفاعلية مباشرة كأقسام قابلة للطي والتوسيع (Collapsible Accordions).
+       - إمكانية طي/توسيع كل مشروع على حدة، مع زرين علويين لـ "طي الكل" و "توسيع الكل".
+       - شريط تقدم مدمج لكل مشروع يوضح نسبة الإنجاز وعدد المهام المكتملة وإجمالي المهام.
+       - زر سريع بجانب كل مشروع لإضافة مهمة مباشرة داخل المشروع المحدد (`+ إضافة مهمة`).
+       - قسم مخصص للمهام المستقلة داخل المجال (التي لا تنتمي لمشروع محدد).
+       - دعم كامل للتفاعل مع المهام (إكمال/إلغاء إكمال، أرشفة، فتح التفاصيل، تعديل).
+       - توافق متكامل مع أنماط العرض المختلفة للمجال (قائمة، كانبان، جدول).
+    2. **تبويب إدارة المشاريع (Projects Management Hub)**:
+       - شاشة أنيقة ومرتبة تعرض كروت مشاريع المجال بدون زحمة المهام.
+       - بطاقات غنية بمؤشرات الإنجاز، شريط التقدم، عدد المهام، ووصف المشروع مع الانتقال السريع للمشروع أو التعديل.
+- **[MainWorkspaceContent](file:///d:/programming/Tasky3.0/TaskyW/lib/features/home/presentation/widgets/main_workspace_content.dart) & [MainLayoutScreen](file:///d:/programming/Tasky3.0/TaskyW/lib/features/home/presentation/screens/main_layout_screen.dart)**:
+  - تمرير `onAddNewTaskForProject` وربطه بمربع حوار إضافة المهام مع التحديد التلقائي للمشروع المستهدف عند النقر على `+` من هيدر أي مشروع داخل المجال.
+- **التعريب (Localization)**:
+  - إضافة مفاتيح النصوص باللغتين العربية والإنجليزية في [app_ar.arb](file:///d:/programming/Tasky3.0/TaskyW/lib/l10n/app_ar.arb) و [app_en.arb](file:///d:/programming/Tasky3.0/TaskyW/lib/l10n/app_en.arb).
+- **التحقق والاختبارات**:
+  - `flutter analyze`: **No issues found (0 errors, 0 warnings)**.
+  - `flutter test`: اجتياز جميع اختبارات الجداول والقوائم والواجهات بنجاح 100%.

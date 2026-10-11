@@ -1069,5 +1069,12 @@
   "audioResume": "Resume",
   "audioStop": "Stop reading",
   "audioNext": "Next task",
-  "audioPrevious": "Previous task"
+  "audioPrevious": "Previous task",
+  "areaTabTasksAndProjects": "Projects & Tasks",
+  "areaTabManageProjects": "Manage Projects",
+  "collapseAll": "Collapse All",
+  "expandAll": "Expand All",
+  "noTasksInProject": "No tasks in this project yet",
+  "addProjectTask": "Add task to project",
+  "unassignedAreaTasks": "General tasks without project"
 }

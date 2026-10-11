@@ -1900,4 +1900,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get audioPrevious => 'Previous task';
+
+  @override
+  String get areaTabTasksAndProjects => 'Projects & Tasks';
+
+  @override
+  String get areaTabManageProjects => 'Manage Projects';
+
+  @override
+  String get collapseAll => 'Collapse All';
+
+  @override
+  String get expandAll => 'Expand All';
+
+  @override
+  String get noTasksInProject => 'No tasks in this project yet';
+
+  @override
+  String get addProjectTask => 'Add task to project';
+
+  @override
+  String get unassignedAreaTasks => 'General tasks without project';
 }

@@ -42,6 +42,7 @@ class MainWorkspaceContent extends StatelessWidget {
   final Function(TaskModel task, String newPriority)? onTaskPriorityChanged;
   final Function(String areaId)? onAddNewProject;
   final Function(String? defaultStatus)? onAddNewTask;
+  final Function(String? projectId)? onAddNewTaskForProject;
   final Function(String projectId)? onSelectProjectId;
   final Function(String taskId)? onDeleteTask;
   final Function(String taskId)? onRestoreTask;
@@ -73,6 +74,7 @@ class MainWorkspaceContent extends StatelessWidget {
     this.onTaskPriorityChanged,
     this.onAddNewProject,
     this.onAddNewTask,
+    this.onAddNewTaskForProject,
     this.onSelectProjectId,
     this.onDeleteTask,
     this.onRestoreTask,
@@ -142,6 +144,7 @@ class MainWorkspaceContent extends StatelessWidget {
         onTaskPriorityChanged: onTaskPriorityChanged,
         onAddNewProject: () => onAddNewProject?.call(area.id),
         onAddNewTask: () => onAddNewTask?.call(null),
+        onAddNewTaskForProject: onAddNewTaskForProject,
         onArchiveTask: onArchiveTask,
         onDeleteTask: onDeleteTask,
         onRestoreTask: onRestoreTask,

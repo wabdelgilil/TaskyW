@@ -327,14 +327,14 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
     });
   }
 
-  void _showAddTaskDialog({String? defaultStatus}) {
+  void _showAddTaskDialog({String? defaultStatus, String? projectId}) {
     AddTaskDialog.show(
       context,
       areas: widget.areas,
       projects: widget.projects,
       defaultStatus: defaultStatus,
       initialAreaId: _selectedAreaId,
-      initialProjectId: _selectedProjectId,
+      initialProjectId: projectId ?? _selectedProjectId,
       isTodayFilter: _activeFilter == 'today',
       onSaveTask: (newTask) => widget.onSaveTask?.call(newTask),
       onNeedArea: _showAddAreaDialog,
@@ -746,6 +746,7 @@ Expanded(
                       onTaskPriorityChanged: widget.onTaskPriorityChanged,
                       onAddNewProject: (areaId) => _showAddProjectDialog(areaId),
                       onAddNewTask: (defaultStatus) => _showAddTaskDialog(defaultStatus: defaultStatus),
+                      onAddNewTaskForProject: (projectId) => _showAddTaskDialog(projectId: projectId),
                       onSelectProjectId: (id) => setState(() => _selectedProjectId = id),
                       onDeleteTask: widget.onDeleteTask,
                       onRestoreTask: widget.onRestoreTask,

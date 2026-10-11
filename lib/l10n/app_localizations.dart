@@ -3541,6 +3541,48 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'المهمة السابقة'**
   String get audioPrevious;
+
+  /// No description provided for @areaTabTasksAndProjects.
+  ///
+  /// In ar, this message translates to:
+  /// **'مهام ومشاريع المجال'**
+  String get areaTabTasksAndProjects;
+
+  /// No description provided for @areaTabManageProjects.
+  ///
+  /// In ar, this message translates to:
+  /// **'إدارة المشاريع'**
+  String get areaTabManageProjects;
+
+  /// No description provided for @collapseAll.
+  ///
+  /// In ar, this message translates to:
+  /// **'طي الكل'**
+  String get collapseAll;
+
+  /// No description provided for @expandAll.
+  ///
+  /// In ar, this message translates to:
+  /// **'توسيع الكل'**
+  String get expandAll;
+
+  /// No description provided for @noTasksInProject.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد مهام في هذا المشروع بعد'**
+  String get noTasksInProject;
+
+  /// No description provided for @addProjectTask.
+  ///
+  /// In ar, this message translates to:
+  /// **'إضافة مهمة للمشروع'**
+  String get addProjectTask;
+
+  /// No description provided for @unassignedAreaTasks.
+  ///
+  /// In ar, this message translates to:
+  /// **'مهام عامة بدون مشروع'**
+  String get unassignedAreaTasks;
 }
 
 class _AppLocalizationsDelegate

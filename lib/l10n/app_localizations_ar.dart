@@ -1881,4 +1881,25 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get audioPrevious => 'المهمة السابقة';
+
+  @override
+  String get areaTabTasksAndProjects => 'مهام ومشاريع المجال';
+
+  @override
+  String get areaTabManageProjects => 'إدارة المشاريع';
+
+  @override
+  String get collapseAll => 'طي الكل';
+
+  @override
+  String get expandAll => 'توسيع الكل';
+
+  @override
+  String get noTasksInProject => 'لا توجد مهام في هذا المشروع بعد';
+
+  @override
+  String get addProjectTask => 'إضافة مهمة للمشروع';
+
+  @override
+  String get unassignedAreaTasks => 'مهام عامة بدون مشروع';
 }

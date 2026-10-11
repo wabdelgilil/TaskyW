@@ -1069,5 +1069,12 @@
   "audioResume": "استئناف",
   "audioStop": "إيقاف القراءة",
   "audioNext": "المهمة التالية",
-  "audioPrevious": "المهمة السابقة"
+  "audioPrevious": "المهمة السابقة",
+  "areaTabTasksAndProjects": "مهام ومشاريع المجال",
+  "areaTabManageProjects": "إدارة المشاريع",
+  "collapseAll": "طي الكل",
+  "expandAll": "توسيع الكل",
+  "noTasksInProject": "لا توجد مهام في هذا المشروع بعد",
+  "addProjectTask": "إضافة مهمة للمشروع",
+  "unassignedAreaTasks": "مهام عامة بدون مشروع"
 }
