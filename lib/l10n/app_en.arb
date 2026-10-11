@@ -829,6 +829,35 @@
   "syncPartialFail": "Sync completed with some errors",
   "syncAutoFail": "Automatic sync could not be completed",
   "syncLoginRequired": "Sign in is required to sync data",
+  "syncNoInternetPaused": "No internet connection. Retries paused until connection is restored.",
+  "syncRetryingAttempt": "Retrying sync ({attempt} of {max})...",
+  "@syncRetryingAttempt": {
+    "description": "Retry status message",
+    "placeholders": {
+      "attempt": {
+        "type": "int",
+        "example": "1"
+      },
+      "max": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "syncFailedMaxRetries": "Sync failed after multiple attempts. Tap to retry.",
+  "archiveTask": "Archive task",
+  "taskArchivedToast": "Task moved to archive: {title}",
+  "@taskArchivedToast": {
+    "description": "Toast message when task is archived",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Task title"
+      }
+    }
+  },
+  "viewModeTable": "Table",
+  "areaTasks": "Area Tasks",
   "tagDefault": "Tag",
   "currencySearchHint": "Search by country name, currency, or code (SAR, EGP...)",
   "selectCurrencyTitle": "Select Default Currency",

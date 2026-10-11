@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tasky/core/services/sync_service.dart';
 import 'package:tasky/core/theme/app_theme.dart';
 import 'package:tasky/features/settings/data/models/app_settings_model.dart';
@@ -96,7 +97,20 @@ class SettingsController extends ChangeNotifier {
       await _service.save(_settings);
     }
     _loaded = true;
+    final prefs = await SharedPreferences.getInstance();
+    _groupByProject = prefs.getBool('settings.group_by_project') ?? true;
     ThemeController.instance.setStyle(_themeStyleFromString(_settings.themeMode));
+    notifyListeners();
+  }
+
+  bool _groupByProject = true;
+  bool get groupByProject => _groupByProject;
+
+  /// تعيين خيار تجميع المهام حسب المشروع وحفظه محلياً (الافتراضي مفعّل)
+  Future<void> setGroupByProject(bool value) async {
+    _groupByProject = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('settings.group_by_project', value);
     notifyListeners();
   }
 

@@ -1014,6 +1014,25 @@
   - إزالة محاولة الإدراج المزدوجة التي كانت تتسبب في تعطل تحديث القوائم.
   - استدعاء وانتظار callback الحفظ `await onSaveTask(newTask)` مباشرة ليعمل `TasksController.createTask` ويحدث القوائم وشاشات التطبيق وسحابة المزامنة فورياً.
   - دعم مطابقة اسم المشروع `projectName` لاستخراج `projectId` الصحيح في حال لم يرجعه الذكاء الاصطناعي كـ UUID مباشر.
+### [2026-10-11] - حزمة تحسينات المزامنة وتجميع المهام والأرشفة وحفظ التفضيلات
+- **[NetworkService](file:///d:/programming/Tasky3.0/TaskyW/lib/core/services/network_service.dart)**:
+  - فحص حقيقي متوافق عبر المنصات؛ في بيئة الويب استعلام DNS DoH يدعم CORS لمنع حظر المتصفح، وفي الأنظمة الأصلية فحص عبر `InternetAddress.lookup`.
+  - رصد دقيق لكافة أخطاء الشبكة والويب وسوبابيز (`AuthRetryableFetchException`، `ClientException: Failed to fetch`، `ERR_NAME_NOT_RESOLVED`، `ERR_PROXY_CONNECTION_FAILED`، `SocketException`، `TimeoutException`).
+  - مراقبة دورية لاستئناف المزامنة فور استعادة الاتصال تلقائياً.
+- **[SyncService](file:///d:/programming/Tasky3.0/TaskyW/lib/core/services/sync_service.dart)** & **[SyncController](file:///d:/programming/Tasky3.0/TaskyW/lib/core/services/sync_controller.dart)**:
+  - فحص استباقي للاتصال بالإنترنت ومهل زمنية آمنة (10-15s للعمليات و30s للدورة الكاملة) تمنع تعليق المزامنة تماماً.
+  - خروج فوري عند انقطاع الاتصال بدلاً من استهلاك مهل الـ 9 جداول، وتعيين حالة الأوفلاين وبدء مراقبة الشبكة.
+  - محرك إعادة محاولة تدريجي حتى 5 محاولات مع إشعار المستخدم برسائل توضيحية وتحديث زر المزامنة لحظياً.
+  - معالجة أخطاء الشبكة غير الملتقطة في `main.dart` لمنع حدوث Uncaught Errors في المتصفح.
+- **[تفعيل التجميع حسب المشروع افتراضياً](file:///d:/programming/Tasky3.0/TaskyW/lib/features/settings/presentation/controllers/settings_controller.dart)**:
+  - جعل `groupByProject = true` افتراضياً في `SettingsController` مع حفظ التفضيل محلياً في `SharedPreferences`.
+  - تطبيق التجميع الافتراضي في `TaskListView` و`TasksTableView`.
+- **[أرشفة المهام](file:///d:/programming/Tasky3.0/TaskyW/lib/features/tasks/presentation/widgets/task_card.dart)**:
+  - إضافة زر الأرشفة في بطاقات المهام، والدرج الجانبي، والورقة السفلية، وإخفاء المهمة المؤرشفة فورياً من القوائم النشطة مع Toast للتراجع.
+- **[حفظ خيارات العرض المفضل للمستخدم](file:///d:/programming/Tasky3.0/TaskyW/lib/features/home/presentation/screens/main_layout_screen.dart)**:
+  - إضافة `'table'` إلى الأوضاع المدعومة وحفظ وضع العرض المختار من الهيدر واسترجاعه عند فتح التطبيق.
+- **[عرض وتجميع كافة مهام المجال حسب المشروع](file:///d:/programming/Tasky3.0/TaskyW/lib/features/areas/presentation/screens/area_detail_screen.dart)**:
+  - عرض كافة مهام المجال مجمعة حسب مشاريعها بدلاً من الاقتصار على المهام المستقلة.
 - **التحقق والاختبارات**:
-  - `flutter analyze`: **0 issues found!**
-  - `flutter test test/ai_assistant_test.dart`: **12/12 passed بنجاح 100%**.
+  - `flutter analyze`: **No issues found (0 errors, 0 warnings)**.
+  - جميع الاختبارات اجتازت بنجاح: `settings_controller_test.dart` (21/21 passed)، `sync_service_test.dart` (10/10 passed)، `network_service_test.dart` (3/3 passed)، `tasks_table_view_test.dart` و `task_list_view_test.dart` (14/14 passed).

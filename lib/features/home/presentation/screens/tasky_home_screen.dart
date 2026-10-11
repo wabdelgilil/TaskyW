@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:tasky/features/tags/data/models/tag_model.dart';
 import 'package:tasky/core/services/sync_controller.dart';
 import 'package:tasky/core/services/sync_service.dart';
-import 'package:tasky/core/l10n/localization_x.dart';
 import 'package:tasky/features/areas/data/models/area_model.dart';
 import 'package:tasky/features/areas/presentation/controllers/areas_controller.dart';
 import 'package:tasky/features/projects/data/models/project_model.dart';
@@ -144,27 +143,21 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
     });
   }
 
-  /// مزامنة هادئة تلقائية بدون إظهار رسائل خطأ مزعجة إذا كان المستخدم غير متصل
-  Future<void> _handleSilentSync() async {
-    try {
-      SyncController.instance.startSyncing();
-      final syncFailMsg = context.l10n.syncAutoFail;
-      final result = await SyncService.instance.syncNow();
-      if (result.authenticated) {
-        if (result.success) {
-          SyncController.instance.setSynced();
-          if (result.fetchedApplied > 0) {
-            await _reloadLocalDataOnly();
-          }
-        } else {
-          SyncController.instance.setError(result.message ?? syncFailMsg);
-        }
-      } else {
-        _updatePendingSyncStatus();
-      }
-    } catch (_) {
-      _updatePendingSyncStatus();
+  /// دورة مزامنة كاملة تعيد قراءة البيانات إن وُجدت تحديثات سحابية جديدة
+  Future<SyncResult> _performSyncCycleWithReload() async {
+    final result = await SyncService.instance.syncNow();
+    if (result.authenticated && result.success && result.fetchedApplied > 0) {
+      await _reloadLocalDataOnly();
     }
+    return result;
+  }
+
+  /// مزامنة هادئة في الخلفية عبر محرك المزامنة الذكي
+  void _handleSilentSync() {
+    SyncController.instance.triggerSync(
+      isManual: false,
+      onPerformSync: _performSyncCycleWithReload,
+    );
   }
 
   /// إعادة قراءة البيانات المحلية فقط دون تشغيل مزامنة إضافية
@@ -183,20 +176,11 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
 
   Future<void> _handleSyncRequested() async {
     _autoSyncTimer?.cancel();
-    SyncController.instance.startSyncing();
-    final syncPartialFailMsg = context.l10n.syncPartialFail;
-    final syncLoginRequiredMsg = context.l10n.syncLoginRequired;
-    final result = await SyncService.instance.syncNow();
-    if (result.authenticated) {
-      if (result.success) {
-        SyncController.instance.setSynced();
-      } else {
-        SyncController.instance.setError(result.message ?? syncPartialFailMsg);
-      }
-      await _reloadLocalDataOnly();
-    } else {
-      SyncController.instance.setError(result.message ?? syncLoginRequiredMsg);
-    }
+    await SyncController.instance.triggerSync(
+      isManual: true,
+      onPerformSync: _performSyncCycleWithReload,
+    );
+    await _reloadLocalDataOnly();
   }
 
   // عمليات المهام عبر TasksController
@@ -219,6 +203,12 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
 
   Future<void> _handleRestoreTask(String taskId) async {
     await _tasksController.restoreTask(taskId);
+    await _loadSubtasksAndTagsMap();
+    _scheduleAutoSync();
+  }
+
+  Future<void> _handleArchiveTask(String taskId) async {
+    await _tasksController.archiveTask(taskId);
     await _loadSubtasksAndTagsMap();
     _scheduleAutoSync();
   }
@@ -370,6 +360,7 @@ class _TaskyHomeScreenState extends State<TaskyHomeScreen> {
       onSaveTask: _handleSaveTask,
       onDeleteTask: _handleDeleteTask,
       onRestoreTask: _handleRestoreTask,
+      onArchiveTask: _handleArchiveTask,
       onTaskStatusChanged: _handleTaskStatusChanged,
       onTaskPriorityChanged: _handleTaskPriorityChanged,
       onToggleTaskCompleted: _handleToggleTaskCompleted,

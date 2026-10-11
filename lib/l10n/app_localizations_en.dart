@@ -1496,6 +1496,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncLoginRequired => 'Sign in is required to sync data';
 
   @override
+  String get syncNoInternetPaused =>
+      'No internet connection. Retries paused until connection is restored.';
+
+  @override
+  String syncRetryingAttempt(int attempt, int max) {
+    return 'Retrying sync ($attempt of $max)...';
+  }
+
+  @override
+  String get syncFailedMaxRetries =>
+      'Sync failed after multiple attempts. Tap to retry.';
+
+  @override
+  String get archiveTask => 'Archive task';
+
+  @override
+  String taskArchivedToast(String title) {
+    return 'Task moved to archive: $title';
+  }
+
+  @override
+  String get viewModeTable => 'Table';
+
+  @override
+  String get areaTasks => 'Area Tasks';
+
+  @override
   String get tagDefault => 'Tag';
 
   @override

@@ -1487,6 +1487,33 @@ class AppLocalizationsAr extends AppLocalizations {
   String get syncLoginRequired => 'يجب تسجيل الدخول لمزامنة البيانات';
 
   @override
+  String get syncNoInternetPaused =>
+      'لا يوجد اتصال بالإنترنت. المحاولات متوقفة مؤقتاً حتى عودة الاتصال.';
+
+  @override
+  String syncRetryingAttempt(int attempt, int max) {
+    return 'جاري إعادة المحاولة ($attempt من $max)...';
+  }
+
+  @override
+  String get syncFailedMaxRetries =>
+      'فشلت المزامنة بعد عدة محاولات. اضغط لإعادة المحاولة.';
+
+  @override
+  String get archiveTask => 'أرشفة المهمة';
+
+  @override
+  String taskArchivedToast(String title) {
+    return 'تم نقل المهمة إلى الأرشيف: $title';
+  }
+
+  @override
+  String get viewModeTable => 'جدول';
+
+  @override
+  String get areaTasks => 'مهام المجال';
+
+  @override
   String get tagDefault => 'وسم';
 
   @override

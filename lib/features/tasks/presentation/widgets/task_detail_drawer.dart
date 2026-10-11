@@ -30,6 +30,7 @@ class TaskDetailDrawer extends StatefulWidget {
   final Function(String name, String colorHex)? onCreateTag;
   final Function(TaskModel updatedTask) onSaveTask;
   final Function(String taskId)? onDeleteTask;
+  final Function(String taskId)? onArchiveTask;
   final Function(String title) onAddSubtask;
   final Function(SubtaskModel subtask, bool isCompleted) onToggleSubtask;
   final Function(String subtaskId) onDeleteSubtask;
@@ -50,6 +51,7 @@ class TaskDetailDrawer extends StatefulWidget {
     this.onCreateTag,
     required this.onSaveTask,
     this.onDeleteTask,
+    this.onArchiveTask,
     required this.onAddSubtask,
     required this.onToggleSubtask,
     required this.onDeleteSubtask,
@@ -251,6 +253,25 @@ class _TaskDetailDrawerState extends State<TaskDetailDrawer> {
                     }
                   },
                 ),
+                // زر أرشفة المهمة
+                if (widget.onArchiveTask != null)
+                  IconButton(
+                    icon: const Icon(Icons.archive_outlined, size: 20, color: Colors.amber),
+                    tooltip: context.l10n.archiveTask,
+                    onPressed: () {
+                      final title = widget.task.title;
+                      final taskId = widget.task.id;
+                      widget.onArchiveTask?.call(taskId);
+                      widget.onClose?.call();
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(context.l10n.taskArchivedToast(title)),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
+                  ),
                 // زر حذف المهمة
                 if (widget.onDeleteTask != null)
                   IconButton(

@@ -22,6 +22,7 @@ class TaskListView extends StatefulWidget {
   final VoidCallback? onAddTask;
   final Function(String taskId)? onDeleteTask;
   final Function(String taskId)? onRestoreTask;
+  final Function(String taskId)? onArchiveTask;
   final Function(String projectId)? onSelectProjectId;
   final Map<String, int> subtaskCounts;
   final Map<String, int> completedSubtaskCounts;
@@ -38,6 +39,7 @@ class TaskListView extends StatefulWidget {
     this.onAddTask,
     this.onDeleteTask,
     this.onRestoreTask,
+    this.onArchiveTask,
     this.onSelectProjectId,
     this.subtaskCounts = const {},
     this.completedSubtaskCounts = const {},
@@ -53,7 +55,13 @@ class TaskListView extends StatefulWidget {
 
 class _TaskListViewState extends State<TaskListView> {
   bool _completedExpanded = false;
-  bool _groupByProject = false;
+  late bool _groupByProject;
+
+  @override
+  void initState() {
+    super.initState();
+    _groupByProject = SettingsController.instance.groupByProject;
+  }
 
   ProjectModel? _projectOf(TaskModel task) {
     if (task.projectId == null) return null;
@@ -165,7 +173,11 @@ class _TaskListViewState extends State<TaskListView> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => setState(() => _groupByProject = !_groupByProject),
+          onTap: () {
+            final next = !_groupByProject;
+            setState(() => _groupByProject = next);
+            SettingsController.instance.setGroupByProject(next);
+          },
           borderRadius: BorderRadius.circular(10),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -211,7 +223,10 @@ class _TaskListViewState extends State<TaskListView> {
                 const SizedBox(width: 6),
                 Switch(
                   value: _groupByProject,
-                  onChanged: (val) => setState(() => _groupByProject = val),
+                  onChanged: (val) {
+                    setState(() => _groupByProject = val);
+                    SettingsController.instance.setGroupByProject(val);
+                  },
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
               ],
@@ -473,6 +488,7 @@ class _TaskListViewState extends State<TaskListView> {
             project != null ? () => widget.onSelectProjectId?.call(project.id) : null,
         onTap: () => widget.onTaskTap?.call(task),
         onToggleCompleted: (val) => widget.onToggleCompleted?.call(task, val ?? false),
+        onArchive: widget.onArchiveTask != null ? () => _handleArchive(task) : null,
       ),
     );
 
@@ -539,6 +555,21 @@ class _TaskListViewState extends State<TaskListView> {
     }
 
     return base;
+  }
+
+  void _handleArchive(TaskModel task) {
+    widget.onArchiveTask?.call(task.id);
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(context.l10n.taskArchivedToast(task.title)),
+        behavior: SnackBarBehavior.floating,
+        action: SnackBarAction(
+          label: context.l10n.undoAction,
+          onPressed: () => widget.onRestoreTask?.call(task.id),
+        ),
+      ),
+    );
   }
 
   Widget _buildSwipeBackground(

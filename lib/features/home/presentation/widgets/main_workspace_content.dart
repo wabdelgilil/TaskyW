@@ -45,6 +45,7 @@ class MainWorkspaceContent extends StatelessWidget {
   final Function(String projectId)? onSelectProjectId;
   final Function(String taskId)? onDeleteTask;
   final Function(String taskId)? onRestoreTask;
+  final Function(String taskId)? onArchiveTask;
 
   const MainWorkspaceContent({
     super.key,
@@ -75,6 +76,7 @@ class MainWorkspaceContent extends StatelessWidget {
     this.onSelectProjectId,
     this.onDeleteTask,
     this.onRestoreTask,
+    this.onArchiveTask,
   });
 
   @override
@@ -114,6 +116,9 @@ class MainWorkspaceContent extends StatelessWidget {
         onTaskStatusChanged: onTaskStatusChanged,
         onTaskPriorityChanged: onTaskPriorityChanged,
         onAddNewTask: () => onAddNewTask?.call(null),
+        onArchiveTask: onArchiveTask,
+        onDeleteTask: onDeleteTask,
+        onRestoreTask: onRestoreTask,
       );
     }
 
@@ -137,6 +142,9 @@ class MainWorkspaceContent extends StatelessWidget {
         onTaskPriorityChanged: onTaskPriorityChanged,
         onAddNewProject: () => onAddNewProject?.call(area.id),
         onAddNewTask: () => onAddNewTask?.call(null),
+        onArchiveTask: onArchiveTask,
+        onDeleteTask: onDeleteTask,
+        onRestoreTask: onRestoreTask,
       );
     }
 
@@ -178,6 +186,7 @@ class MainWorkspaceContent extends StatelessWidget {
         onToggleCompleted: onToggleTaskCompleted,
         onTaskStatusChanged: (task, status) => onTaskStatusChanged?.call(task, status),
         onTaskPriorityChanged: (task, priority) => onTaskPriorityChanged?.call(task, priority),
+        onArchiveTask: onArchiveTask,
         onAddTask: () => onAddNewTask?.call(null),
       );
     }
@@ -197,6 +206,7 @@ class MainWorkspaceContent extends StatelessWidget {
       onSelectProjectId: (id) => onSelectProjectId?.call(id),
       onDeleteTask: (id) => onDeleteTask?.call(id),
       onRestoreTask: (id) => onRestoreTask?.call(id),
+      onArchiveTask: onArchiveTask,
     );
   }
 }

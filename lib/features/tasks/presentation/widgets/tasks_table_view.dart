@@ -7,6 +7,7 @@ import '../../../../core/widgets/status_badge.dart';
 import '../../data/models/task_model.dart';
 import '../../../areas/data/models/area_model.dart';
 import '../../../projects/data/models/project_model.dart';
+import '../../../settings/presentation/controllers/settings_controller.dart';
 
 /// مكوّن جدول بيانات تفاعلي متقدم للمهام (DataGrid / Table View)
 /// مستوحى من جداول Notion مع دعم التعديل الفوري داخل الخلايا والفرز التفاعلي.
@@ -36,7 +37,10 @@ class TasksTableView extends StatefulWidget {
     this.onTaskStatusChanged,
     this.onTaskPriorityChanged,
     this.onAddTask,
+    this.onArchiveTask,
   });
+
+  final Function(String taskId)? onArchiveTask;
 
   @override
   State<TasksTableView> createState() => _TasksTableViewState();
@@ -47,11 +51,17 @@ enum _SortColumn { title, status, priority, dueDate }
 class _TasksTableViewState extends State<TasksTableView> {
   _SortColumn _sortColumn = _SortColumn.dueDate;
   bool _sortAscending = true;
-  bool _groupByProject = false;
+  late bool _groupByProject;
   final Set<String> _collapsedProjects = {};
   bool _unassignedCollapsed = false;
   final ScrollController _horizontalScrollController = ScrollController();
   final ScrollController _verticalScrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _groupByProject = SettingsController.instance.groupByProject;
+  }
 
   @override
   void dispose() {
@@ -217,7 +227,10 @@ class _TasksTableViewState extends State<TasksTableView> {
             const Spacer(),
             Switch(
               value: _groupByProject,
-              onChanged: (val) => setState(() => _groupByProject = val),
+              onChanged: (val) {
+                setState(() => _groupByProject = val);
+                SettingsController.instance.setGroupByProject(val);
+              },
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
           ],

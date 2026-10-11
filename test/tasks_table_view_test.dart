@@ -211,16 +211,21 @@ void main() {
     // Verify group by project toggle is visible
     expect(find.text('تجميع بحسب المشروع'), findsOneWidget);
 
-    // Initially single table contains all tasks
-    expect(find.byType(DataTable), findsOneWidget);
+    // Initially multiple tables are rendered because group by project is ON by default
+    expect(find.byType(DataTable), findsNWidgets(3));
 
-    // Tap switch to enable group by project
+    // Tap switch to disable group by project
     final switchFinder = find.byType(Switch);
     expect(switchFinder, findsOneWidget);
     await tester.tap(switchFinder);
     await tester.pumpAndSettle();
 
-    // Now multiple tables should be rendered (proj-1, proj-2, and unassigned)
+    // Now single table contains all tasks
+    expect(find.byType(DataTable), findsOneWidget);
+
+    // Tap switch again to re-enable group by project
+    await tester.tap(switchFinder);
+    await tester.pumpAndSettle();
     expect(find.byType(DataTable), findsNWidgets(3));
 
     // Verify project headers

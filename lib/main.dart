@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:tasky/l10n/app_localizations.dart';
 import 'core/services/desktop_widget_controller.dart';
 import 'core/services/home_screen_widget_service.dart';
+import 'core/services/network_service.dart';
 import 'core/services/supabase_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/home/presentation/screens/tasky_home_screen.dart';
@@ -13,6 +15,22 @@ import 'features/sharing/presentation/screens/public_share_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // معالجة أخطاء الشبكة غير الممسوكة لتفادي الانهيار أو رسائل الخطأ غير الملتقطة
+  FlutterError.onError = (details) {
+    if (NetworkService.isNetworkError(details.exception)) {
+      debugPrint('[TaskyApp] Handled network error: ${details.exception}');
+      return;
+    }
+    FlutterError.presentError(details);
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    if (NetworkService.isNetworkError(error)) {
+      debugPrint('[TaskyApp] Handled async network error: $error');
+      return true;
+    }
+    return false;
+  };
 
   // تحميل متغيرات البيئة إن وُجد ملف .env (متاح في أصول التطبيق فقط عند توضيحه).
   // على الويب لا يوجد ملف env مضمَّن → لا نحاول أصلاً (يتجنب 404).

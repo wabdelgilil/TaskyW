@@ -102,7 +102,7 @@ class AppSettingsModel {
     'GBP',
   ];
 
-  static const List<String> supportedViewModes = ['list', 'kanban'];
+  static const List<String> supportedViewModes = ['list', 'kanban', 'table'];
 
   static const List<String> supportedThemeModes = ['light', 'dark', 'oled'];
 

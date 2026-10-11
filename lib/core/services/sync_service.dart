@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -10,6 +11,7 @@ import '../../features/tasks/services/attachment_service.dart';
 import '../../features/settings/data/models/app_settings_model.dart';
 import '../../features/settings/data/services/settings_service.dart';
 import '../../features/settings/presentation/controllers/settings_controller.dart';
+import 'network_service.dart';
 import 'supabase_service.dart';
 
 /// نتيجة عملية المزامنة.
@@ -21,6 +23,7 @@ class SyncResult {
   final int fetchedApplied;
   final int errors;
   final String? message;
+  final bool isOffline;
 
   const SyncResult({
     this.authenticated = true,
@@ -30,9 +33,10 @@ class SyncResult {
     this.fetchedApplied = 0,
     this.errors = 0,
     this.message,
+    this.isOffline = false,
   });
 
-  bool get success => authenticated && errors == 0;
+  bool get success => authenticated && errors == 0 && !isOffline;
 
   SyncResult copyWith({
     bool? authenticated,
@@ -42,6 +46,7 @@ class SyncResult {
     int? fetchedApplied,
     int? errors,
     String? message,
+    bool? isOffline,
   }) {
     return SyncResult(
       authenticated: authenticated ?? this.authenticated,
@@ -51,6 +56,7 @@ class SyncResult {
       fetchedApplied: fetchedApplied ?? this.fetchedApplied,
       errors: errors ?? this.errors,
       message: message ?? this.message,
+      isOffline: isOffline ?? this.isOffline,
     );
   }
 }
@@ -137,7 +143,7 @@ class SyncService {
     return count;
   }
 
-  /// تشغيل دورة مزامنة كاملة: رفع التعديلات ثم تنزيل التحديثات.
+  /// تشغيل دورة مزامنة كاملة: فحص اتصال سريع، رفع التعديلات، تنزيل التحديثات، مع مهل زمنية آمنة.
   Future<SyncResult> syncNow() async {
     final userId = _tryGetUserId();
     if (userId == null) {
@@ -155,6 +161,42 @@ class SyncService {
       );
     }
 
+    // فحص استباقي سريع للاتصال بالإنترنت لتفادي الانتظار والتعليق
+    final hasInternet = await NetworkService.instance.hasInternetConnection();
+    if (!hasInternet) {
+      return const SyncResult(
+        authenticated: true,
+        isOffline: true,
+        message: 'لا يوجد اتصال بالإنترنت',
+      );
+    }
+
+    try {
+      return await _executeSyncCycle(userId, client).timeout(
+        const Duration(seconds: 30),
+        onTimeout: () => const SyncResult(
+          authenticated: true,
+          isOffline: true,
+          message: 'استغرقت المزامنة وقتاً أطول من المتوقع بسبب ضعف الاتصال',
+        ),
+      );
+    } catch (e) {
+      if (NetworkService.isNetworkError(e)) {
+        return const SyncResult(
+          authenticated: true,
+          isOffline: true,
+          message: 'انقطع الاتصال بالإنترنت أثناء المزامنة',
+        );
+      }
+      return SyncResult(
+        authenticated: true,
+        errors: 1,
+        message: 'تعذر إتمام المزامنة: $e',
+      );
+    }
+  }
+
+  Future<SyncResult> _executeSyncCycle(String userId, SupabaseClient client) async {
     final db = await AppDatabase.instance.database;
     var inserts = 0;
     var updates = 0;
@@ -176,7 +218,7 @@ class SyncService {
 
         try {
           if (syncStatus == 'pending_delete') {
-            await client.from(t.table).delete().eq('id', id);
+            await client.from(t.table).delete().eq('id', id).timeout(const Duration(seconds: 10));
             // المرفقات: حذف كائن التخزين المرتبط أيضاً
             if (t.table == DatabaseTables.attachmentTable) {
               final objectPath = row['file_url'] as String?;
@@ -184,8 +226,10 @@ class SyncService {
                 try {
                   await client.storage
                       .from(AttachmentService.bucketName)
-                      .remove([objectPath]);
+                      .remove([objectPath])
+                      .timeout(const Duration(seconds: 10));
                 } catch (e) {
+                  if (NetworkService.isNetworkError(e)) rethrow;
                   debugPrint('[SyncService] storage delete ${t.table}/$id failed: $e');
                 }
               }
@@ -204,19 +248,19 @@ class SyncService {
                     final objectPath = '$userId/$id/${row['file_name']}';
                     await client.storage
                         .from(AttachmentService.bucketName)
-                        .upload(objectPath, file);
+                        .upload(objectPath, file)
+                        .timeout(const Duration(seconds: 15));
                     payload['file_url'] = objectPath;
                   }
                 }
               }
             }
             if (syncStatus == 'pending_insert') {
-              await client.from(t.table).upsert(payload, onConflict: 'id');
+              await client.from(t.table).upsert(payload, onConflict: 'id').timeout(const Duration(seconds: 10));
               inserts++;
             } else {
               // pending_update: استخدم upsert أيضاً ليكون آمناً
-              // إذا الصف غير موجود في السحابة (لم يُرفع قط) → إنشاء
-              await client.from(t.table).upsert(payload, onConflict: 'id');
+              await client.from(t.table).upsert(payload, onConflict: 'id').timeout(const Duration(seconds: 10));
               updates++;
             }
           }
@@ -229,10 +273,12 @@ class SyncService {
             whereArgs: [id],
           );
         } catch (e) {
-          // إذا كان الخطأ بسبب ربط بمجال غير موجود في السحابة، محاولة معالجة الربط التلقائي
+          if (NetworkService.isNetworkError(e)) {
+            // انقطاع الاتصال: الخروج الفوري بدلاً من تكرار المحاولات العالقة
+            rethrow;
+          }
           if (t.table == DatabaseTables.taskTable && e.toString().contains('tasks_area_id_fkey')) {
             try {
-              // البحث عن أول مجال موجود سحابياً أو محلياً لإنقاذ المهمة
               final availableAreas = await db.query(DatabaseTables.areaTable, limit: 1);
               if (availableAreas.isNotEmpty) {
                 final validAreaId = availableAreas.first['id'] as String;
@@ -257,7 +303,8 @@ class SyncService {
         final cloudRows = await client
             .from(t.table)
             .select()
-            .isFilter('deleted_at', null);
+            .isFilter('deleted_at', null)
+            .timeout(const Duration(seconds: 10));
 
         // بناء فهرس الصفوف المحلية
         final localRows = await db.query(t.table);
@@ -306,6 +353,9 @@ class SyncService {
         }
         await batch.commit(noResult: true);
       } catch (e) {
+        if (NetworkService.isNetworkError(e)) {
+          rethrow;
+        }
         errors++;
         debugPrint('[SyncService] Error fetching ${t.table}: $e');
       }
@@ -315,6 +365,7 @@ class SyncService {
     try {
       await _pushUserSettings(db, client, userId);
     } catch (e) {
+      if (NetworkService.isNetworkError(e)) rethrow;
       errors++;
       debugPrint('[SyncService] Error pushing user_settings: $e');
     }
@@ -322,6 +373,7 @@ class SyncService {
       final applied = await _pullUserSettings(db, client, userId);
       if (applied) fetched++;
     } catch (e) {
+      if (NetworkService.isNetworkError(e)) rethrow;
       errors++;
       debugPrint('[SyncService] Error fetching user_settings: $e');
     }

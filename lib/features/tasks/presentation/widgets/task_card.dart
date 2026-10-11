@@ -22,6 +22,7 @@ class TaskCard extends StatefulWidget {
   final VoidCallback? onProjectBadgeTap;
   final Color? projectColor;
   final bool isCompact;
+  final VoidCallback? onArchive;
 
   const TaskCard({
     super.key,
@@ -37,6 +38,7 @@ class TaskCard extends StatefulWidget {
     this.onProjectBadgeTap,
     this.projectColor,
     this.isCompact = false,
+    this.onArchive,
   });
 
   @override
@@ -359,6 +361,24 @@ class _TaskCardState extends State<TaskCard> {
                                                     ),
                                                   ),
                                                 ],
+                                              ),
+                                            ),
+                                          ],
+                                          if (_isHovered && widget.onArchive != null) ...[
+                                            const SizedBox(width: 4),
+                                            Tooltip(
+                                              message: context.l10n.archiveTask,
+                                              child: InkWell(
+                                                onTap: widget.onArchive,
+                                                borderRadius: BorderRadius.circular(4),
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(2),
+                                                  child: Icon(
+                                                    Icons.archive_outlined,
+                                                    size: 16,
+                                                    color: isDark ? Colors.amber.shade300 : Colors.amber.shade800,
+                                                  ),
+                                                ),
                                               ),
                                             ),
                                           ],

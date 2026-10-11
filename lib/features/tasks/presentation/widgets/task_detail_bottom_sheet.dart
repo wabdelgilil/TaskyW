@@ -21,6 +21,7 @@ Future<void> showTaskDetailBottomSheet(
   required void Function(String name, String colorHex) onCreateTag,
   required void Function(TaskModel updatedTask) onSaveTask,
   required void Function(String taskId) onDeleteTask,
+  void Function(String taskId)? onArchiveTask,
   required void Function(String title) onAddSubtask,
   required void Function(SubtaskModel subtask, bool isCompleted)
       onToggleSubtask,
@@ -65,6 +66,7 @@ Future<void> showTaskDetailBottomSheet(
                   onCreateTag: onCreateTag,
                   onSaveTask: onSaveTask,
                   onDeleteTask: onDeleteTask,
+                  onArchiveTask: onArchiveTask,
                   onAddSubtask: onAddSubtask,
                   onToggleSubtask: onToggleSubtask,
                   onDeleteSubtask: onDeleteSubtask,

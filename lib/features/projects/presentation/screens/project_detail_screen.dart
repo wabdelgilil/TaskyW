@@ -30,6 +30,9 @@ class ProjectDetailScreen extends StatefulWidget {
   final Function(TaskModel task, String newStatus)? onTaskStatusChanged;
   final Function(TaskModel task, String newPriority)? onTaskPriorityChanged;
   final VoidCallback? onAddNewTask;
+  final Function(String taskId)? onArchiveTask;
+  final Function(String taskId)? onDeleteTask;
+  final Function(String taskId)? onRestoreTask;
 
   const ProjectDetailScreen({
     super.key,
@@ -44,6 +47,9 @@ class ProjectDetailScreen extends StatefulWidget {
     this.onTaskStatusChanged,
     this.onTaskPriorityChanged,
     this.onAddNewTask,
+    this.onArchiveTask,
+    this.onDeleteTask,
+    this.onRestoreTask,
   });
 
   @override
@@ -482,6 +488,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                         onToggleCompleted: widget.onToggleTaskCompleted,
                         onTaskStatusChanged: (task, status) => widget.onTaskStatusChanged?.call(task, status),
                         onTaskPriorityChanged: (task, priority) => widget.onTaskPriorityChanged?.call(task, priority),
+                        onArchiveTask: widget.onArchiveTask,
                         onAddTask: widget.onAddNewTask,
                       )
                     : TaskListView(
@@ -490,6 +497,9 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
                         emptyMessage: l10n.projectNoTasks,
                         onTaskTap: widget.onTaskTap,
                         onToggleCompleted: widget.onToggleTaskCompleted,
+                        onArchiveTask: widget.onArchiveTask,
+                        onDeleteTask: widget.onDeleteTask,
+                        onRestoreTask: widget.onRestoreTask,
                         onAddTask: widget.onAddNewTask,
                       ),
           ),

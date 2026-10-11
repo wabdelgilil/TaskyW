@@ -2840,6 +2840,48 @@ abstract class AppLocalizations {
   /// **'يجب تسجيل الدخول لمزامنة البيانات'**
   String get syncLoginRequired;
 
+  /// No description provided for @syncNoInternetPaused.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد اتصال بالإنترنت. المحاولات متوقفة مؤقتاً حتى عودة الاتصال.'**
+  String get syncNoInternetPaused;
+
+  /// Retry status message
+  ///
+  /// In ar, this message translates to:
+  /// **'جاري إعادة المحاولة ({attempt} من {max})...'**
+  String syncRetryingAttempt(int attempt, int max);
+
+  /// No description provided for @syncFailedMaxRetries.
+  ///
+  /// In ar, this message translates to:
+  /// **'فشلت المزامنة بعد عدة محاولات. اضغط لإعادة المحاولة.'**
+  String get syncFailedMaxRetries;
+
+  /// No description provided for @archiveTask.
+  ///
+  /// In ar, this message translates to:
+  /// **'أرشفة المهمة'**
+  String get archiveTask;
+
+  /// Toast message when task is archived
+  ///
+  /// In ar, this message translates to:
+  /// **'تم نقل المهمة إلى الأرشيف: {title}'**
+  String taskArchivedToast(String title);
+
+  /// No description provided for @viewModeTable.
+  ///
+  /// In ar, this message translates to:
+  /// **'جدول'**
+  String get viewModeTable;
+
+  /// No description provided for @areaTasks.
+  ///
+  /// In ar, this message translates to:
+  /// **'مهام المجال'**
+  String get areaTasks;
+
   /// No description provided for @tagDefault.
   ///
   /// In ar, this message translates to:

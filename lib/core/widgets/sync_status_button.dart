@@ -72,7 +72,9 @@ class _SyncStatusButtonState extends State<SyncStatusButton> with SingleTickerPr
               turns: _rotationController,
               child: const Icon(Icons.sync_rounded, size: 18, color: Colors.blueAccent),
             );
-            tooltip = l10n.syncInProgressNow;
+            tooltip = sync.isRetrying
+                ? l10n.syncRetryingAttempt(sync.retryAttempt, sync.maxRetries)
+                : (sync.errorMessage ?? l10n.syncInProgressNow);
             break;
 
           case SyncStatusState.pending:
@@ -104,13 +106,13 @@ class _SyncStatusButtonState extends State<SyncStatusButton> with SingleTickerPr
           case SyncStatusState.offline:
             color = Colors.grey;
             iconWidget = const Icon(Icons.cloud_off_rounded, size: 18, color: Colors.grey);
-            tooltip = l10n.syncOffline;
+            tooltip = sync.errorMessage ?? l10n.syncNoInternetPaused;
             break;
 
           case SyncStatusState.error:
             color = Colors.redAccent;
             iconWidget = const Icon(Icons.sync_problem_rounded, size: 18, color: Colors.redAccent);
-            tooltip = sync.errorMessage ?? l10n.syncFailedTapRetry;
+            tooltip = sync.errorMessage ?? l10n.syncFailedMaxRetries;
             break;
         }
 
@@ -119,7 +121,25 @@ class _SyncStatusButtonState extends State<SyncStatusButton> with SingleTickerPr
           child: InkWell(
             onTap: () {
               if (sync.isSyncing) return;
-              sync.triggerSync(onPerformSync: widget.onTriggerSync);
+              if (sync.isOffline) {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      sync.errorMessage ?? l10n.syncNoInternetPaused,
+                    ),
+                    duration: const Duration(seconds: 3),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+                sync.triggerSync();
+                return;
+              }
+              if (widget.onTriggerSync != null) {
+                widget.onTriggerSync!();
+              } else {
+                sync.triggerSync();
+              }
               ScaffoldMessenger.of(context).hideCurrentSnackBar();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -153,10 +173,14 @@ class _SyncStatusButtonState extends State<SyncStatusButton> with SingleTickerPr
                         const SizedBox(width: 6),
                         Text(
                           sync.isSyncing
-                              ? l10n.syncNowButton
-                              : sync.hasPending
-                                  ? l10n.syncPending(sync.pendingCount)
-                                  : l10n.syncSynced,
+                              ? (sync.isRetrying
+                                  ? 'محاولة ${sync.retryAttempt}/${sync.maxRetries}'
+                                  : l10n.syncNowButton)
+                              : sync.isOffline
+                                  ? 'أوفلاين'
+                                  : sync.hasPending
+                                      ? l10n.syncPending(sync.pendingCount)
+                                      : l10n.syncSynced,
                           style: TextStyle(
                             color: color,
                             fontSize: 12,

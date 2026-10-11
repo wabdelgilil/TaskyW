@@ -32,6 +32,9 @@ class AreaDetailScreen extends StatelessWidget {
   final Function(TaskModel task, String newPriority)? onTaskPriorityChanged;
   final VoidCallback? onAddNewProject;
   final VoidCallback? onAddNewTask;
+  final Function(String taskId)? onDeleteTask;
+  final Function(String taskId)? onRestoreTask;
+  final Function(String taskId)? onArchiveTask;
 
   const AreaDetailScreen({
     super.key,
@@ -49,6 +52,9 @@ class AreaDetailScreen extends StatelessWidget {
     this.onTaskPriorityChanged,
     this.onAddNewProject,
     this.onAddNewTask,
+    this.onDeleteTask,
+    this.onRestoreTask,
+    this.onArchiveTask,
   });
 
   int get _completedTasksCount => areaTasks.where((t) => t.status == 'completed').length;
@@ -149,7 +155,6 @@ class AreaDetailScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final rawAreaColor = AppColors.fromHex(area.colorHex);
     final areaColor = AppColors.adaptiveCustomColor(rawAreaColor, isDark);
-    final standaloneTasks = areaTasks.where((t) => t.projectId == null).toList();
     final l10n = context.l10n;
 
     return Scaffold(
@@ -394,23 +399,23 @@ class AreaDetailScreen extends StatelessWidget {
 
           const SizedBox(height: 28),
 
-          // قسم المهام المستقلة التابعة للمجال مباشرة (دون مشروع)
+          // قسم مهام المجال مقسمة في مجموعات حسب المشاريع
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
-                  Text(l10n.areaGeneralTasks, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text(l10n.areaTasks, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: Colors.grey.withValues(alpha: 0.15),
+                      color: areaColor.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      '${standaloneTasks.length}',
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey),
+                      '${areaTasks.length}',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: areaColor),
                     ),
                   ),
                 ],
@@ -418,14 +423,14 @@ class AreaDetailScreen extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: onAddNewTask,
                 icon: const Icon(Icons.add, size: 16),
-                label: Text(l10n.addGeneralTask),
+                label: Text(l10n.createTask),
               ),
             ],
           ),
 
           const SizedBox(height: 12),
 
-          if (standaloneTasks.isEmpty)
+          if (areaTasks.isEmpty)
             Container(
               padding: const EdgeInsets.all(20),
               alignment: Alignment.center,
@@ -434,11 +439,11 @@ class AreaDetailScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.border(context)),
               ),
-              child: Text(l10n.areaNoGeneralTasks, style: const TextStyle(color: Colors.grey, fontSize: 13)),
+              child: Text(l10n.noTasksRegistered, style: const TextStyle(color: Colors.grey, fontSize: 13)),
             )
           else if (viewMode == 'kanban')
             KanbanBoardView(
-              tasks: standaloneTasks,
+              tasks: areaTasks,
               taskTags: taskTags,
               onTaskTap: onTaskTap,
               onTaskStatusChanged: (task, status) => onTaskStatusChanged?.call(task, status),
@@ -446,21 +451,27 @@ class AreaDetailScreen extends StatelessWidget {
             )
           else if (viewMode == 'table')
             TasksTableView(
-              tasks: standaloneTasks,
+              tasks: areaTasks,
+              projects: areaProjects,
               areas: [area],
               taskTags: taskTags,
               onTaskTap: onTaskTap,
               onToggleCompleted: onToggleTaskCompleted,
               onTaskStatusChanged: (task, status) => onTaskStatusChanged?.call(task, status),
               onTaskPriorityChanged: (task, priority) => onTaskPriorityChanged?.call(task, priority),
+              onArchiveTask: onArchiveTask,
               onAddTask: onAddNewTask,
             )
           else
             TaskListView(
-              tasks: standaloneTasks,
+              tasks: areaTasks,
+              projects: areaProjects,
               taskTags: taskTags,
               onTaskTap: onTaskTap,
               onToggleCompleted: onToggleTaskCompleted,
+              onArchiveTask: onArchiveTask,
+              onDeleteTask: onDeleteTask,
+              onRestoreTask: onRestoreTask,
               onAddTask: onAddNewTask,
             ),
         ],

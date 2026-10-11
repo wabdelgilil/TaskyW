@@ -829,6 +829,35 @@
   "syncPartialFail": "اكتملت المزامنة مع بعض الأخطاء",
   "syncAutoFail": "تعذر إتمام المزامنة التلقائية",
   "syncLoginRequired": "يجب تسجيل الدخول لمزامنة البيانات",
+  "syncNoInternetPaused": "لا يوجد اتصال بالإنترنت. المحاولات متوقفة مؤقتاً حتى عودة الاتصال.",
+  "syncRetryingAttempt": "جاري إعادة المحاولة ({attempt} من {max})...",
+  "@syncRetryingAttempt": {
+    "description": "Retry status message",
+    "placeholders": {
+      "attempt": {
+        "type": "int",
+        "example": "1"
+      },
+      "max": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "syncFailedMaxRetries": "فشلت المزامنة بعد عدة محاولات. اضغط لإعادة المحاولة.",
+  "archiveTask": "أرشفة المهمة",
+  "taskArchivedToast": "تم نقل المهمة إلى الأرشيف: {title}",
+  "@taskArchivedToast": {
+    "description": "Toast message when task is archived",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Task title"
+      }
+    }
+  },
+  "viewModeTable": "جدول",
+  "areaTasks": "مهام المجال",
   "tagDefault": "وسم",
   "currencySearchHint": "ابحث باسم الدولة، العملة، أو الرمز (SAR, EGP...)",
   "selectCurrencyTitle": "اختيار العملة الافتراضية",

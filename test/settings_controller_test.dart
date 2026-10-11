@@ -201,10 +201,21 @@ void main() {
     test('قوائم العملات وأوضاع العرض والثيم مدعومة وقابلة للاستخدام', () {
       expect(AppSettingsModel.supportedCurrencies, contains('SAR'));
       expect(AppSettingsModel.supportedCurrencies, contains('USD'));
-      expect(AppSettingsModel.supportedViewModes, ['list', 'kanban']);
+      expect(AppSettingsModel.supportedViewModes, ['list', 'kanban', 'table']);
       expect(AppSettingsModel.supportedThemeModes, ['light', 'dark', 'oled']);
       expect(AppSettingsModel.supportedLanguages, ['system', 'ar', 'en']);
       expect(AppSettingsModel.supportedLayoutDirections, ['ltr', 'auto']);
+    });
+
+    test('التحكم في خيار التجميع حسب المشروع groupByProject وحفظه', () async {
+      // القيمة الافتراضية يجب أن تكون true
+      expect(SettingsController.instance.groupByProject, isTrue);
+
+      await SettingsController.instance.setGroupByProject(false);
+      expect(SettingsController.instance.groupByProject, isFalse);
+
+      await SettingsController.instance.setGroupByProject(true);
+      expect(SettingsController.instance.groupByProject, isTrue);
     });
   });
 }

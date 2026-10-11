@@ -7,6 +7,7 @@ import 'package:tasky/features/areas/data/models/area_model.dart';
 import 'package:tasky/features/areas/presentation/widgets/hierarchical_tree_sidebar.dart';
 import 'package:tasky/features/projects/data/models/project_model.dart';
 import 'package:tasky/features/settings/presentation/screens/settings_screen.dart';
+import 'package:tasky/features/settings/presentation/controllers/settings_controller.dart';
 import 'package:tasky/features/tags/data/models/tag_model.dart';
 import 'package:tasky/features/tasks/data/models/subtask_model.dart';
 import 'package:tasky/features/tasks/data/models/task_model.dart';
@@ -56,6 +57,7 @@ class MainLayoutScreen extends StatefulWidget {
   final Function(String query, {String? areaId, String? projectId})? onSearch;
 
   final Function(String taskId)? onRestoreTask;
+  final Function(String taskId)? onArchiveTask;
 
   const MainLayoutScreen({
     super.key,
@@ -84,6 +86,7 @@ class MainLayoutScreen extends StatefulWidget {
     this.onDeleteTag,
     this.onSearch,
     this.onRestoreTask,
+    this.onArchiveTask,
   });
 
   @override
@@ -122,6 +125,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
   @override
   void initState() {
     super.initState();
+    _viewMode = SettingsController.instance.defaultViewMode;
     HomeScreenWidgetService.instance.widgetActionNotifier.addListener(_handleWidgetAction);
     WidgetsBinding.instance.addPostFrameCallback((_) => _handleWidgetAction());
   }
@@ -173,6 +177,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
                     : (n, c) {},
                 onSaveTask: widget.onSaveTask?.call ?? (_) {},
                 onDeleteTask: (id) => widget.onDeleteTask?.call(id),
+                onArchiveTask: widget.onArchiveTask,
                 onAddSubtask: (title) => widget.onAddSubtask?.call(task.id, title),
                 onToggleSubtask: (sub, done) => widget.onToggleSubtask?.call(sub, done),
                 onDeleteSubtask: (subId) => widget.onDeleteSubtask?.call(subId),
@@ -672,7 +677,10 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
                         _onSearchChanged(_searchController.text);
                       });
                     },
-                    onViewModeChanged: (newMode) => setState(() => _viewMode = newMode),
+                    onViewModeChanged: (newMode) {
+                      setState(() => _viewMode = newMode);
+                      SettingsController.instance.setDefaultViewMode(newMode);
+                    },
                     onExportCsv: _exportCurrentTasksToCsv,
                     onAddTask: () => _showAddTaskDialog(),
                     onAudioBriefing: _handleAudioBriefing,
@@ -726,6 +734,7 @@ Expanded(
                                 : (n, c) {},
                             onSaveTask: widget.onSaveTask?.call ?? (_) {},
                             onDeleteTask: (id) => widget.onDeleteTask?.call(id),
+                            onArchiveTask: widget.onArchiveTask,
                             onAddSubtask: (title) => widget.onAddSubtask?.call(t.id, title),
                             onToggleSubtask: (sub, done) => widget.onToggleSubtask?.call(sub, done),
                             onDeleteSubtask: (subId) => widget.onDeleteSubtask?.call(subId),
@@ -740,6 +749,7 @@ Expanded(
                       onSelectProjectId: (id) => setState(() => _selectedProjectId = id),
                       onDeleteTask: widget.onDeleteTask,
                       onRestoreTask: widget.onRestoreTask,
+                      onArchiveTask: widget.onArchiveTask,
                     ),
                 ),
                 if (!isDesktop &&
@@ -791,6 +801,10 @@ Expanded(
                   setState(() => _openedTask = updated);
                 },
                 onDeleteTask: widget.onDeleteTask,
+                onArchiveTask: (id) {
+                  widget.onArchiveTask?.call(id);
+                  setState(() => _openedTask = null);
+                },
                 onAddSubtask: (title) => widget.onAddSubtask?.call(_openedTask!.id, title),
                 onToggleSubtask: (subtask, isDone) => widget.onToggleSubtask?.call(subtask, isDone),
                 onDeleteSubtask: (subId) => widget.onDeleteSubtask?.call(subId),
